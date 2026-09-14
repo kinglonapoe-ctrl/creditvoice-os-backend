@@ -52,6 +52,7 @@ function Credit() {
       queryClient.invalidateQueries({ queryKey: ["org-transactions", tenantId] });
       setAmount("");
       setDescription("");
+      setPostingKey(crypto.randomUUID());
       toast.success("Posting recorded in the ledger.");
     },
     onError: (e: Error) => toast.error(e.message),
