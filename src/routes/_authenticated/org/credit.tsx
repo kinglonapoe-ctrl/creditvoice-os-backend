@@ -40,8 +40,13 @@ function Credit() {
   const accounts = useQuery({ queryKey: ["accounts", tenantId], queryFn: () => listAccounts(tenantId), enabled: !!tenantId });
   const currency = tenant.data?.currency_code ?? "USD";
 
+  // Stable per-submission key: a retried or double-clicked posting resolves to
+  // the original entry instead of creating a second one.
+  const [postingKey, setPostingKey] = useState(() => crypto.randomUUID());
+
   const post = useMutation({
-    mutationFn: () => postCredit({ accountId, amount: Number(amount), type, description }),
+    mutationFn: () =>
+      postCredit({ accountId, amount: Number(amount), type, description, idempotencyKey: postingKey }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts", tenantId] });
       queryClient.invalidateQueries({ queryKey: ["org-transactions", tenantId] });
