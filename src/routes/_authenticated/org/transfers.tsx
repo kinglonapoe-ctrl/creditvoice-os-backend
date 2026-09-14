@@ -40,6 +40,10 @@ function Transfers() {
     queryClient.invalidateQueries({ queryKey: ["accounts", tenantId] });
   };
 
+  // Stable per-submission key: a retried or double-clicked transfer resolves to
+  // the original transfer instead of sending the money twice.
+  const [transferKey, setTransferKey] = useState(() => crypto.randomUUID());
+
   const send = useMutation({
     mutationFn: () =>
       executeTransfer({
@@ -47,11 +51,13 @@ function Transfers() {
         recipientAccountId: recipient,
         amount: Number(amount),
         description,
+        idempotencyKey: transferKey,
       }),
     onSuccess: () => {
       refresh();
       setAmount("");
       setDescription("");
+      setTransferKey(crypto.randomUUID());
       toast.success("Transfer completed.");
     },
     onError: (e: Error) => toast.error(e.message),
