@@ -1,0 +1,22 @@
+revoke all on function public.update_updated_at_column() from public;
+revoke all on function public.block_mutation() from public;
+revoke all on function public.guard_tenant_currency() from public;
+revoke all on function public.guard_account_balance() from public;
+revoke all on function public.handle_new_user() from public;
+revoke all on function public.ensure_ledger_account(uuid) from public;
+revoke all on function public.next_account_number(uuid) from public;
+revoke all on function public.has_role(uuid, public.app_role) from public;
+revoke all on function public.current_user_role() from public;
+revoke all on function public.current_user_tenant_id() from public;
+revoke all on function public.is_super_admin() from public;
+revoke all on function public.post_credit(uuid, numeric, public.transaction_type, text) from public;
+revoke all on function public.execute_transfer(uuid, uuid, numeric, text) from public;
+revoke all on function public.reverse_transfer(uuid, text) from public;
+
+grant execute on function public.current_user_role() to authenticated;
+grant execute on function public.current_user_tenant_id() to authenticated;
+grant execute on function public.is_super_admin() to authenticated;
+grant execute on function public.post_credit(uuid, numeric, public.transaction_type, text) to authenticated;
+grant execute on function public.execute_transfer(uuid, uuid, numeric, text) to authenticated;
+grant execute on function public.reverse_transfer(uuid, text) to authenticated;
+grant execute on function public.next_account_number(uuid) to authenticated;

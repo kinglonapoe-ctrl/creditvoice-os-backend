@@ -14,16 +14,977 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          actor_id: string | null
+          actor_role: Database["public"]["Enums"]["app_role"] | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json
+          tenant_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          tenant_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          actor_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      currencies: {
+        Row: {
+          code: string
+          created_at: string
+          decimal_places: number
+          is_active: boolean
+          name: string
+          symbol: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          decimal_places?: number
+          is_active?: boolean
+          name: string
+          symbol: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          decimal_places?: number
+          is_active?: boolean
+          name?: string
+          symbol?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      customer_accounts: {
+        Row: {
+          account_number: string
+          balance: number
+          created_at: string
+          credit_limit: number
+          currency_code: string
+          customer_id: string
+          id: string
+          status: Database["public"]["Enums"]["account_status"]
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_number: string
+          balance?: number
+          created_at?: string
+          credit_limit?: number
+          currency_code: string
+          customer_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["account_status"]
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string
+          balance?: number
+          created_at?: string
+          credit_limit?: number
+          currency_code?: string
+          customer_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["account_status"]
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_accounts_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "customer_accounts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_accounts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_care_settings: {
+        Row: {
+          after_hours_mode: Database["public"]["Enums"]["routing_mode"]
+          backup_number: string | null
+          business_hours_end: string
+          business_hours_start: string
+          created_at: string
+          enabled: boolean
+          primary_number: string | null
+          routing_mode: Database["public"]["Enums"]["routing_mode"]
+          tenant_id: string
+          timezone: string
+          updated_at: string
+          voicemail_enabled: boolean
+        }
+        Insert: {
+          after_hours_mode?: Database["public"]["Enums"]["routing_mode"]
+          backup_number?: string | null
+          business_hours_end?: string
+          business_hours_start?: string
+          created_at?: string
+          enabled?: boolean
+          primary_number?: string | null
+          routing_mode?: Database["public"]["Enums"]["routing_mode"]
+          tenant_id: string
+          timezone?: string
+          updated_at?: string
+          voicemail_enabled?: boolean
+        }
+        Update: {
+          after_hours_mode?: Database["public"]["Enums"]["routing_mode"]
+          backup_number?: string | null
+          business_hours_end?: string
+          business_hours_start?: string
+          created_at?: string
+          enabled?: boolean
+          primary_number?: string | null
+          routing_mode?: Database["public"]["Enums"]["routing_mode"]
+          tenant_id?: string
+          timezone?: string
+          updated_at?: string
+          voicemail_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_care_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_pins: {
+        Row: {
+          customer_id: string
+          pin_hash: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          customer_id: string
+          pin_hash: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          customer_id?: string
+          pin_hash?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_pins_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          created_at: string
+          customer_reference: string | null
+          email: string | null
+          full_name: string
+          id: string
+          phone: string
+          status: Database["public"]["Enums"]["customer_status"]
+          tenant_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_reference?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          phone: string
+          status?: Database["public"]["Enums"]["customer_status"]
+          tenant_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_reference?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string
+          status?: Database["public"]["Enums"]["customer_status"]
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ivr_settings: {
+        Row: {
+          balance_enquiry_enabled: boolean
+          created_at: string
+          language: string
+          max_pin_attempts: number
+          session_timeout_seconds: number
+          tenant_id: string
+          transfers_enabled: boolean
+          updated_at: string
+          welcome_message: string
+        }
+        Insert: {
+          balance_enquiry_enabled?: boolean
+          created_at?: string
+          language?: string
+          max_pin_attempts?: number
+          session_timeout_seconds?: number
+          tenant_id: string
+          transfers_enabled?: boolean
+          updated_at?: string
+          welcome_message?: string
+        }
+        Update: {
+          balance_enquiry_enabled?: boolean
+          created_at?: string
+          language?: string
+          max_pin_attempts?: number
+          session_timeout_seconds?: number
+          tenant_id?: string
+          transfers_enabled?: boolean
+          updated_at?: string
+          welcome_message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ivr_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_accounts: {
+        Row: {
+          account_id: string | null
+          balance: number
+          created_at: string
+          currency_code: string
+          id: string
+          kind: string
+          tenant_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          balance?: number
+          created_at?: string
+          currency_code: string
+          id?: string
+          kind?: string
+          tenant_id: string
+        }
+        Update: {
+          account_id?: string | null
+          balance?: number
+          created_at?: string
+          currency_code?: string
+          id?: string
+          kind?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_accounts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_accounts_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "ledger_accounts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_entries: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          currency_code: string
+          direction: Database["public"]["Enums"]["ledger_direction"]
+          id: string
+          ledger_account_id: string
+          tenant_id: string
+          transaction_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          currency_code: string
+          direction: Database["public"]["Enums"]["ledger_direction"]
+          id?: string
+          ledger_account_id: string
+          tenant_id: string
+          transaction_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          currency_code?: string
+          direction?: Database["public"]["Enums"]["ledger_direction"]
+          id?: string
+          ledger_account_id?: string
+          tenant_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "ledger_entries_ledger_account_id_fkey"
+            columns: ["ledger_account_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phone_numbers: {
+        Row: {
+          assigned_at: string | null
+          country: string
+          country_calling_code: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          phone_number: string
+          provider: string
+          provider_number_id: string | null
+          sms_capable: boolean
+          status: Database["public"]["Enums"]["phone_number_status"]
+          tenant_id: string | null
+          updated_at: string
+          voice_capable: boolean
+        }
+        Insert: {
+          assigned_at?: string | null
+          country: string
+          country_calling_code: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          phone_number: string
+          provider?: string
+          provider_number_id?: string | null
+          sms_capable?: boolean
+          status?: Database["public"]["Enums"]["phone_number_status"]
+          tenant_id?: string | null
+          updated_at?: string
+          voice_capable?: boolean
+        }
+        Update: {
+          assigned_at?: string | null
+          country?: string
+          country_calling_code?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          phone_number?: string
+          provider?: string
+          provider_number_id?: string | null
+          sms_capable?: boolean
+          status?: Database["public"]["Enums"]["phone_number_status"]
+          tenant_id?: string | null
+          updated_at?: string
+          voice_capable?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_numbers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tenant_access_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          id: string
+          is_active: boolean
+          tenant_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          tenant_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_access_codes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_applications: {
+        Row: {
+          address: string | null
+          admin_email: string
+          admin_full_name: string
+          admin_phone: string
+          business_type: string | null
+          country: string
+          created_at: string
+          description: string | null
+          id: string
+          legal_name: string
+          organization_name: string
+          requested_currency: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          admin_email: string
+          admin_full_name: string
+          admin_phone: string
+          business_type?: string | null
+          country: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          legal_name: string
+          organization_name: string
+          requested_currency: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          admin_email?: string
+          admin_full_name?: string
+          admin_phone?: string
+          business_type?: string | null
+          country?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          legal_name?: string
+          organization_name?: string
+          requested_currency?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_applications_requested_currency_fkey"
+            columns: ["requested_currency"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "tenant_applications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          access_code_last_changed_at: string | null
+          access_code_status: string
+          address: string | null
+          business_type: string | null
+          country: string
+          created_at: string
+          currency_approved: boolean
+          currency_code: string | null
+          description: string | null
+          id: string
+          legal_name: string
+          name: string
+          status: Database["public"]["Enums"]["tenant_status"]
+          updated_at: string
+        }
+        Insert: {
+          access_code_last_changed_at?: string | null
+          access_code_status?: string
+          address?: string | null
+          business_type?: string | null
+          country: string
+          created_at?: string
+          currency_approved?: boolean
+          currency_code?: string | null
+          description?: string | null
+          id?: string
+          legal_name: string
+          name: string
+          status?: Database["public"]["Enums"]["tenant_status"]
+          updated_at?: string
+        }
+        Update: {
+          access_code_last_changed_at?: string | null
+          access_code_status?: string
+          address?: string | null
+          business_type?: string | null
+          country?: string
+          created_at?: string
+          currency_approved?: boolean
+          currency_code?: string | null
+          description?: string | null
+          id?: string
+          legal_name?: string
+          name?: string
+          status?: Database["public"]["Enums"]["tenant_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenants_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          account_id: string | null
+          amount: number
+          counterparty_account_id: string | null
+          created_at: string
+          created_by: string | null
+          currency_code: string
+          description: string | null
+          id: string
+          reference: string
+          status: Database["public"]["Enums"]["transaction_status"]
+          tenant_id: string
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          counterparty_account_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency_code: string
+          description?: string | null
+          id?: string
+          reference: string
+          status?: Database["public"]["Enums"]["transaction_status"]
+          tenant_id: string
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          counterparty_account_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency_code?: string
+          description?: string | null
+          id?: string
+          reference?: string
+          status?: Database["public"]["Enums"]["transaction_status"]
+          tenant_id?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_counterparty_account_id_fkey"
+            columns: ["counterparty_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "transactions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfers: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          currency_code: string
+          failure_reason: string | null
+          id: string
+          initiated_at: string
+          initiated_by: string | null
+          recipient_account_id: string
+          reference: string
+          sender_account_id: string
+          status: Database["public"]["Enums"]["transfer_status"]
+          tenant_id: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          completed_at?: string | null
+          currency_code: string
+          failure_reason?: string | null
+          id?: string
+          initiated_at?: string
+          initiated_by?: string | null
+          recipient_account_id: string
+          reference: string
+          sender_account_id: string
+          status?: Database["public"]["Enums"]["transfer_status"]
+          tenant_id: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          currency_code?: string
+          failure_reason?: string | null
+          id?: string
+          initiated_at?: string
+          initiated_by?: string | null
+          recipient_account_id?: string
+          reference?: string
+          sender_account_id?: string
+          status?: Database["public"]["Enums"]["transfer_status"]
+          tenant_id?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfers_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "transfers_recipient_account_id_fkey"
+            columns: ["recipient_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_sender_account_id_fkey"
+            columns: ["sender_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          tenant_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          tenant_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          tenant_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_user_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      current_user_tenant_id: { Args: never; Returns: string }
+      ensure_ledger_account: { Args: { _account_id: string }; Returns: string }
+      execute_transfer: {
+        Args: {
+          _amount: number
+          _description?: string
+          _recipient_account_id: string
+          _sender_account_id: string
+        }
+        Returns: string
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_super_admin: { Args: never; Returns: boolean }
+      next_account_number: { Args: { _tenant_id: string }; Returns: string }
+      post_credit: {
+        Args: {
+          _account_id: string
+          _amount: number
+          _description?: string
+          _type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Returns: string
+      }
+      reverse_transfer: {
+        Args: { _reason?: string; _transfer_id: string }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      account_status: "ACTIVE" | "SUSPENDED" | "CLOSED"
+      app_role: "SUPER_ADMIN" | "TENANT_ADMIN" | "CUSTOMER"
+      application_status: "PENDING" | "UNDER_REVIEW" | "APPROVED" | "REJECTED"
+      customer_status: "PENDING" | "ACTIVE" | "SUSPENDED" | "CLOSED"
+      ledger_direction: "DEBIT" | "CREDIT"
+      phone_number_status:
+        | "AVAILABLE"
+        | "RESERVED"
+        | "ASSIGNED"
+        | "ACTIVE"
+        | "SUSPENDED"
+        | "RELEASED"
+      routing_mode:
+        | "LIVE_AGENT"
+        | "SEQUENTIAL"
+        | "SIMULTANEOUS"
+        | "QUEUE"
+        | "VOICEMAIL"
+      tenant_status: "CONFIGURATION" | "ACTIVE" | "SUSPENDED" | "CLOSED"
+      transaction_status: "PENDING" | "COMPLETED" | "FAILED" | "REVERSED"
+      transaction_type:
+        | "INITIAL_CREDIT"
+        | "CREDIT_ADJUSTMENT"
+        | "TRANSFER"
+        | "TRANSFER_REVERSAL"
+        | "CREDIT_DEBIT"
+        | "CREDIT_REPAYMENT"
+      transfer_status:
+        | "INITIATED"
+        | "VALIDATING"
+        | "AWAITING_CONFIRMATION"
+        | "PROCESSING"
+        | "COMPLETED"
+        | "FAILED"
+        | "REVERSED"
+        | "CANCELLED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +1111,47 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_status: ["ACTIVE", "SUSPENDED", "CLOSED"],
+      app_role: ["SUPER_ADMIN", "TENANT_ADMIN", "CUSTOMER"],
+      application_status: ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"],
+      customer_status: ["PENDING", "ACTIVE", "SUSPENDED", "CLOSED"],
+      ledger_direction: ["DEBIT", "CREDIT"],
+      phone_number_status: [
+        "AVAILABLE",
+        "RESERVED",
+        "ASSIGNED",
+        "ACTIVE",
+        "SUSPENDED",
+        "RELEASED",
+      ],
+      routing_mode: [
+        "LIVE_AGENT",
+        "SEQUENTIAL",
+        "SIMULTANEOUS",
+        "QUEUE",
+        "VOICEMAIL",
+      ],
+      tenant_status: ["CONFIGURATION", "ACTIVE", "SUSPENDED", "CLOSED"],
+      transaction_status: ["PENDING", "COMPLETED", "FAILED", "REVERSED"],
+      transaction_type: [
+        "INITIAL_CREDIT",
+        "CREDIT_ADJUSTMENT",
+        "TRANSFER",
+        "TRANSFER_REVERSAL",
+        "CREDIT_DEBIT",
+        "CREDIT_REPAYMENT",
+      ],
+      transfer_status: [
+        "INITIATED",
+        "VALIDATING",
+        "AWAITING_CONFIRMATION",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED",
+        "REVERSED",
+        "CANCELLED",
+      ],
+    },
   },
 } as const
