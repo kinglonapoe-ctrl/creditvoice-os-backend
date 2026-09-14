@@ -13,13 +13,28 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedOrgRouteRouteImport } from './routes/_authenticated/org/route'
 import { Route as AuthenticatedPendingRouteImport } from './routes/_authenticated/pending'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin/applications'
+import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin/audit-logs'
 import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin/currencies'
+import { Route as AuthenticatedAdminCustomerCareRouteImport } from './routes/_authenticated/admin/customer-care'
 import { Route as AuthenticatedAdminPhoneNumbersRouteImport } from './routes/_authenticated/admin/phone-numbers'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminTelephonyRouteImport } from './routes/_authenticated/admin/telephony'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin/transactions'
+import { Route as AuthenticatedOrgIndexRouteImport } from './routes/_authenticated/org/index'
+import { Route as AuthenticatedOrgAccountsRouteImport } from './routes/_authenticated/org/accounts'
+import { Route as AuthenticatedOrgCreditRouteImport } from './routes/_authenticated/org/credit'
+import { Route as AuthenticatedOrgCustomerCareRouteImport } from './routes/_authenticated/org/customer-care'
+import { Route as AuthenticatedOrgCustomersRouteImport } from './routes/_authenticated/org/customers'
+import { Route as AuthenticatedOrgIvrRouteImport } from './routes/_authenticated/org/ivr'
+import { Route as AuthenticatedOrgReportsRouteImport } from './routes/_authenticated/org/reports'
+import { Route as AuthenticatedOrgSecurityRouteImport } from './routes/_authenticated/org/security'
+import { Route as AuthenticatedOrgSettingsRouteImport } from './routes/_authenticated/org/settings'
+import { Route as AuthenticatedOrgTransactionsRouteImport } from './routes/_authenticated/org/transactions'
+import { Route as AuthenticatedOrgTransfersRouteImport } from './routes/_authenticated/org/transfers'
 import { Route as AuthenticatedAdminTenantsIndexRouteImport } from './routes/_authenticated/admin/tenants.index'
 import { Route as AuthenticatedAdminTenantsTenantIdRouteImport } from './routes/_authenticated/admin/tenants.$tenantId'
 
@@ -42,6 +57,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOrgRouteRoute = AuthenticatedOrgRouteRouteImport.update({
+  id: '/org',
+  path: '/org',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPendingRoute = AuthenticatedPendingRouteImport.update({
   id: '/pending',
   path: '/pending',
@@ -58,16 +78,34 @@ const AuthenticatedAdminApplicationsRoute =
     path: '/applications',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAuditLogsRoute =
+  AuthenticatedAdminAuditLogsRouteImport.update({
+    id: '/audit-logs',
+    path: '/audit-logs',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCurrenciesRoute =
   AuthenticatedAdminCurrenciesRouteImport.update({
     id: '/currencies',
     path: '/currencies',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminCustomerCareRoute =
+  AuthenticatedAdminCustomerCareRouteImport.update({
+    id: '/customer-care',
+    path: '/customer-care',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminPhoneNumbersRoute =
   AuthenticatedAdminPhoneNumbersRouteImport.update({
     id: '/phone-numbers',
     path: '/phone-numbers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminTelephonyRoute =
@@ -81,6 +119,68 @@ const AuthenticatedAdminTransactionsRoute =
     id: '/transactions',
     path: '/transactions',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedOrgIndexRoute = AuthenticatedOrgIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedOrgRouteRoute,
+} as any)
+const AuthenticatedOrgAccountsRoute =
+  AuthenticatedOrgAccountsRouteImport.update({
+    id: '/accounts',
+    path: '/accounts',
+    getParentRoute: () => AuthenticatedOrgRouteRoute,
+  } as any)
+const AuthenticatedOrgCreditRoute = AuthenticatedOrgCreditRouteImport.update({
+  id: '/credit',
+  path: '/credit',
+  getParentRoute: () => AuthenticatedOrgRouteRoute,
+} as any)
+const AuthenticatedOrgCustomerCareRoute =
+  AuthenticatedOrgCustomerCareRouteImport.update({
+    id: '/customer-care',
+    path: '/customer-care',
+    getParentRoute: () => AuthenticatedOrgRouteRoute,
+  } as any)
+const AuthenticatedOrgCustomersRoute =
+  AuthenticatedOrgCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedOrgRouteRoute,
+  } as any)
+const AuthenticatedOrgIvrRoute = AuthenticatedOrgIvrRouteImport.update({
+  id: '/ivr',
+  path: '/ivr',
+  getParentRoute: () => AuthenticatedOrgRouteRoute,
+} as any)
+const AuthenticatedOrgReportsRoute = AuthenticatedOrgReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedOrgRouteRoute,
+} as any)
+const AuthenticatedOrgSecurityRoute =
+  AuthenticatedOrgSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => AuthenticatedOrgRouteRoute,
+  } as any)
+const AuthenticatedOrgSettingsRoute =
+  AuthenticatedOrgSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedOrgRouteRoute,
+  } as any)
+const AuthenticatedOrgTransactionsRoute =
+  AuthenticatedOrgTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AuthenticatedOrgRouteRoute,
+  } as any)
+const AuthenticatedOrgTransfersRoute =
+  AuthenticatedOrgTransfersRouteImport.update({
+    id: '/transfers',
+    path: '/transfers',
+    getParentRoute: () => AuthenticatedOrgRouteRoute,
   } as any)
 const AuthenticatedAdminTenantsIndexRoute =
   AuthenticatedAdminTenantsIndexRouteImport.update({
@@ -99,13 +199,28 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/org': typeof AuthenticatedOrgRouteRouteWithChildren
   '/pending': typeof AuthenticatedPendingRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/admin/customer-care': typeof AuthenticatedAdminCustomerCareRoute
   '/admin/phone-numbers': typeof AuthenticatedAdminPhoneNumbersRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/org/accounts': typeof AuthenticatedOrgAccountsRoute
+  '/org/credit': typeof AuthenticatedOrgCreditRoute
+  '/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
+  '/org/customers': typeof AuthenticatedOrgCustomersRoute
+  '/org/ivr': typeof AuthenticatedOrgIvrRoute
+  '/org/reports': typeof AuthenticatedOrgReportsRoute
+  '/org/security': typeof AuthenticatedOrgSecurityRoute
+  '/org/settings': typeof AuthenticatedOrgSettingsRoute
+  '/org/transactions': typeof AuthenticatedOrgTransactionsRoute
+  '/org/transfers': typeof AuthenticatedOrgTransfersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/org/': typeof AuthenticatedOrgIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
 }
@@ -114,11 +229,25 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/pending': typeof AuthenticatedPendingRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/admin/customer-care': typeof AuthenticatedAdminCustomerCareRoute
   '/admin/phone-numbers': typeof AuthenticatedAdminPhoneNumbersRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/org/accounts': typeof AuthenticatedOrgAccountsRoute
+  '/org/credit': typeof AuthenticatedOrgCreditRoute
+  '/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
+  '/org/customers': typeof AuthenticatedOrgCustomersRoute
+  '/org/ivr': typeof AuthenticatedOrgIvrRoute
+  '/org/reports': typeof AuthenticatedOrgReportsRoute
+  '/org/security': typeof AuthenticatedOrgSecurityRoute
+  '/org/settings': typeof AuthenticatedOrgSettingsRoute
+  '/org/transactions': typeof AuthenticatedOrgTransactionsRoute
+  '/org/transfers': typeof AuthenticatedOrgTransfersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/org': typeof AuthenticatedOrgIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/admin/tenants': typeof AuthenticatedAdminTenantsIndexRoute
 }
@@ -128,13 +257,28 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/org': typeof AuthenticatedOrgRouteRouteWithChildren
   '/_authenticated/pending': typeof AuthenticatedPendingRoute
   '/_authenticated/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/_authenticated/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/_authenticated/admin/customer-care': typeof AuthenticatedAdminCustomerCareRoute
   '/_authenticated/admin/phone-numbers': typeof AuthenticatedAdminPhoneNumbersRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/_authenticated/org/accounts': typeof AuthenticatedOrgAccountsRoute
+  '/_authenticated/org/credit': typeof AuthenticatedOrgCreditRoute
+  '/_authenticated/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
+  '/_authenticated/org/customers': typeof AuthenticatedOrgCustomersRoute
+  '/_authenticated/org/ivr': typeof AuthenticatedOrgIvrRoute
+  '/_authenticated/org/reports': typeof AuthenticatedOrgReportsRoute
+  '/_authenticated/org/security': typeof AuthenticatedOrgSecurityRoute
+  '/_authenticated/org/settings': typeof AuthenticatedOrgSettingsRoute
+  '/_authenticated/org/transactions': typeof AuthenticatedOrgTransactionsRoute
+  '/_authenticated/org/transfers': typeof AuthenticatedOrgTransfersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/org/': typeof AuthenticatedOrgIndexRoute
   '/_authenticated/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/_authenticated/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
 }
@@ -144,13 +288,28 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/org'
     | '/pending'
     | '/admin/applications'
+    | '/admin/audit-logs'
     | '/admin/currencies'
+    | '/admin/customer-care'
     | '/admin/phone-numbers'
+    | '/admin/settings'
     | '/admin/telephony'
     | '/admin/transactions'
+    | '/org/accounts'
+    | '/org/credit'
+    | '/org/customer-care'
+    | '/org/customers'
+    | '/org/ivr'
+    | '/org/reports'
+    | '/org/security'
+    | '/org/settings'
+    | '/org/transactions'
+    | '/org/transfers'
     | '/admin/'
+    | '/org/'
     | '/admin/tenants/$tenantId'
     | '/admin/tenants/'
   fileRoutesByTo: FileRoutesByTo
@@ -159,11 +318,25 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pending'
     | '/admin/applications'
+    | '/admin/audit-logs'
     | '/admin/currencies'
+    | '/admin/customer-care'
     | '/admin/phone-numbers'
+    | '/admin/settings'
     | '/admin/telephony'
     | '/admin/transactions'
+    | '/org/accounts'
+    | '/org/credit'
+    | '/org/customer-care'
+    | '/org/customers'
+    | '/org/ivr'
+    | '/org/reports'
+    | '/org/security'
+    | '/org/settings'
+    | '/org/transactions'
+    | '/org/transfers'
     | '/admin'
+    | '/org'
     | '/admin/tenants/$tenantId'
     | '/admin/tenants'
   id:
@@ -172,13 +345,28 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
+    | '/_authenticated/org'
     | '/_authenticated/pending'
     | '/_authenticated/admin/applications'
+    | '/_authenticated/admin/audit-logs'
     | '/_authenticated/admin/currencies'
+    | '/_authenticated/admin/customer-care'
     | '/_authenticated/admin/phone-numbers'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/telephony'
     | '/_authenticated/admin/transactions'
+    | '/_authenticated/org/accounts'
+    | '/_authenticated/org/credit'
+    | '/_authenticated/org/customer-care'
+    | '/_authenticated/org/customers'
+    | '/_authenticated/org/ivr'
+    | '/_authenticated/org/reports'
+    | '/_authenticated/org/security'
+    | '/_authenticated/org/settings'
+    | '/_authenticated/org/transactions'
+    | '/_authenticated/org/transfers'
     | '/_authenticated/admin/'
+    | '/_authenticated/org/'
     | '/_authenticated/admin/tenants/$tenantId'
     | '/_authenticated/admin/tenants/'
   fileRoutesById: FileRoutesById
@@ -219,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/org': {
+      id: '/_authenticated/org'
+      path: '/org'
+      fullPath: '/org'
+      preLoaderRoute: typeof AuthenticatedOrgRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pending': {
       id: '/_authenticated/pending'
       path: '/pending'
@@ -240,6 +435,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminApplicationsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/audit-logs': {
+      id: '/_authenticated/admin/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AuthenticatedAdminAuditLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/currencies': {
       id: '/_authenticated/admin/currencies'
       path: '/currencies'
@@ -247,11 +449,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCurrenciesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/customer-care': {
+      id: '/_authenticated/admin/customer-care'
+      path: '/customer-care'
+      fullPath: '/admin/customer-care'
+      preLoaderRoute: typeof AuthenticatedAdminCustomerCareRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/phone-numbers': {
       id: '/_authenticated/admin/phone-numbers'
       path: '/phone-numbers'
       fullPath: '/admin/phone-numbers'
       preLoaderRoute: typeof AuthenticatedAdminPhoneNumbersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/telephony': {
@@ -267,6 +483,83 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/transactions'
       preLoaderRoute: typeof AuthenticatedAdminTransactionsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/org/': {
+      id: '/_authenticated/org/'
+      path: '/'
+      fullPath: '/org/'
+      preLoaderRoute: typeof AuthenticatedOrgIndexRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/accounts': {
+      id: '/_authenticated/org/accounts'
+      path: '/accounts'
+      fullPath: '/org/accounts'
+      preLoaderRoute: typeof AuthenticatedOrgAccountsRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/credit': {
+      id: '/_authenticated/org/credit'
+      path: '/credit'
+      fullPath: '/org/credit'
+      preLoaderRoute: typeof AuthenticatedOrgCreditRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/customer-care': {
+      id: '/_authenticated/org/customer-care'
+      path: '/customer-care'
+      fullPath: '/org/customer-care'
+      preLoaderRoute: typeof AuthenticatedOrgCustomerCareRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/customers': {
+      id: '/_authenticated/org/customers'
+      path: '/customers'
+      fullPath: '/org/customers'
+      preLoaderRoute: typeof AuthenticatedOrgCustomersRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/ivr': {
+      id: '/_authenticated/org/ivr'
+      path: '/ivr'
+      fullPath: '/org/ivr'
+      preLoaderRoute: typeof AuthenticatedOrgIvrRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/reports': {
+      id: '/_authenticated/org/reports'
+      path: '/reports'
+      fullPath: '/org/reports'
+      preLoaderRoute: typeof AuthenticatedOrgReportsRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/security': {
+      id: '/_authenticated/org/security'
+      path: '/security'
+      fullPath: '/org/security'
+      preLoaderRoute: typeof AuthenticatedOrgSecurityRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/settings': {
+      id: '/_authenticated/org/settings'
+      path: '/settings'
+      fullPath: '/org/settings'
+      preLoaderRoute: typeof AuthenticatedOrgSettingsRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/transactions': {
+      id: '/_authenticated/org/transactions'
+      path: '/transactions'
+      fullPath: '/org/transactions'
+      preLoaderRoute: typeof AuthenticatedOrgTransactionsRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
+    '/_authenticated/org/transfers': {
+      id: '/_authenticated/org/transfers'
+      path: '/transfers'
+      fullPath: '/org/transfers'
+      preLoaderRoute: typeof AuthenticatedOrgTransfersRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
     }
     '/_authenticated/admin/tenants/': {
       id: '/_authenticated/admin/tenants/'
@@ -287,8 +580,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminApplicationsRoute: typeof AuthenticatedAdminApplicationsRoute
+  AuthenticatedAdminAuditLogsRoute: typeof AuthenticatedAdminAuditLogsRoute
   AuthenticatedAdminCurrenciesRoute: typeof AuthenticatedAdminCurrenciesRoute
+  AuthenticatedAdminCustomerCareRoute: typeof AuthenticatedAdminCustomerCareRoute
   AuthenticatedAdminPhoneNumbersRoute: typeof AuthenticatedAdminPhoneNumbersRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminTelephonyRoute: typeof AuthenticatedAdminTelephonyRoute
   AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -299,8 +595,11 @@ interface AuthenticatedAdminRouteRouteChildren {
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
     AuthenticatedAdminApplicationsRoute: AuthenticatedAdminApplicationsRoute,
+    AuthenticatedAdminAuditLogsRoute: AuthenticatedAdminAuditLogsRoute,
     AuthenticatedAdminCurrenciesRoute: AuthenticatedAdminCurrenciesRoute,
+    AuthenticatedAdminCustomerCareRoute: AuthenticatedAdminCustomerCareRoute,
     AuthenticatedAdminPhoneNumbersRoute: AuthenticatedAdminPhoneNumbersRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminTelephonyRoute: AuthenticatedAdminTelephonyRoute,
     AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -314,13 +613,48 @@ const AuthenticatedAdminRouteRouteWithChildren =
     AuthenticatedAdminRouteRouteChildren,
   )
 
+interface AuthenticatedOrgRouteRouteChildren {
+  AuthenticatedOrgAccountsRoute: typeof AuthenticatedOrgAccountsRoute
+  AuthenticatedOrgCreditRoute: typeof AuthenticatedOrgCreditRoute
+  AuthenticatedOrgCustomerCareRoute: typeof AuthenticatedOrgCustomerCareRoute
+  AuthenticatedOrgCustomersRoute: typeof AuthenticatedOrgCustomersRoute
+  AuthenticatedOrgIvrRoute: typeof AuthenticatedOrgIvrRoute
+  AuthenticatedOrgReportsRoute: typeof AuthenticatedOrgReportsRoute
+  AuthenticatedOrgSecurityRoute: typeof AuthenticatedOrgSecurityRoute
+  AuthenticatedOrgSettingsRoute: typeof AuthenticatedOrgSettingsRoute
+  AuthenticatedOrgTransactionsRoute: typeof AuthenticatedOrgTransactionsRoute
+  AuthenticatedOrgTransfersRoute: typeof AuthenticatedOrgTransfersRoute
+  AuthenticatedOrgIndexRoute: typeof AuthenticatedOrgIndexRoute
+}
+
+const AuthenticatedOrgRouteRouteChildren: AuthenticatedOrgRouteRouteChildren = {
+  AuthenticatedOrgAccountsRoute: AuthenticatedOrgAccountsRoute,
+  AuthenticatedOrgCreditRoute: AuthenticatedOrgCreditRoute,
+  AuthenticatedOrgCustomerCareRoute: AuthenticatedOrgCustomerCareRoute,
+  AuthenticatedOrgCustomersRoute: AuthenticatedOrgCustomersRoute,
+  AuthenticatedOrgIvrRoute: AuthenticatedOrgIvrRoute,
+  AuthenticatedOrgReportsRoute: AuthenticatedOrgReportsRoute,
+  AuthenticatedOrgSecurityRoute: AuthenticatedOrgSecurityRoute,
+  AuthenticatedOrgSettingsRoute: AuthenticatedOrgSettingsRoute,
+  AuthenticatedOrgTransactionsRoute: AuthenticatedOrgTransactionsRoute,
+  AuthenticatedOrgTransfersRoute: AuthenticatedOrgTransfersRoute,
+  AuthenticatedOrgIndexRoute: AuthenticatedOrgIndexRoute,
+}
+
+const AuthenticatedOrgRouteRouteWithChildren =
+  AuthenticatedOrgRouteRoute._addFileChildren(
+    AuthenticatedOrgRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedOrgRouteRoute: typeof AuthenticatedOrgRouteRouteWithChildren
   AuthenticatedPendingRoute: typeof AuthenticatedPendingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedOrgRouteRoute: AuthenticatedOrgRouteRouteWithChildren,
   AuthenticatedPendingRoute: AuthenticatedPendingRoute,
 }
 

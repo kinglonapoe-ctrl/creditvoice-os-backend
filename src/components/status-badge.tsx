@@ -22,7 +22,7 @@ const TONE: Record<string, string> = {
   REVERSED: "bg-violet-500/12 text-violet-700 dark:text-violet-400",
 };
 
-export function StatusBadge({ status, className }: { status?: string | null; className?: string }) {
+export function StatusBadge({ status, className }: { status?: string | null | undefined; className?: string | undefined }) {
   if (!status) return <span className="text-muted-foreground">—</span>;
   return (
     <Badge
