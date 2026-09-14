@@ -81,7 +81,8 @@ else
   cat "$TMP/b.out"; fail=1
 fi
 
-# Nothing was committed by either session; the setup rows are rolled back with them.
-psql "$DB" -q -c "delete from public.tenant_account_sequences where tenant_id = '$TA'" >/dev/null 2>&1 || true
+# Neither session committed any money; remove the throwaway organizations.
+psql "$DB" -q -c "select public.cv_test_cleanup('$TA'); select public.cv_test_cleanup('$TB')" \
+  >/dev/null 2>&1 || echo "   WARN  test organizations could not be removed automatically"
 rm -rf "$TMP"
 exit $fail
