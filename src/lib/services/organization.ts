@@ -22,8 +22,8 @@ export async function createCustomer(input: {
   return data;
 }
 
-export async function updateCustomer(id: string, patch: Record<string, unknown>) {
-  const { error } = await supabase.from("customers").update(patch).eq("id", id);
+export async function updateCustomer(id: string, patch: Record<string, any>) {
+  const { error } = await supabase.from("customers").update(patch as never).eq("id", id);
   if (error) throw error;
 }
 
@@ -48,8 +48,8 @@ export async function createAccount(input: {
   return data;
 }
 
-export async function updateAccount(id: string, patch: Record<string, unknown>) {
-  const { error } = await supabase.from("customer_accounts").update(patch).eq("id", id);
+export async function updateAccount(id: string, patch: Record<string, any>) {
+  const { error } = await supabase.from("customer_accounts").update(patch as never).eq("id", id);
   if (error) throw error;
 }
 
@@ -63,7 +63,7 @@ export async function postCredit(input: {
     _account_id: input.accountId,
     _amount: input.amount,
     _type: input.type,
-    _description: input.description ?? null,
+    ...(input.description ? { _description: input.description } : {}),
   });
   if (error) throw error;
 }
@@ -78,7 +78,7 @@ export async function executeTransfer(input: {
     _sender_account_id: input.senderAccountId,
     _recipient_account_id: input.recipientAccountId,
     _amount: input.amount,
-    _description: input.description ?? null,
+    ...(input.description ? { _description: input.description } : {}),
   });
   if (error) throw error;
 }
@@ -119,7 +119,7 @@ export async function getCareSettings(tenantId: string) {
   return data;
 }
 
-export async function saveCareSettings(tenantId: string, patch: Record<string, unknown>) {
+export async function saveCareSettings(tenantId: string, patch: Record<string, any>) {
   const { error } = await supabase
     .from("customer_care_settings")
     .upsert({ tenant_id: tenantId, ...patch }, { onConflict: "tenant_id" });
@@ -132,7 +132,7 @@ export async function getIvrSettings(tenantId: string) {
   return data;
 }
 
-export async function saveIvrSettings(tenantId: string, patch: Record<string, unknown>) {
+export async function saveIvrSettings(tenantId: string, patch: Record<string, any>) {
   const { error } = await supabase
     .from("ivr_settings")
     .upsert({ tenant_id: tenantId, ...patch }, { onConflict: "tenant_id" });
