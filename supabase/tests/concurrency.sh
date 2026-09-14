@@ -16,17 +16,18 @@ TMP=$(mktemp -d)
 fail=0
 
 echo "1) account number allocation under concurrency"
-TENANT=$(psql "$DB" -Atc "select gen_random_uuid()")
-psql "$DB" -q -c "insert into public.tenant_account_sequences (tenant_id, next_number) values ('$TENANT', 10001)"
+SEED=$(psql "$DB" -Atc "select public.cv_test_setup()")
+TENANT=$(echo "$SEED" | python3 -c 'import json,sys; print(json.load(sys.stdin)["ta"])')
+TENANT2=$(echo "$SEED" | python3 -c 'import json,sys; print(json.load(sys.stdin)["tb"])')
 for i in $(seq 1 30); do
   psql "$DB" -Atc "select public.allocate_account_number('$TENANT')" >> "$TMP/numbers.txt" &
 done
 wait
-total=$(wc -l < "$TMP/numbers.txt" | tr -d ' ')
-distinct=$(sort -u "$TMP/numbers.txt" | wc -l | tr -d ' ')
-psql "$DB" -q -c "delete from public.tenant_account_sequences where tenant_id = '$TENANT'"
+total=$(grep -c . "$TMP/numbers.txt" | tr -d ' ')
+distinct=$(sort -u "$TMP/numbers.txt" | grep -c . | tr -d ' ')
+psql "$DB" -q -c "select public.cv_test_cleanup('$TENANT'); select public.cv_test_cleanup('$TENANT2')" >/dev/null
 if [ "$total" = "30" ] && [ "$distinct" = "30" ]; then
-  echo "   PASS  30 allocations, $distinct distinct numbers"
+  echo "   PASS  30 concurrent allocations, $distinct distinct numbers"
 else
   echo "   FAIL  $total allocations, $distinct distinct numbers"; fail=1
 fi
