@@ -37,6 +37,7 @@ AA1=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["aa1
 AA2=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["aa2"])')
 UA=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["ua"])')
 TA=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["ta"])')
+TB=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["tb"])')
 
 claims="{\"sub\":\"$UA\",\"role\":\"authenticated\"}"
 
