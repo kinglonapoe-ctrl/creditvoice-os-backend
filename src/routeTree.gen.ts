@@ -17,6 +17,9 @@ import { Route as AuthenticatedPendingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin/applications'
 import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin/currencies'
+import { Route as AuthenticatedAdminPhoneNumbersRouteImport } from './routes/_authenticated/admin/phone-numbers'
+import { Route as AuthenticatedAdminTelephonyRouteImport } from './routes/_authenticated/admin/telephony'
+import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin/transactions'
 import { Route as AuthenticatedAdminTenantsIndexRouteImport } from './routes/_authenticated/admin/tenants.index'
 import { Route as AuthenticatedAdminTenantsTenantIdRouteImport } from './routes/_authenticated/admin/tenants.$tenantId'
 
@@ -61,6 +64,24 @@ const AuthenticatedAdminCurrenciesRoute =
     path: '/currencies',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminPhoneNumbersRoute =
+  AuthenticatedAdminPhoneNumbersRouteImport.update({
+    id: '/phone-numbers',
+    path: '/phone-numbers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminTelephonyRoute =
+  AuthenticatedAdminTelephonyRouteImport.update({
+    id: '/telephony',
+    path: '/telephony',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminTransactionsRoute =
+  AuthenticatedAdminTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminTenantsIndexRoute =
   AuthenticatedAdminTenantsIndexRouteImport.update({
     id: '/tenants/',
@@ -81,6 +102,9 @@ export interface FileRoutesByFullPath {
   '/pending': typeof AuthenticatedPendingRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/admin/phone-numbers': typeof AuthenticatedAdminPhoneNumbersRoute
+  '/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
+  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
@@ -91,6 +115,9 @@ export interface FileRoutesByTo {
   '/pending': typeof AuthenticatedPendingRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/admin/phone-numbers': typeof AuthenticatedAdminPhoneNumbersRoute
+  '/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
+  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/admin/tenants': typeof AuthenticatedAdminTenantsIndexRoute
@@ -104,6 +131,9 @@ export interface FileRoutesById {
   '/_authenticated/pending': typeof AuthenticatedPendingRoute
   '/_authenticated/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/_authenticated/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
+  '/_authenticated/admin/phone-numbers': typeof AuthenticatedAdminPhoneNumbersRoute
+  '/_authenticated/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
+  '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/_authenticated/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
@@ -117,6 +147,9 @@ export interface FileRouteTypes {
     | '/pending'
     | '/admin/applications'
     | '/admin/currencies'
+    | '/admin/phone-numbers'
+    | '/admin/telephony'
+    | '/admin/transactions'
     | '/admin/'
     | '/admin/tenants/$tenantId'
     | '/admin/tenants/'
@@ -127,6 +160,9 @@ export interface FileRouteTypes {
     | '/pending'
     | '/admin/applications'
     | '/admin/currencies'
+    | '/admin/phone-numbers'
+    | '/admin/telephony'
+    | '/admin/transactions'
     | '/admin'
     | '/admin/tenants/$tenantId'
     | '/admin/tenants'
@@ -139,6 +175,9 @@ export interface FileRouteTypes {
     | '/_authenticated/pending'
     | '/_authenticated/admin/applications'
     | '/_authenticated/admin/currencies'
+    | '/_authenticated/admin/phone-numbers'
+    | '/_authenticated/admin/telephony'
+    | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/tenants/$tenantId'
     | '/_authenticated/admin/tenants/'
@@ -208,6 +247,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCurrenciesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/phone-numbers': {
+      id: '/_authenticated/admin/phone-numbers'
+      path: '/phone-numbers'
+      fullPath: '/admin/phone-numbers'
+      preLoaderRoute: typeof AuthenticatedAdminPhoneNumbersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/telephony': {
+      id: '/_authenticated/admin/telephony'
+      path: '/telephony'
+      fullPath: '/admin/telephony'
+      preLoaderRoute: typeof AuthenticatedAdminTelephonyRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/transactions': {
+      id: '/_authenticated/admin/transactions'
+      path: '/transactions'
+      fullPath: '/admin/transactions'
+      preLoaderRoute: typeof AuthenticatedAdminTransactionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/tenants/': {
       id: '/_authenticated/admin/tenants/'
       path: '/tenants'
@@ -228,6 +288,9 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminApplicationsRoute: typeof AuthenticatedAdminApplicationsRoute
   AuthenticatedAdminCurrenciesRoute: typeof AuthenticatedAdminCurrenciesRoute
+  AuthenticatedAdminPhoneNumbersRoute: typeof AuthenticatedAdminPhoneNumbersRoute
+  AuthenticatedAdminTelephonyRoute: typeof AuthenticatedAdminTelephonyRoute
+  AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminTenantsTenantIdRoute: typeof AuthenticatedAdminTenantsTenantIdRoute
   AuthenticatedAdminTenantsIndexRoute: typeof AuthenticatedAdminTenantsIndexRoute
@@ -237,6 +300,9 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminApplicationsRoute: AuthenticatedAdminApplicationsRoute,
     AuthenticatedAdminCurrenciesRoute: AuthenticatedAdminCurrenciesRoute,
+    AuthenticatedAdminPhoneNumbersRoute: AuthenticatedAdminPhoneNumbersRoute,
+    AuthenticatedAdminTelephonyRoute: AuthenticatedAdminTelephonyRoute,
+    AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminTenantsTenantIdRoute:
       AuthenticatedAdminTenantsTenantIdRoute,
