@@ -53,17 +53,24 @@ export async function updateAccount(id: string, patch: Record<string, any>) {
   if (error) throw error;
 }
 
+/**
+ * Posts a credit movement. The backend is the only place a balance can change.
+ * `idempotencyKey` makes a repeated submission (double click, network retry)
+ * resolve to the original posting instead of a second one.
+ */
 export async function postCredit(input: {
   accountId: string;
   amount: number;
   type: "INITIAL_CREDIT" | "CREDIT_ADJUSTMENT" | "CREDIT_DEBIT" | "CREDIT_REPAYMENT";
   description?: string;
+  idempotencyKey?: string;
 }) {
   const { error } = await supabase.rpc("post_credit", {
     _account_id: input.accountId,
     _amount: input.amount,
     _type: input.type,
     ...(input.description ? { _description: input.description } : {}),
+    ...(input.idempotencyKey ? { _idempotency_key: input.idempotencyKey } : {}),
   });
   if (error) throw error;
 }
@@ -73,14 +80,23 @@ export async function executeTransfer(input: {
   recipientAccountId: string;
   amount: number;
   description?: string;
+  idempotencyKey?: string;
 }) {
   const { error } = await supabase.rpc("execute_transfer", {
     _sender_account_id: input.senderAccountId,
     _recipient_account_id: input.recipientAccountId,
     _amount: input.amount,
     ...(input.description ? { _description: input.description } : {}),
+    ...(input.idempotencyKey ? { _idempotency_key: input.idempotencyKey } : {}),
   });
   if (error) throw error;
+}
+
+/** Compares each cached account balance against the immutable ledger. */
+export async function reconcileBalances(tenantId: string) {
+  const { data, error } = await supabase.rpc("reconcile_account_balances", { _tenant_id: tenantId });
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function reverseTransfer(transferId: string, reason: string) {
