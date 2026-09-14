@@ -43,7 +43,7 @@ TB=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["tb"]
 claims="{\"sub\":\"$UA\",\"role\":\"authenticated\"}"
 
 # Fund the sender with 10,000 and commit, so both sessions start from the same balance.
-psql "$DB" -q -c "begin; set local role authenticated;
+psql "$DB" -q -o /dev/null -c "begin; set local role authenticated;
   select set_config('request.jwt.claims', '$claims', true);
   select public.post_credit('$AA1', 10000, 'INITIAL_CREDIT', 'concurrency fixture'); commit;"
 
