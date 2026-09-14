@@ -1026,6 +1026,7 @@ export type Database = {
         Args: { _action: string; _id: string }
         Returns: undefined
       }
+      cv_test_cleanup: { Args: { _tenant_id: string }; Returns: undefined }
       cv_test_setup: { Args: never; Returns: Json }
       ensure_ledger_account: { Args: { _account_id: string }; Returns: string }
       execute_transfer: {
