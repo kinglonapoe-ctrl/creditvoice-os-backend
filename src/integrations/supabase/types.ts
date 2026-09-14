@@ -208,18 +208,24 @@ export type Database = {
       customer_pins: {
         Row: {
           customer_id: string
+          failed_attempts: number
+          locked_until: string | null
           pin_hash: string
           tenant_id: string
           updated_at: string
         }
         Insert: {
           customer_id: string
+          failed_attempts?: number
+          locked_until?: string | null
           pin_hash: string
           tenant_id: string
           updated_at?: string
         }
         Update: {
           customer_id?: string
+          failed_attempts?: number
+          locked_until?: string | null
           pin_hash?: string
           tenant_id?: string
           updated_at?: string
@@ -274,6 +280,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "customers_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_idempotency: {
+        Row: {
+          created_at: string
+          idempotency_key: string
+          operation: string
+          result_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          idempotency_key: string
+          operation: string
+          result_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          idempotency_key?: string
+          operation?: string
+          result_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_idempotency_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -550,22 +588,31 @@ export type Database = {
         Row: {
           code_hash: string
           created_at: string
+          failed_attempts: number
           id: string
           is_active: boolean
+          locked_until: string | null
+          retired_at: string | null
           tenant_id: string
         }
         Insert: {
           code_hash: string
           created_at?: string
+          failed_attempts?: number
           id?: string
           is_active?: boolean
+          locked_until?: string | null
+          retired_at?: string | null
           tenant_id: string
         }
         Update: {
           code_hash?: string
           created_at?: string
+          failed_attempts?: number
           id?: string
           is_active?: boolean
+          locked_until?: string | null
+          retired_at?: string | null
           tenant_id?: string
         }
         Relationships: [
@@ -573,6 +620,32 @@ export type Database = {
             foreignKeyName: "tenant_access_codes_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_account_sequences: {
+        Row: {
+          next_number: number
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          next_number?: number
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          next_number?: number
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_account_sequences_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -725,7 +798,9 @@ export type Database = {
           currency_code: string
           description: string | null
           id: string
+          idempotency_key: string | null
           reference: string
+          reversal_of_transaction_id: string | null
           status: Database["public"]["Enums"]["transaction_status"]
           tenant_id: string
           type: Database["public"]["Enums"]["transaction_type"]
@@ -739,7 +814,9 @@ export type Database = {
           currency_code: string
           description?: string | null
           id?: string
+          idempotency_key?: string | null
           reference: string
+          reversal_of_transaction_id?: string | null
           status?: Database["public"]["Enums"]["transaction_status"]
           tenant_id: string
           type: Database["public"]["Enums"]["transaction_type"]
@@ -753,7 +830,9 @@ export type Database = {
           currency_code?: string
           description?: string | null
           id?: string
+          idempotency_key?: string | null
           reference?: string
+          reversal_of_transaction_id?: string | null
           status?: Database["public"]["Enums"]["transaction_status"]
           tenant_id?: string
           type?: Database["public"]["Enums"]["transaction_type"]
@@ -781,6 +860,13 @@ export type Database = {
             referencedColumns: ["code"]
           },
           {
+            foreignKeyName: "transactions_reversal_of_transaction_id_fkey"
+            columns: ["reversal_of_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transactions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -796,10 +882,14 @@ export type Database = {
           currency_code: string
           failure_reason: string | null
           id: string
+          idempotency_key: string | null
           initiated_at: string
           initiated_by: string | null
           recipient_account_id: string
           reference: string
+          reversal_reason: string | null
+          reversed_at: string | null
+          reversed_by: string | null
           sender_account_id: string
           status: Database["public"]["Enums"]["transfer_status"]
           tenant_id: string
@@ -811,10 +901,14 @@ export type Database = {
           currency_code: string
           failure_reason?: string | null
           id?: string
+          idempotency_key?: string | null
           initiated_at?: string
           initiated_by?: string | null
           recipient_account_id: string
           reference: string
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
           sender_account_id: string
           status?: Database["public"]["Enums"]["transfer_status"]
           tenant_id: string
@@ -826,10 +920,14 @@ export type Database = {
           currency_code?: string
           failure_reason?: string | null
           id?: string
+          idempotency_key?: string | null
           initiated_at?: string
           initiated_by?: string | null
           recipient_account_id?: string
           reference?: string
+          reversal_reason?: string | null
+          reversed_at?: string | null
+          reversed_by?: string | null
           sender_account_id?: string
           status?: Database["public"]["Enums"]["transfer_status"]
           tenant_id?: string
@@ -910,16 +1008,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      allocate_account_number: { Args: { _tenant_id: string }; Returns: string }
+      assert_tenant_operational: {
+        Args: { _tenant_id: string }
+        Returns: undefined
+      }
+      claim_idempotency: {
+        Args: { _key: string; _operation: string; _tenant_id: string }
+        Returns: string
+      }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       current_user_tenant_id: { Args: never; Returns: string }
+      cv_test_admin: {
+        Args: { _action: string; _id: string }
+        Returns: undefined
+      }
+      cv_test_setup: { Args: never; Returns: Json }
       ensure_ledger_account: { Args: { _account_id: string }; Returns: string }
       execute_transfer: {
         Args: {
           _amount: number
           _description?: string
+          _idempotency_key?: string
           _recipient_account_id: string
           _sender_account_id: string
         }
@@ -933,15 +1046,29 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: never; Returns: boolean }
-      next_account_number: { Args: { _tenant_id: string }; Returns: string }
       post_credit: {
         Args: {
           _account_id: string
           _amount: number
           _description?: string
+          _idempotency_key?: string
           _type: Database["public"]["Enums"]["transaction_type"]
         }
         Returns: string
+      }
+      reconcile_account_balances: {
+        Args: { _tenant_id: string }
+        Returns: {
+          account_id: string
+          account_number: string
+          cached_balance: number
+          drift: number
+          ledger_balance: number
+        }[]
+      }
+      register_credential_failure: {
+        Args: { _id: string; _kind: string }
+        Returns: number
       }
       reverse_transfer: {
         Args: { _reason?: string; _transfer_id: string }
