@@ -32,7 +32,7 @@ else
   echo "   FAIL  $total allocations, $distinct distinct numbers"; fail=1
 fi
 
-echo "2) concurrent transfers are serialised on the sender account"
+echo "2) double spend: two concurrent 8,000 transfers from a 10,000 balance"
 IDS=$(psql "$DB" -Atc "select public.cv_test_setup()")
 AA1=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["aa1"])')
 AA2=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["aa2"])')
@@ -42,48 +42,49 @@ TB=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["tb"]
 
 claims="{\"sub\":\"$UA\",\"role\":\"authenticated\"}"
 
-# Session A: opens 10,000 credit, transfers 8,000, holds the lock for 3s, rolls back.
+# Fund the sender with 10,000 and commit, so both sessions start from the same balance.
+psql "$DB" -q -c "begin; set local role authenticated;
+  select set_config('request.jwt.claims', '$claims', true);
+  select public.post_credit('$AA1', 10000, 'INITIAL_CREDIT', 'concurrency fixture'); commit;"
+
+# Session A holds the sender row lock for 3 seconds, then commits its transfer.
 cat > "$TMP/a.sql" <<SQL
 begin;
 set local role authenticated;
 select set_config('request.jwt.claims', '$claims', true);
-select public.post_credit('$AA1', 10000, 'INITIAL_CREDIT', 'concurrency');
 select public.execute_transfer('$AA1', '$AA2', 8000, 'A');
 select pg_sleep(3);
-rollback;
+commit;
 SQL
 
-# Session B: attempts a second 8,000 transfer while A holds the lock.
+# Session B starts one second later and attempts the same 8,000 transfer.
 cat > "$TMP/b.sql" <<SQL
 begin;
 set local role authenticated;
 select set_config('request.jwt.claims', '$claims', true);
-select clock_timestamp() as started \gset
 select public.execute_transfer('$AA1', '$AA2', 8000, 'B');
-select extract(epoch from (clock_timestamp() - :'started')) as waited_seconds;
-rollback;
+commit;
 SQL
 
 psql "$DB" -q -f "$TMP/a.sql" > "$TMP/a.out" 2>&1 &
 sleep 1
-psql "$DB" -Atf "$TMP/b.sql" > "$TMP/b.out" 2>&1 || true
+started=$(date +%s.%N)
+psql "$DB" -q -f "$TMP/b.sql" > "$TMP/b.out" 2>&1 || true
+ended=$(date +%s.%N)
 wait
 
-waited=$(grep -Eo '^[0-9]+\.[0-9]+$' "$TMP/b.out" | tail -1 || true)
-blocked=$(python3 - "$waited" <<'PY'
-import sys
-v = sys.argv[1]
-print("yes" if v and float(v) >= 1.0 else "no")
-PY
-)
-if [ "$blocked" = "yes" ]; then
-  echo "   PASS  second transfer waited ${waited}s for the sender row lock"
+waited=$(python3 -c "print(round($ended - $started, 2))")
+bal=$(psql "$DB" -Atc "select balance from public.customer_accounts where id = '$AA1'")
+rejected=$(grep -c 'Insufficient available credit' "$TMP/b.out" || true)
+blocked=$(python3 -c "print('yes' if $waited >= 1.0 else 'no')")
+
+if [ "$rejected" != "0" ] && [ "$blocked" = "yes" ] && [ "$bal" = "2000.0000" ]; then
+  echo "   PASS  second transfer blocked ${waited}s then rejected; final balance $bal"
 else
-  echo "   FAIL  second transfer was not serialised (waited='${waited}')"
-  cat "$TMP/b.out"; fail=1
+  echo "   FAIL  rejected=$rejected waited=${waited}s balance=$bal"
+  cat "$TMP/a.out" "$TMP/b.out"; fail=1
 fi
 
-# Neither session committed any money; remove the throwaway organizations.
 psql "$DB" -q -c "select public.cv_test_cleanup('$TA'); select public.cv_test_cleanup('$TB')" \
   >/dev/null 2>&1 || echo "   WARN  test organizations could not be removed automatically"
 rm -rf "$TMP"
