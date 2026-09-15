@@ -64,7 +64,7 @@ begin
   r := public.cv_finish_access_code_attempt(sid, code_id, false);
   insert into cv2_results values ('incorrect access code rejected', r->>'status' = 'REJECTED', r::text);
   insert into cv2_results values ('access code failure counted atomically',
-    (select failed_attempts from public.tenant_access_codes where id = code_id) = 1, 'attempts=1');
+    (public.cv_test_credential_state('ACCESS_CODE_BY_ID', code_id)->>'failed_attempts')::int = 1, 'attempts=1');
   insert into cv2_results values ('access code failure survives as a security record',
     (select count(*) from public.call_auth_failures where session_id = sid and stage = 'ACCESS_CODE') = 1, 'logged');
   insert into cv2_results values ('access code rejection is audited without credentials',
@@ -75,7 +75,7 @@ begin
   insert into cv2_results values ('correct access code advances the session',
     (r->>'ok')::boolean and r->>'status' = 'ACCESS_CODE_VERIFIED', r::text);
   insert into cv2_results values ('successful verification resets the failure counter',
-    (select failed_attempts from public.tenant_access_codes where id = code_id) = 0, 'reset');
+    (public.cv_test_credential_state('ACCESS_CODE_BY_ID', code_id)->>'failed_attempts')::int = 0, 'reset');
 
   -- repeated failures lock the credential
   sid2 := public.cv_create_call_session('+2348222222222', ids->>'num_a');
@@ -86,8 +86,8 @@ begin
     r := public.cv_finish_access_code_attempt(sid2, (r->>'code_id')::uuid, false);
   end loop;
   insert into cv2_results values ('repeated access code failures lock the session', r->>'status' = 'LOCKED', r::text);
-  select tac.locked_until into locked_until from public.tenant_access_codes tac where tac.id = code_id;
-  insert into cv2_results values ('access code lockout persisted in the database', locked_until > now(), 'locked');
+  insert into cv2_results values ('access code lockout persisted in the database',
+    (public.cv_test_credential_state('ACCESS_CODE_BY_ID', code_id)->>'locked')::boolean, 'locked');
 
   -- a locked credential blocks a brand new call
   other := public.cv_create_call_session('+2348333333333', ids->>'num_a');
@@ -96,8 +96,7 @@ begin
   insert into cv2_results values ('locked credential blocks a new call', r->>'status' = 'LOCKED', r::text);
 
   -- rotation invalidates the previous credential
-  update public.tenant_access_codes set is_active = false, retired_at = now() where id = code_id;
-  insert into public.tenant_access_codes (tenant_id, code_hash) values (ta, 'pbkdf2$1$00$cc');
+  perform public.cv_test_rotate_access_code(ta, 'pbkdf2$1$00$cc');
   other := public.cv_create_call_session('+2348444444444', ids->>'num_a');
   perform public.cv_resolve_tenant(other);
   r := public.cv_begin_access_code_attempt(other);
@@ -105,7 +104,7 @@ begin
     (r->>'ok')::boolean and (r->>'code_id')::uuid <> code_id, r->>'ok');
   perform public.cv_finish_access_code_attempt(other, (r->>'code_id')::uuid, true);
   insert into cv2_results values ('retired credential is never selected again',
-    (select count(*) from public.tenant_access_codes where tenant_id = ta and is_active and retired_at is null) = 1, 'one active');
+    (public.cv_test_credential_state('ACTIVE_COUNT', ta)->>'active_codes')::int = 1, 'one active');
 
   -- ============ ACCOUNT IDENTIFICATION ============
   r := public.cv_identify_account(sid, 'ZZZZZZ');
@@ -130,7 +129,7 @@ begin
   r := public.cv_finish_pin_attempt(sid, false);
   insert into cv2_results values ('incorrect PIN rejected', r->>'status' = 'REJECTED', r::text);
   insert into cv2_results values ('PIN failure counted atomically',
-    (select failed_attempts from public.customer_pins where customer_id = (ids->>'ca')::uuid) = 1, 'attempts=1');
+    (public.cv_test_credential_state('PIN', (ids->>'ca')::uuid)->>'failed_attempts')::int = 1, 'attempts=1');
   insert into cv2_results values ('PIN never appears in the audit trail',
     (select count(*) from public.audit_logs where entity_id = sid and metadata::text ~* '(pin"\s*:\s*")|hash') = 0, 'clean');
 
@@ -139,7 +138,7 @@ begin
   insert into cv2_results values ('correct PIN authenticates the session',
     (r->>'ok')::boolean and r->>'status' = 'AUTHENTICATED', r::text);
   insert into cv2_results values ('successful PIN resets the failure counter',
-    (select failed_attempts from public.customer_pins where customer_id = (ids->>'ca')::uuid) = 0, 'reset');
+    (public.cv_test_credential_state('PIN', (ids->>'ca')::uuid)->>'failed_attempts')::int = 0, 'reset');
 
   -- PIN lockout on another call
   other := public.cv_create_call_session('+2348555555555', ids->>'num_b');
@@ -154,7 +153,7 @@ begin
   end loop;
   insert into cv2_results values ('repeated PIN failures lock the call', r->>'status' = 'LOCKED', r::text);
   insert into cv2_results values ('PIN lockout persisted in the database',
-    (select cp.locked_until from public.customer_pins cp where cp.customer_id = (ids->>'cb')::uuid) > now(), 'locked');
+    (public.cv_test_credential_state('PIN', (ids->>'cb')::uuid)->>'locked')::boolean, 'locked');
   r := public.cv_authorize_action(other, 'CHECK_BALANCE');
   insert into cv2_results values ('locked session cannot act', (r->>'allowed')::boolean = false, r::text);
 
@@ -235,8 +234,7 @@ begin
     (select count(*) from public.call_session_events where provider_event_id = 'evt-phase2a-1') = 1, 'one row');
 
   -- ============ CALLER THROTTLE ============
-  insert into public.call_auth_failures (from_number, stage, reason)
-    select '+2349999999999', 'PIN', 'INVALID_CREDENTIAL' from generate_series(1, 12);
+  perform public.cv_test_seed_caller_failures('+2349999999999', 12);
   other := public.cv_create_call_session('+2349999999999', ids->>'num_a');
   insert into cv2_results values ('repeated offender from the same number is locked out',
     (select state from public.call_sessions where id = other) = 'LOCKED', 'locked');
