@@ -186,7 +186,7 @@ describe("transfer", () => {
   test("the amount is echoed back for explicit confirmation", async () => {
     await post("transfer_recipient", call(sid, { Digits: recipient.account_number }));
     const xml = await (await post("transfer_amount", call(sid, { Digits: "500" }))).text();
-    expect(xml).toContain("5.00 NGN");
+    expect(xml).toContain("500.00 NGN");
     expect(xml).toContain("Press 1 to confirm");
     expect(sql(`select count(*) from public.transfers where tenant_id = '${ids["ta"]}'`)).toBe("0");
   });
@@ -196,13 +196,13 @@ describe("transfer", () => {
     expect(xml).toContain("transfer was successful");
     expect(sql(`select count(*) from public.transfers where tenant_id = '${ids["ta"]}'`)).toBe("1");
     expect(sql(`select status from public.transfers where tenant_id = '${ids["ta"]}'`)).toBe("COMPLETED");
-    expect(sql(`select balance from public.customer_accounts where id = '${ids["aa1"]}'`)).toBe("99995.0000");
+    expect(sql(`select balance from public.customer_accounts where id = '${ids["aa1"]}'`)).toBe("99500.0000");
   });
 
   test("a replayed confirmation moves no additional money", async () => {
     await post("transfer_confirm", call(sid, { Digits: "1" }));
     expect(sql(`select count(*) from public.transfers where tenant_id = '${ids["ta"]}'`)).toBe("1");
-    expect(sql(`select balance from public.customer_accounts where id = '${ids["aa1"]}'`)).toBe("99995.0000");
+    expect(sql(`select balance from public.customer_accounts where id = '${ids["aa1"]}'`)).toBe("99500.0000");
   });
 
   test("cancelling at the confirmation step moves no money", async () => {
