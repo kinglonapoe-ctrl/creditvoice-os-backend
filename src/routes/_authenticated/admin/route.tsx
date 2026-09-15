@@ -11,6 +11,7 @@ const NAV: NavItem[] = [
   { label: "Currencies", to: "/admin/currencies" },
   { label: "Phone Numbers", to: "/admin/phone-numbers" },
   { label: "Telephony Providers", to: "/admin/telephony" },
+  { label: "Voice Operations", to: "/admin/voice-operations" },
   { label: "Transactions", to: "/admin/transactions" },
   { label: "Customer Care", to: "/admin/customer-care" },
   { label: "Audit Logs", to: "/admin/audit-logs" },
