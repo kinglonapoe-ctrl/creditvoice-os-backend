@@ -1342,6 +1342,14 @@ export type Database = {
       }
       cv_test_cleanup: { Args: { _tenant_id: string }; Returns: undefined }
       cv_test_setup: { Args: never; Returns: Json }
+      cv_test_voice_cleanup: {
+        Args: { _tenant_ids: string[] }
+        Returns: undefined
+      }
+      cv_test_voice_setup: {
+        Args: { _access_hash: string; _pin_hash: string }
+        Returns: Json
+      }
       cv_transition_allowed: {
         Args: {
           _from: Database["public"]["Enums"]["call_session_state"]
