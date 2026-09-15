@@ -149,33 +149,53 @@ already exist.
 
 ---
 
+## Phase 2A — secure voice authentication (complete)
+
+The secure boundary between a future telephone call and the credit engine is
+built and tested. No telephony provider, SIP or voice AI is present.
+
+- Call sessions are persistent records walking a strict state machine: dialled
+  number to organization, organization access code, account number, customer
+  PIN, authenticated.
+- Identity is always resolved server-side from the session; nothing the caller
+  claims is believed.
+- Access-code and PIN attempts are counted atomically, lock out on the
+  configured thresholds, and are recorded even when the attempt is rejected.
+- Repeated provider events are accepted exactly once; sessions expire on time
+  alone.
+- Money still moves only through `post_credit`, `execute_transfer` and
+  `reverse_transfer`.
+
+Full detail: [`PHASE-2A-SECURE-AUTH-REPORT.md`](./PHASE-2A-SECURE-AUTH-REPORT.md).
+
 ## Launch blockers
 
 These must be closed before real money or real customers:
 
-1. **Credential verification service** — verify access code, account number and
-   PIN server-side, consuming the existing attempt counters and lockout windows.
-2. **Failure auditing** — rejected transfers and credits currently roll back
-   their own audit row; record them outside the transaction.
-3. **Remove the development test helpers** (`cv_test_setup`, `cv_test_admin`,
-   `cv_test_cleanup`) from the production database.
-4. **Scheduled reconciliation with alerting** — run the ledger-versus-balance
+1. **Failure auditing** — rejected transfers and credits currently roll back
+   their own audit row; record them outside the transaction. (Authentication
+   failures are already recorded durably.)
+2. **Remove the development test helpers** (`cv_test_*`) from the production
+   database.
+3. **Scheduled reconciliation with alerting** — run the ledger-versus-balance
    check automatically and raise an alarm on any drift.
-5. **Administrator password delivery** — the first organization password is
+4. **Administrator password delivery** — the first organization password is
    shown once on screen; it needs a real delivery and forced-reset flow.
-6. **Backup and restore drill** — proven point-in-time recovery of the ledger.
+5. **Backup and restore drill** — proven point-in-time recovery of the ledger.
+6. **Per-currency rounding enforced on input** before amounts are spoken aloud.
 
-## Must-haves (before Phase 2 ships)
+*Closed in Phase 2A: the credential verification service, call-session records,
+organization-level rate limiting, and security events in the audit vocabulary.*
 
-- Signed, replay-protected webhook route for the voice provider, keyed to the
-  existing idempotency mechanism
-- Call-session records so an interrupted call can resume and be audited
+## Must-haves (before Phase 2B ships)
+
+- Signed, replay-protected webhook route for the voice provider
 - Twilio implementation of the existing `TelephonyProvider` interface
-- Authentication and security events added to the audit vocabulary
-- Per-currency rounding rules enforced on input before amounts are spoken aloud
+- IVR conversation engine driving the Phase 2A session service only
 - Move customer and account creation behind server functions rather than direct
   table writes
-- Organization-level rate limiting on credential attempts
+- Load testing of the authentication path
+
 
 ## Good to have
 
@@ -201,17 +221,22 @@ Tailwind v4, shadcn/ui, TanStack Query, Supabase/PostgreSQL.
   `execute_transfer` and `reverse_transfer`.
 - Telephony is abstracted behind `src/lib/telephony/provider.ts`; no provider is
   implemented yet.
+- Voice authentication and call sessions live in `src/lib/voice/`, backed by the
+  `cv_*` database functions; they are provider-neutral.
 - All schema changes are migrations in `supabase/migrations`.
 
 ### Tests
 
 ```bash
-bun run test:db            # 40 isolation, integrity and immutability assertions
-bun run test:concurrency   # account-number and double-spend concurrency proofs
+bun run test:db                 # Phase 1 — 40 isolation, integrity and immutability assertions
+bun run test:concurrency        # Phase 1 — account-number and double-spend proofs
+bun run test:voice              # Phase 2A — 65 call authentication assertions
+bun run test:voice:concurrency  # Phase 2A — credential lock, replay and session races
+bun run test:hash               # Phase 2A — credential hashing tests
 ```
 
-Both require `SUPABASE_DB_URL` and are safe to re-run: the first rolls back
-entirely, the second removes its fixtures.
+All except `test:hash` require `SUPABASE_DB_URL` and are safe to re-run: the SQL
+suites roll back entirely, the shell suites remove their fixtures.
 
 A full audit of the hardening work is in
 [`PRE-TELEPHONY-HARDENING-REPORT.md`](./PRE-TELEPHONY-HARDENING-REPORT.md).
