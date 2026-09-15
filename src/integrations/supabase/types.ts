@@ -61,6 +61,174 @@ export type Database = {
           },
         ]
       }
+      call_auth_failures: {
+        Row: {
+          attempt: number
+          created_at: string
+          from_number: string | null
+          id: string
+          reason: string
+          session_id: string | null
+          stage: Database["public"]["Enums"]["call_auth_stage"]
+          tenant_id: string | null
+          to_number: string | null
+        }
+        Insert: {
+          attempt?: number
+          created_at?: string
+          from_number?: string | null
+          id?: string
+          reason: string
+          session_id?: string | null
+          stage: Database["public"]["Enums"]["call_auth_stage"]
+          tenant_id?: string | null
+          to_number?: string | null
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          from_number?: string | null
+          id?: string
+          reason?: string
+          session_id?: string | null
+          stage?: Database["public"]["Enums"]["call_auth_stage"]
+          tenant_id?: string | null
+          to_number?: string | null
+        }
+        Relationships: []
+      }
+      call_session_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          provider: string
+          provider_event_id: string
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          provider?: string
+          provider_event_id: string
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          provider?: string
+          provider_event_id?: string
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_session_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "call_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_sessions: {
+        Row: {
+          access_code_attempts: number
+          account_id: string | null
+          attempt_count: number
+          authenticated_at: string | null
+          authentication_stage: Database["public"]["Enums"]["call_auth_stage"]
+          created_at: string
+          customer_id: string | null
+          ended_at: string | null
+          failure_reason: string | null
+          from_number: string
+          id: string
+          last_activity_at: string
+          metadata: Json
+          pin_attempts: number
+          provider: string
+          provider_call_id: string | null
+          provider_event_id: string | null
+          state: Database["public"]["Enums"]["call_session_state"]
+          tenant_id: string | null
+          to_number: string
+          updated_at: string
+        }
+        Insert: {
+          access_code_attempts?: number
+          account_id?: string | null
+          attempt_count?: number
+          authenticated_at?: string | null
+          authentication_stage?: Database["public"]["Enums"]["call_auth_stage"]
+          created_at?: string
+          customer_id?: string | null
+          ended_at?: string | null
+          failure_reason?: string | null
+          from_number: string
+          id?: string
+          last_activity_at?: string
+          metadata?: Json
+          pin_attempts?: number
+          provider?: string
+          provider_call_id?: string | null
+          provider_event_id?: string | null
+          state?: Database["public"]["Enums"]["call_session_state"]
+          tenant_id?: string | null
+          to_number: string
+          updated_at?: string
+        }
+        Update: {
+          access_code_attempts?: number
+          account_id?: string | null
+          attempt_count?: number
+          authenticated_at?: string | null
+          authentication_stage?: Database["public"]["Enums"]["call_auth_stage"]
+          created_at?: string
+          customer_id?: string | null
+          ended_at?: string | null
+          failure_reason?: string | null
+          from_number?: string
+          id?: string
+          last_activity_at?: string
+          metadata?: Json
+          pin_attempts?: number
+          provider?: string
+          provider_call_id?: string | null
+          provider_event_id?: string | null
+          state?: Database["public"]["Enums"]["call_session_state"]
+          tenant_id?: string | null
+          to_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_sessions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_sessions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_sessions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       currencies: {
         Row: {
           code: string
@@ -1022,12 +1190,165 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       current_user_tenant_id: { Args: never; Returns: string }
+      cv_apply_transition: {
+        Args: {
+          _failure_reason?: string
+          _session_id: string
+          _stage?: Database["public"]["Enums"]["call_auth_stage"]
+          _to: Database["public"]["Enums"]["call_session_state"]
+        }
+        Returns: {
+          access_code_attempts: number
+          account_id: string | null
+          attempt_count: number
+          authenticated_at: string | null
+          authentication_stage: Database["public"]["Enums"]["call_auth_stage"]
+          created_at: string
+          customer_id: string | null
+          ended_at: string | null
+          failure_reason: string | null
+          from_number: string
+          id: string
+          last_activity_at: string
+          metadata: Json
+          pin_attempts: number
+          provider: string
+          provider_call_id: string | null
+          provider_event_id: string | null
+          state: Database["public"]["Enums"]["call_session_state"]
+          tenant_id: string | null
+          to_number: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "call_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cv_audit: {
+        Args: {
+          _entity_id: string
+          _event: string
+          _metadata: Json
+          _tenant_id: string
+        }
+        Returns: undefined
+      }
+      cv_authorize_action: {
+        Args: {
+          _action: Database["public"]["Enums"]["call_action"]
+          _session_id: string
+          _target_account_id?: string
+        }
+        Returns: Json
+      }
+      cv_begin_access_code_attempt: {
+        Args: { _session_id: string }
+        Returns: Json
+      }
+      cv_begin_pin_attempt: { Args: { _session_id: string }; Returns: Json }
+      cv_claim_session_event: {
+        Args: {
+          _event_type: string
+          _payload?: Json
+          _provider: string
+          _provider_event_id: string
+          _session_id: string
+        }
+        Returns: boolean
+      }
+      cv_create_call_session: {
+        Args: {
+          _from_number: string
+          _provider?: string
+          _provider_call_id?: string
+          _provider_event_id?: string
+          _to_number: string
+        }
+        Returns: string
+      }
+      cv_end_call_session: {
+        Args: { _reason?: string; _session_id: string }
+        Returns: Json
+      }
+      cv_expire_call_sessions: { Args: never; Returns: number }
+      cv_finish_access_code_attempt: {
+        Args: { _code_id: string; _session_id: string; _verified: boolean }
+        Returns: Json
+      }
+      cv_finish_pin_attempt: {
+        Args: { _session_id: string; _verified: boolean }
+        Returns: Json
+      }
+      cv_get_authenticated_session: {
+        Args: { _session_id: string }
+        Returns: Json
+      }
+      cv_identify_account: {
+        Args: { _account_number: string; _session_id: string }
+        Returns: Json
+      }
+      cv_load_live_session: {
+        Args: { _session_id: string }
+        Returns: {
+          access_code_attempts: number
+          account_id: string | null
+          attempt_count: number
+          authenticated_at: string | null
+          authentication_stage: Database["public"]["Enums"]["call_auth_stage"]
+          created_at: string
+          customer_id: string | null
+          ended_at: string | null
+          failure_reason: string | null
+          from_number: string
+          id: string
+          last_activity_at: string
+          metadata: Json
+          pin_attempts: number
+          provider: string
+          provider_call_id: string | null
+          provider_event_id: string | null
+          state: Database["public"]["Enums"]["call_session_state"]
+          tenant_id: string | null
+          to_number: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "call_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cv_record_failure: {
+        Args: {
+          _attempt: number
+          _reason: string
+          _session: Database["public"]["Tables"]["call_sessions"]["Row"]
+          _stage: Database["public"]["Enums"]["call_auth_stage"]
+        }
+        Returns: undefined
+      }
+      cv_resolve_tenant: { Args: { _session_id: string }; Returns: Json }
+      cv_setting_int: {
+        Args: { _default: number; _key: string }
+        Returns: number
+      }
       cv_test_admin: {
         Args: { _action: string; _id: string }
         Returns: undefined
       }
       cv_test_cleanup: { Args: { _tenant_id: string }; Returns: undefined }
       cv_test_setup: { Args: never; Returns: Json }
+      cv_transition_allowed: {
+        Args: {
+          _from: Database["public"]["Enums"]["call_session_state"]
+          _to: Database["public"]["Enums"]["call_session_state"]
+        }
+        Returns: boolean
+      }
       ensure_ledger_account: { Args: { _account_id: string }; Returns: string }
       execute_transfer: {
         Args: {
@@ -1080,6 +1401,31 @@ export type Database = {
       account_status: "ACTIVE" | "SUSPENDED" | "CLOSED"
       app_role: "SUPER_ADMIN" | "TENANT_ADMIN" | "CUSTOMER"
       application_status: "PENDING" | "UNDER_REVIEW" | "APPROVED" | "REJECTED"
+      call_action:
+        | "CHECK_BALANCE"
+        | "VIEW_ACCOUNT"
+        | "TRANSFER_CREDIT"
+        | "END_SESSION"
+      call_auth_stage:
+        | "TENANT_RESOLUTION"
+        | "ACCESS_CODE"
+        | "ACCOUNT_IDENTIFICATION"
+        | "PIN"
+        | "AUTHENTICATED"
+        | "CLOSED"
+      call_session_state:
+        | "NEW"
+        | "TENANT_RESOLVED"
+        | "ACCESS_CODE_VERIFIED"
+        | "ACCOUNT_IDENTIFIED"
+        | "PIN_VERIFIED"
+        | "AUTHENTICATED"
+        | "PROCESSING"
+        | "COMPLETED"
+        | "FAILED"
+        | "LOCKED"
+        | "EXPIRED"
+        | "ENDED"
       customer_status: "PENDING" | "ACTIVE" | "SUSPENDED" | "CLOSED"
       ledger_direction: "DEBIT" | "CREDIT"
       phone_number_status:
@@ -1243,6 +1589,34 @@ export const Constants = {
       account_status: ["ACTIVE", "SUSPENDED", "CLOSED"],
       app_role: ["SUPER_ADMIN", "TENANT_ADMIN", "CUSTOMER"],
       application_status: ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"],
+      call_action: [
+        "CHECK_BALANCE",
+        "VIEW_ACCOUNT",
+        "TRANSFER_CREDIT",
+        "END_SESSION",
+      ],
+      call_auth_stage: [
+        "TENANT_RESOLUTION",
+        "ACCESS_CODE",
+        "ACCOUNT_IDENTIFICATION",
+        "PIN",
+        "AUTHENTICATED",
+        "CLOSED",
+      ],
+      call_session_state: [
+        "NEW",
+        "TENANT_RESOLVED",
+        "ACCESS_CODE_VERIFIED",
+        "ACCOUNT_IDENTIFIED",
+        "PIN_VERIFIED",
+        "AUTHENTICATED",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED",
+        "LOCKED",
+        "EXPIRED",
+        "ENDED",
+      ],
       customer_status: ["PENDING", "ACTIVE", "SUSPENDED", "CLOSED"],
       ledger_direction: ["DEBIT", "CREDIT"],
       phone_number_status: [
