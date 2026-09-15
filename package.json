@@ -14,7 +14,12 @@
     "test:concurrency": "bash supabase/tests/concurrency.sh",
     "test:voice": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase2a.sql",
     "test:voice:concurrency": "bash supabase/tests/phase2a-concurrency.sh",
-    "test:hash": "bun test supabase/tests/phase2a-hash.test.ts"
+    "test:hash": "bun test supabase/tests/phase2a-hash.test.ts",
+    "test:twilio": "bun test supabase/tests/phase2b-unit.test.ts",
+    "test:ivr": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase2b.sql",
+    "test:voice:e2e": "bun test supabase/tests/phase2b-e2e.test.ts",
+    "test:voice:security": "bun test supabase/tests/phase2b-unit.test.ts supabase/tests/phase2b-e2e.test.ts",
+    "test:ivr:concurrency": "bash supabase/tests/phase2b-concurrency.sh"
   },
   "overrides": {
     "rolldown": "1.2.1"
