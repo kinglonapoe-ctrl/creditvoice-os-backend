@@ -1,12 +1,24 @@
-# CreditVoice OS — Phase 2B roadmap
+# CreditVoice OS — roadmap
 
-- [ ] Migration: IVR/voice config columns, IVR state on call sessions, transfer grants, financial failure events, cv_ivr_* / cv_prepare_transfer / cv_execute_voice_transfer / cv_customer_care_route, sandbox helpers
-- [ ] Twilio signature verification (HMAC-SHA1, canonical URL)
-- [ ] TwiML builder + Twilio provider adapter implementing TelephonyProvider
-- [ ] Deterministic IVR engine (welcome → access code → account → PIN → menu → actions)
-- [ ] Amount parsing with per-currency decimal precision (no floats)
-- [ ] Public webhook route /api/public/voice/twilio (POST only)
-- [ ] Customer care routing with organization timezone and business hours
-- [ ] Tests: signature, TwiML, amount, IVR e2e, security, concurrency
-- [ ] .env.example, README, PHASE-2B-TWILIO-IVR-REPORT.md
-- [ ] Minimal platform-admin voice operations view
+## Phase 1 — foundation and hardening — complete
+## Phase 2A — secure voice authentication — complete
+## Phase 2B — Twilio adapter, signed webhook, deterministic IVR — complete
+
+- [x] Database layer (IVR settings, call session IVR fields, failure events, voice grants)
+- [x] Twilio provider implementing the existing telephony contract
+- [x] TwiML builder, signature verification, DTMF amount parsing
+- [x] Deterministic IVR engine over the Phase 2A session
+- [x] Public signed webhook route (POST only)
+- [x] Tests: 53 database, 27 unit, 29 end-to-end, 3 concurrency proofs
+- [x] Platform-admin Voice Operations view
+- [x] `.env.example`, README update, `PHASE-2B-TWILIO-IVR-REPORT.md`
+
+## Open before real customers (see report section 13)
+
+- [ ] Dashboard financial failure auditing
+- [ ] Remove sandbox test helpers from production
+- [ ] Scheduled reconciliation with operator alerting
+- [ ] Secure first-administrator password delivery
+- [ ] Backup and restore drill
+- [ ] Recording retention, consent and access-audit policy
+- [ ] Load testing of the call path
