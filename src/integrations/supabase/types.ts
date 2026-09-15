@@ -151,6 +151,8 @@ export type Database = {
           ivr_retries: number
           ivr_state: string
           last_activity_at: string
+          last_event_fingerprint: string | null
+          last_response: string | null
           metadata: Json
           pending_amount: number | null
           pending_recipient_account_id: string | null
@@ -163,6 +165,7 @@ export type Database = {
           state: Database["public"]["Enums"]["call_session_state"]
           tenant_id: string | null
           to_number: string
+          turn_no: number
           updated_at: string
         }
         Insert: {
@@ -180,6 +183,8 @@ export type Database = {
           ivr_retries?: number
           ivr_state?: string
           last_activity_at?: string
+          last_event_fingerprint?: string | null
+          last_response?: string | null
           metadata?: Json
           pending_amount?: number | null
           pending_recipient_account_id?: string | null
@@ -192,6 +197,7 @@ export type Database = {
           state?: Database["public"]["Enums"]["call_session_state"]
           tenant_id?: string | null
           to_number: string
+          turn_no?: number
           updated_at?: string
         }
         Update: {
@@ -209,6 +215,8 @@ export type Database = {
           ivr_retries?: number
           ivr_state?: string
           last_activity_at?: string
+          last_event_fingerprint?: string | null
+          last_response?: string | null
           metadata?: Json
           pending_amount?: number | null
           pending_recipient_account_id?: string | null
@@ -221,6 +229,7 @@ export type Database = {
           state?: Database["public"]["Enums"]["call_session_state"]
           tenant_id?: string | null
           to_number?: string
+          turn_no?: number
           updated_at?: string
         }
         Relationships: [
@@ -1348,6 +1357,8 @@ export type Database = {
           ivr_retries: number
           ivr_state: string
           last_activity_at: string
+          last_event_fingerprint: string | null
+          last_response: string | null
           metadata: Json
           pending_amount: number | null
           pending_recipient_account_id: string | null
@@ -1360,6 +1371,7 @@ export type Database = {
           state: Database["public"]["Enums"]["call_session_state"]
           tenant_id: string | null
           to_number: string
+          turn_no: number
           updated_at: string
         }
         SetofOptions: {
@@ -1442,6 +1454,10 @@ export type Database = {
         Args: { _account_number: string; _session_id: string }
         Returns: Json
       }
+      cv_ivr_claim_turn: {
+        Args: { _fingerprint: string; _session_id: string }
+        Returns: Json
+      }
       cv_ivr_config: { Args: { _tenant_id: string }; Returns: Json }
       cv_ivr_set_recipient: {
         Args: { _recipient: string; _session_id: string }
@@ -1452,6 +1468,10 @@ export type Database = {
         Returns: undefined
       }
       cv_ivr_state: { Args: { _session_id: string }; Returns: Json }
+      cv_ivr_store_response: {
+        Args: { _response: string; _session_id: string }
+        Returns: undefined
+      }
       cv_load_live_session: {
         Args: { _session_id: string }
         Returns: {
@@ -1469,6 +1489,8 @@ export type Database = {
           ivr_retries: number
           ivr_state: string
           last_activity_at: string
+          last_event_fingerprint: string | null
+          last_response: string | null
           metadata: Json
           pending_amount: number | null
           pending_recipient_account_id: string | null
@@ -1481,6 +1503,7 @@ export type Database = {
           state: Database["public"]["Enums"]["call_session_state"]
           tenant_id: string | null
           to_number: string
+          turn_no: number
           updated_at: string
         }
         SetofOptions: {
