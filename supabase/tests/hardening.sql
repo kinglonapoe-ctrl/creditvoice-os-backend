@@ -9,7 +9,7 @@
 \set ON_ERROR_STOP on
 begin;
 
-create temporary table cv_ids on commit drop as select public.cv_test_setup() as ids;
+create temporary table cv_ids on commit drop as select cv_test.cv_test_setup() as ids;
 create temporary table cv_results(name text, passed boolean, detail text) on commit drop;
 grant all on cv_results to authenticated;
 grant select on cv_ids to authenticated;
@@ -163,7 +163,7 @@ begin
   -- privileged setup is performed as the test role: the helper is no longer
   -- callable by signed-in users (forensic audit fix).
   execute 'set local role sandbox_exec';
-  perform public.cv_test_admin('suspend_account', aa2);
+  perform cv_test.cv_test_admin('suspend_account', aa2);
   execute 'set local role authenticated';
   begin
     perform public.execute_transfer(aa1, aa2, 100, null);
@@ -173,7 +173,7 @@ begin
   -- privileged setup is performed as the test role: the helper is no longer
   -- callable by signed-in users (forensic audit fix).
   execute 'set local role sandbox_exec';
-  perform public.cv_test_admin('activate_account', aa2);
+  perform cv_test.cv_test_admin('activate_account', aa2);
   execute 'set local role authenticated';
 
   perform public.execute_transfer(aa1, aa2, 500, null, 'idem-transfer-1');
@@ -235,7 +235,7 @@ begin
   -- privileged setup is performed as the test role: the helper is no longer
   -- callable by signed-in users (forensic audit fix).
   execute 'set local role sandbox_exec';
-  perform public.cv_test_admin('suspend_tenant', ta);
+  perform cv_test.cv_test_admin('suspend_tenant', ta);
   execute 'set local role authenticated';
   begin
     perform public.post_credit(aa1, 100, 'CREDIT_ADJUSTMENT', null);

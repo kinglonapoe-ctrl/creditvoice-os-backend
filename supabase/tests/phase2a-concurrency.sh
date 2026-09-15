@@ -17,13 +17,13 @@ TMP=$(mktemp -d)
 fail=0
 q() { psql "$DB" -Atc "$1"; }
 
-SEED=$(q "select public.cv_test_voice_setup('pbkdf2\$1\$00\$aa','pbkdf2\$1\$00\$bb')")
+SEED=$(q "select cv_test.cv_test_voice_setup('pbkdf2\$1\$00\$aa','pbkdf2\$1\$00\$bb')")
 jget() { echo "$SEED" | python3 -c "import json,sys; print(json.load(sys.stdin)['$1'])"; }
 TA=$(jget ta); TB=$(jget tb); TSUS=$(jget tsus)
 NUM_A=$(jget num_a); ACCT_A=$(jget acct_a)
 NUM_B=$(jget num_b); ACCT_B=$(jget acct_b)
 
-cleanup() { q "select public.cv_test_voice_cleanup(array['$TA','$TB','$TSUS']::uuid[])" >/dev/null; rm -rf "$TMP"; }
+cleanup() { q "select cv_test.cv_test_voice_cleanup(array['$TA','$TB','$TSUS']::uuid[])" >/dev/null; rm -rf "$TMP"; }
 trap cleanup EXIT
 
 # Drives a fresh session up to the PIN stage and echoes its id.
@@ -45,7 +45,7 @@ for _ in $(seq 1 8); do
 done
 wait
 STATE=$(q "select state from public.call_sessions where id = '$SID'")
-ATTEMPTS=$(q "select (public.cv_test_credential_state('PIN','$(jget ca)'))->>'failed_attempts'")
+ATTEMPTS=$(q "select (cv_test.cv_test_credential_state('PIN','$(jget ca)'))->>'failed_attempts'")
 if [ "$STATE" = "LOCKED" ] && [ "$ATTEMPTS" -le 3 ]; then
   echo "   PASS  8 concurrent invalid PINs -> state=$STATE, counted attempts=$ATTEMPTS (allowance 3)"
 else

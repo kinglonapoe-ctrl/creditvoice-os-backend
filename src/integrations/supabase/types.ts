@@ -1535,51 +1535,6 @@ export type Database = {
         Args: { _default: number; _key: string }
         Returns: number
       }
-      cv_test_add_account: {
-        Args: { _currency?: string; _name: string; _tenant_id: string }
-        Returns: Json
-      }
-      cv_test_admin: {
-        Args: { _action: string; _id: string }
-        Returns: undefined
-      }
-      cv_test_cleanup: { Args: { _tenant_id: string }; Returns: undefined }
-      cv_test_credential_state: {
-        Args: { _id: string; _kind: string }
-        Returns: Json
-      }
-      cv_test_fund_account: {
-        Args: { _account_id: string; _amount: number }
-        Returns: undefined
-      }
-      cv_test_rotate_access_code: {
-        Args: { _new_hash: string; _tenant_id: string }
-        Returns: string
-      }
-      cv_test_seed_caller_failures: {
-        Args: { _count: number; _from_number: string }
-        Returns: undefined
-      }
-      cv_test_set_care: {
-        Args: { _settings: Json; _tenant_id: string }
-        Returns: undefined
-      }
-      cv_test_set_tenant_status: {
-        Args: {
-          _status: Database["public"]["Enums"]["tenant_status"]
-          _tenant_id: string
-        }
-        Returns: undefined
-      }
-      cv_test_setup: { Args: never; Returns: Json }
-      cv_test_voice_cleanup: {
-        Args: { _tenant_ids: string[] }
-        Returns: undefined
-      }
-      cv_test_voice_setup: {
-        Args: { _access_hash: string; _pin_hash: string }
-        Returns: Json
-      }
       cv_transition_allowed: {
         Args: {
           _from: Database["public"]["Enums"]["call_session_state"]
