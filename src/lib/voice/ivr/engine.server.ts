@@ -57,6 +57,7 @@ interface IvrSnapshot {
   account_id: string | null;
   pending_amount: string | number | null;
   pending_transfer_key: string | null;
+  pending_recipient_input: string | null;
 }
 
 interface IvrConfig {
@@ -361,7 +362,7 @@ export async function handleVoiceTurn(input: VoiceTurnInput): Promise<string> {
         _entity_id: sessionId,
         _metadata: { stage: "RECIPIENT_ENTERED" },
       }).catch(() => undefined);
-      pendingRecipient.set(sessionId, digits);
+      await voiceRpc("cv_ivr_set_recipient", { _session_id: sessionId, _recipient: digits });
       return promptFor("TRANSFER_AMOUNT", input, config);
     }
 
@@ -375,13 +376,6 @@ export async function handleVoiceTurn(input: VoiceTurnInput): Promise<string> {
       return renderMenu(sessionId, input, config);
   }
 }
-
-/**
- * Recipient entered in one callback, amount in the next. Held only for the
- * life of this worker; if it is lost the caller is simply asked again. It is
- * never an identity and never authorises anything.
- */
-const pendingRecipient = new Map<string, string>();
 
 async function handleMenu(
   sessionId: string,
@@ -474,7 +468,7 @@ async function handleAmount(
   input: VoiceTurnInput,
   config: IvrConfig,
 ): Promise<string> {
-  const recipient = pendingRecipient.get(sessionId);
+  const recipient = snapshot.pending_recipient_input;
   if (!recipient) {
     await setState(sessionId, "TRANSFER_RECIPIENT");
     return promptFor("TRANSFER_RECIPIENT", input, config);
@@ -507,7 +501,7 @@ async function handleAmount(
   if (!prepared?.ok) {
     const reason = prepared?.reason;
     if (reason === "SESSION_EXPIRED") return fail(sessionId, "SESSION_EXPIRED", config);
-    pendingRecipient.delete(sessionId);
+    await voiceRpc("cv_cancel_transfer", { _session_id: sessionId }).catch(() => undefined);
     return renderMenu(sessionId, input, config, voiceMessage("RECIPIENT_UNAVAILABLE"));
   }
 
@@ -529,7 +523,6 @@ async function handleConfirm(
 ): Promise<string> {
   if (digits !== "1") {
     await voiceRpc("cv_cancel_transfer", { _session_id: sessionId }).catch(() => undefined);
-    pendingRecipient.delete(sessionId);
     return renderMenu(sessionId, input, config, PROMPTS.transferCancelled);
   }
 
@@ -541,8 +534,6 @@ async function handleConfirm(
     _session_id: sessionId,
     _idempotency_key: idempotencyKey,
   });
-
-  pendingRecipient.delete(sessionId);
 
   if (!result?.ok) {
     const reason = result?.reason;
