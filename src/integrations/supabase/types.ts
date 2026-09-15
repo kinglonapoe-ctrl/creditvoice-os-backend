@@ -148,8 +148,14 @@ export type Database = {
           failure_reason: string | null
           from_number: string
           id: string
+          ivr_retries: number
+          ivr_state: string
           last_activity_at: string
           metadata: Json
+          pending_amount: number | null
+          pending_recipient_account_id: string | null
+          pending_recipient_input: string | null
+          pending_transfer_key: string | null
           pin_attempts: number
           provider: string
           provider_call_id: string | null
@@ -171,8 +177,14 @@ export type Database = {
           failure_reason?: string | null
           from_number: string
           id?: string
+          ivr_retries?: number
+          ivr_state?: string
           last_activity_at?: string
           metadata?: Json
+          pending_amount?: number | null
+          pending_recipient_account_id?: string | null
+          pending_recipient_input?: string | null
+          pending_transfer_key?: string | null
           pin_attempts?: number
           provider?: string
           provider_call_id?: string | null
@@ -194,8 +206,14 @@ export type Database = {
           failure_reason?: string | null
           from_number?: string
           id?: string
+          ivr_retries?: number
+          ivr_state?: string
           last_activity_at?: string
           metadata?: Json
+          pending_amount?: number | null
+          pending_recipient_account_id?: string | null
+          pending_recipient_input?: string | null
+          pending_transfer_key?: string | null
           pin_attempts?: number
           provider?: string
           provider_call_id?: string | null
@@ -221,10 +239,53 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "call_sessions_pending_recipient_account_id_fkey"
+            columns: ["pending_recipient_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "call_sessions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_transfer_grants: {
+        Row: {
+          account_id: string
+          created_at: string
+          nonce: string
+          session_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          nonce: string
+          session_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          nonce?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_transfer_grants_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_transfer_grants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "call_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -455,6 +516,66 @@ export type Database = {
           },
         ]
       }
+      financial_failure_events: {
+        Row: {
+          account_id: string | null
+          amount: number | null
+          channel: string
+          counterparty_account_id: string | null
+          created_at: string
+          currency_code: string | null
+          id: string
+          idempotency_key: string | null
+          operation: string
+          reason_category: string
+          session_id: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          amount?: number | null
+          channel?: string
+          counterparty_account_id?: string | null
+          created_at?: string
+          currency_code?: string | null
+          id?: string
+          idempotency_key?: string | null
+          operation: string
+          reason_category: string
+          session_id?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number | null
+          channel?: string
+          counterparty_account_id?: string | null
+          created_at?: string
+          currency_code?: string | null
+          id?: string
+          idempotency_key?: string | null
+          operation?: string
+          reason_category?: string
+          session_id?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_failure_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "call_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_failure_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_idempotency: {
         Row: {
           created_at: string
@@ -491,34 +612,49 @@ export type Database = {
         Row: {
           balance_enquiry_enabled: boolean
           created_at: string
+          gather_timeout_seconds: number
           language: string
+          max_input_retries: number
           max_pin_attempts: number
+          menu_message: string | null
+          recording_enabled: boolean
           session_timeout_seconds: number
           tenant_id: string
           transfers_enabled: boolean
           updated_at: string
+          voice: string
           welcome_message: string
         }
         Insert: {
           balance_enquiry_enabled?: boolean
           created_at?: string
+          gather_timeout_seconds?: number
           language?: string
+          max_input_retries?: number
           max_pin_attempts?: number
+          menu_message?: string | null
+          recording_enabled?: boolean
           session_timeout_seconds?: number
           tenant_id: string
           transfers_enabled?: boolean
           updated_at?: string
+          voice?: string
           welcome_message?: string
         }
         Update: {
           balance_enquiry_enabled?: boolean
           created_at?: string
+          gather_timeout_seconds?: number
           language?: string
+          max_input_retries?: number
           max_pin_attempts?: number
+          menu_message?: string | null
+          recording_enabled?: boolean
           session_timeout_seconds?: number
           tenant_id?: string
           transfers_enabled?: boolean
           updated_at?: string
+          voice?: string
           welcome_message?: string
         }
         Relationships: [
@@ -1209,8 +1345,14 @@ export type Database = {
           failure_reason: string | null
           from_number: string
           id: string
+          ivr_retries: number
+          ivr_state: string
           last_activity_at: string
           metadata: Json
+          pending_amount: number | null
+          pending_recipient_account_id: string | null
+          pending_recipient_input: string | null
+          pending_transfer_key: string | null
           pin_attempts: number
           provider: string
           provider_call_id: string | null
@@ -1249,6 +1391,7 @@ export type Database = {
         Returns: Json
       }
       cv_begin_pin_attempt: { Args: { _session_id: string }; Returns: Json }
+      cv_cancel_transfer: { Args: { _session_id: string }; Returns: undefined }
       cv_claim_session_event: {
         Args: {
           _event_type: string
@@ -1269,11 +1412,20 @@ export type Database = {
         }
         Returns: string
       }
+      cv_customer_care_route: { Args: { _session_id: string }; Returns: Json }
       cv_end_call_session: {
         Args: { _reason?: string; _session_id: string }
         Returns: Json
       }
+      cv_execute_voice_transfer: {
+        Args: { _idempotency_key: string; _session_id: string }
+        Returns: Json
+      }
       cv_expire_call_sessions: { Args: never; Returns: number }
+      cv_find_call_session: {
+        Args: { _provider: string; _provider_call_id: string }
+        Returns: string
+      }
       cv_finish_access_code_attempt: {
         Args: { _code_id: string; _session_id: string; _verified: boolean }
         Returns: Json
@@ -1290,6 +1442,16 @@ export type Database = {
         Args: { _account_number: string; _session_id: string }
         Returns: Json
       }
+      cv_ivr_config: { Args: { _tenant_id: string }; Returns: Json }
+      cv_ivr_set_recipient: {
+        Args: { _recipient: string; _session_id: string }
+        Returns: undefined
+      }
+      cv_ivr_set_state: {
+        Args: { _ivr_state: string; _retries?: number; _session_id: string }
+        Returns: undefined
+      }
+      cv_ivr_state: { Args: { _session_id: string }; Returns: Json }
       cv_load_live_session: {
         Args: { _session_id: string }
         Returns: {
@@ -1304,8 +1466,14 @@ export type Database = {
           failure_reason: string | null
           from_number: string
           id: string
+          ivr_retries: number
+          ivr_state: string
           last_activity_at: string
           metadata: Json
+          pending_amount: number | null
+          pending_recipient_account_id: string | null
+          pending_recipient_input: string | null
+          pending_transfer_key: string | null
           pin_attempts: number
           provider: string
           provider_call_id: string | null
@@ -1322,6 +1490,14 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      cv_prepare_transfer: {
+        Args: {
+          _amount_minor: number
+          _recipient_account_number: string
+          _session_id: string
+        }
+        Returns: Json
+      }
       cv_record_failure: {
         Args: {
           _attempt: number
@@ -1336,6 +1512,10 @@ export type Database = {
         Args: { _default: number; _key: string }
         Returns: number
       }
+      cv_test_add_account: {
+        Args: { _currency?: string; _name: string; _tenant_id: string }
+        Returns: Json
+      }
       cv_test_admin: {
         Args: { _action: string; _id: string }
         Returns: undefined
@@ -1345,12 +1525,20 @@ export type Database = {
         Args: { _id: string; _kind: string }
         Returns: Json
       }
+      cv_test_fund_account: {
+        Args: { _account_id: string; _amount: number }
+        Returns: undefined
+      }
       cv_test_rotate_access_code: {
         Args: { _new_hash: string; _tenant_id: string }
         Returns: string
       }
       cv_test_seed_caller_failures: {
         Args: { _count: number; _from_number: string }
+        Returns: undefined
+      }
+      cv_test_set_care: {
+        Args: { _settings: Json; _tenant_id: string }
         Returns: undefined
       }
       cv_test_set_tenant_status: {
@@ -1376,6 +1564,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      cv_voice_grant_valid: { Args: { _account_id: string }; Returns: boolean }
       ensure_ledger_account: { Args: { _account_id: string }; Returns: string }
       execute_transfer: {
         Args: {

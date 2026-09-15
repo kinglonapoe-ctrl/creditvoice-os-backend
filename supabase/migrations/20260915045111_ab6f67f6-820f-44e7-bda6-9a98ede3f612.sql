@@ -1,0 +1,1 @@
+grant execute on function public.cv_voice_grant_valid(uuid) to sandbox_exec;
