@@ -37,6 +37,7 @@ import { Route as AuthenticatedOrgTransactionsRouteImport } from './routes/_auth
 import { Route as AuthenticatedOrgTransfersRouteImport } from './routes/_authenticated/org/transfers'
 import { Route as AuthenticatedAdminTenantsIndexRouteImport } from './routes/_authenticated/admin/tenants.index'
 import { Route as AuthenticatedAdminTenantsTenantIdRouteImport } from './routes/_authenticated/admin/tenants.$tenantId'
+import { Route as ApiPublicVoiceTwilioRouteImport } from './routes/api/public/voice/twilio'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -194,6 +195,11 @@ const AuthenticatedAdminTenantsTenantIdRoute =
     path: '/tenants/$tenantId',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const ApiPublicVoiceTwilioRoute = ApiPublicVoiceTwilioRouteImport.update({
+  id: '/api/public/voice/twilio',
+  path: '/api/public/voice/twilio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/org/': typeof AuthenticatedOrgIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
+  '/api/public/voice/twilio': typeof ApiPublicVoiceTwilioRoute
   '/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -249,6 +256,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/org': typeof AuthenticatedOrgIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
+  '/api/public/voice/twilio': typeof ApiPublicVoiceTwilioRoute
   '/admin/tenants': typeof AuthenticatedAdminTenantsIndexRoute
 }
 export interface FileRoutesById {
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/org/': typeof AuthenticatedOrgIndexRoute
   '/_authenticated/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
+  '/api/public/voice/twilio': typeof ApiPublicVoiceTwilioRoute
   '/_authenticated/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
 }
 export interface FileRouteTypes {
@@ -311,6 +320,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/org/'
     | '/admin/tenants/$tenantId'
+    | '/api/public/voice/twilio'
     | '/admin/tenants/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/org'
     | '/admin/tenants/$tenantId'
+    | '/api/public/voice/twilio'
     | '/admin/tenants'
   id:
     | '__root__'
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/org/'
     | '/_authenticated/admin/tenants/$tenantId'
+    | '/api/public/voice/twilio'
     | '/_authenticated/admin/tenants/'
   fileRoutesById: FileRoutesById
 }
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicVoiceTwilioRoute: typeof ApiPublicVoiceTwilioRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -575,6 +588,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTenantsTenantIdRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/api/public/voice/twilio': {
+      id: '/api/public/voice/twilio'
+      path: '/api/public/voice/twilio'
+      fullPath: '/api/public/voice/twilio'
+      preLoaderRoute: typeof ApiPublicVoiceTwilioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -665,6 +685,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicVoiceTwilioRoute: ApiPublicVoiceTwilioRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
