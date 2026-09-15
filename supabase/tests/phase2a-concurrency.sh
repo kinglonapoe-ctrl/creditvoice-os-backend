@@ -21,18 +21,19 @@ SEED=$(q "select public.cv_test_voice_setup('pbkdf2\$1\$00\$aa','pbkdf2\$1\$00\$
 jget() { echo "$SEED" | python3 -c "import json,sys; print(json.load(sys.stdin)['$1'])"; }
 TA=$(jget ta); TB=$(jget tb); TSUS=$(jget tsus)
 NUM_A=$(jget num_a); ACCT_A=$(jget acct_a)
+NUM_B=$(jget num_b); ACCT_B=$(jget acct_b)
 
 cleanup() { q "select public.cv_test_voice_cleanup(array['$TA','$TB','$TSUS']::uuid[])" >/dev/null; rm -rf "$TMP"; }
 trap cleanup EXIT
 
 # Drives a fresh session up to the PIN stage and echoes its id.
 new_session_at_pin() {
-  local from="$1" sid code
-  sid=$(q "select public.cv_create_call_session('$from','$NUM_A')")
+  local from="$1" num="${2:-$NUM_A}" acct="${3:-$ACCT_A}" sid code
+  sid=$(q "select public.cv_create_call_session('$from','$num')")
   q "select public.cv_resolve_tenant('$sid')" >/dev/null
   code=$(q "select (public.cv_begin_access_code_attempt('$sid'))->>'code_id'")
   q "select public.cv_finish_access_code_attempt('$sid','$code',true)" >/dev/null
-  q "select public.cv_identify_account('$sid','$ACCT_A')" >/dev/null
+  q "select public.cv_identify_account('$sid','$acct')" >/dev/null
   echo "$sid"
 }
 
@@ -68,9 +69,8 @@ else
 fi
 
 echo "3) session transition race"
-q "select public.cv_test_credential_state('PIN','$(jget ca)')" >/dev/null
-psql "$DB" -q -c "update public.call_sessions set pin_attempts = 0 where id = '$SID'" >/dev/null 2>&1 || true
-SID3=$(new_session_at_pin '+2348700000003')
+# uses a second organization whose credential has not been locked by test 1
+SID3=$(new_session_at_pin '+2348700000003' "$NUM_B" "$ACCT_B")
 psql "$DB" -Atc "select public.cv_begin_pin_attempt('$SID3'); select public.cv_finish_pin_attempt('$SID3',true)" \
   > "$TMP/ok.txt" 2>&1 &
 psql "$DB" -Atc "select public.cv_begin_pin_attempt('$SID3'); select public.cv_finish_pin_attempt('$SID3',false)" \
