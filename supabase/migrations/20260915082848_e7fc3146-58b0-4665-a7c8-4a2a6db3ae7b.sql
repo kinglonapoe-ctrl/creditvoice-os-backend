@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.cv_test_admin(text, uuid) FROM authenticated, anon, PUBLIC;
