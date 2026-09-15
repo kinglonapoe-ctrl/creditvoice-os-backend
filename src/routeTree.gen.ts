@@ -24,6 +24,7 @@ import { Route as AuthenticatedAdminPhoneNumbersRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminTelephonyRouteImport } from './routes/_authenticated/admin/telephony'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin/transactions'
+import { Route as AuthenticatedAdminVoiceOperationsRouteImport } from './routes/_authenticated/admin/voice-operations'
 import { Route as AuthenticatedOrgIndexRouteImport } from './routes/_authenticated/org/index'
 import { Route as AuthenticatedOrgAccountsRouteImport } from './routes/_authenticated/org/accounts'
 import { Route as AuthenticatedOrgCreditRouteImport } from './routes/_authenticated/org/credit'
@@ -121,6 +122,12 @@ const AuthenticatedAdminTransactionsRoute =
     path: '/transactions',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminVoiceOperationsRoute =
+  AuthenticatedAdminVoiceOperationsRouteImport.update({
+    id: '/voice-operations',
+    path: '/voice-operations',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedOrgIndexRoute = AuthenticatedOrgIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -215,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/admin/voice-operations': typeof AuthenticatedAdminVoiceOperationsRoute
   '/org/accounts': typeof AuthenticatedOrgAccountsRoute
   '/org/credit': typeof AuthenticatedOrgCreditRoute
   '/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
@@ -243,6 +251,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/admin/voice-operations': typeof AuthenticatedAdminVoiceOperationsRoute
   '/org/accounts': typeof AuthenticatedOrgAccountsRoute
   '/org/credit': typeof AuthenticatedOrgCreditRoute
   '/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
@@ -275,6 +284,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/telephony': typeof AuthenticatedAdminTelephonyRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
+  '/_authenticated/admin/voice-operations': typeof AuthenticatedAdminVoiceOperationsRoute
   '/_authenticated/org/accounts': typeof AuthenticatedOrgAccountsRoute
   '/_authenticated/org/credit': typeof AuthenticatedOrgCreditRoute
   '/_authenticated/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
@@ -307,6 +317,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/telephony'
     | '/admin/transactions'
+    | '/admin/voice-operations'
     | '/org/accounts'
     | '/org/credit'
     | '/org/customer-care'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/telephony'
     | '/admin/transactions'
+    | '/admin/voice-operations'
     | '/org/accounts'
     | '/org/credit'
     | '/org/customer-care'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/telephony'
     | '/_authenticated/admin/transactions'
+    | '/_authenticated/admin/voice-operations'
     | '/_authenticated/org/accounts'
     | '/_authenticated/org/credit'
     | '/_authenticated/org/customer-care'
@@ -497,6 +510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTransactionsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/voice-operations': {
+      id: '/_authenticated/admin/voice-operations'
+      path: '/voice-operations'
+      fullPath: '/admin/voice-operations'
+      preLoaderRoute: typeof AuthenticatedAdminVoiceOperationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/org/': {
       id: '/_authenticated/org/'
       path: '/'
@@ -607,6 +627,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminTelephonyRoute: typeof AuthenticatedAdminTelephonyRoute
   AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
+  AuthenticatedAdminVoiceOperationsRoute: typeof AuthenticatedAdminVoiceOperationsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminTenantsTenantIdRoute: typeof AuthenticatedAdminTenantsTenantIdRoute
   AuthenticatedAdminTenantsIndexRoute: typeof AuthenticatedAdminTenantsIndexRoute
@@ -622,6 +643,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminTelephonyRoute: AuthenticatedAdminTelephonyRoute,
     AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
+    AuthenticatedAdminVoiceOperationsRoute:
+      AuthenticatedAdminVoiceOperationsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminTenantsTenantIdRoute:
       AuthenticatedAdminTenantsTenantIdRoute,
