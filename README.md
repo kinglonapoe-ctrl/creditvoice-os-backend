@@ -168,13 +168,35 @@ built and tested. No telephony provider, SIP or voice AI is present.
 
 Full detail: [`PHASE-2A-SECURE-AUTH-REPORT.md`](./PHASE-2A-SECURE-AUTH-REPORT.md).
 
+## Phase 2B — Twilio voice adapter and IVR (complete)
+
+Real telephone calls now reach the credit engine.
+
+- A single public webhook receives Twilio calls and verifies the Twilio
+  signature before any other work; unsigned or altered requests are refused.
+- A deterministic keypad menu runs the call: welcome, access code, account
+  number, PIN, then balance, account information, transfer or customer care.
+- All credential checks and all identity remain the Phase 2A services; the call
+  layer decides nothing about who the caller is.
+- Transfers require an explicit confirmation and go through the unchanged
+  `execute_transfer` with a deterministic idempotency key, so a repeated
+  callback can never move money twice.
+- Amounts are validated against the organization's currency decimal places and
+  rejected — never rounded — when the precision is wrong.
+- Customer care follows the organization's configured hours, timezone and
+  after-hours behaviour. Call recording is off unless explicitly enabled.
+- Platform administrators get a Voice Operations view with masked caller
+  numbers; credentials are never shown anywhere.
+
+Full detail: [`PHASE-2B-TWILIO-IVR-REPORT.md`](./PHASE-2B-TWILIO-IVR-REPORT.md).
+
 ## Launch blockers
 
 These must be closed before real money or real customers:
 
-1. **Failure auditing** — rejected transfers and credits currently roll back
-   their own audit row; record them outside the transaction. (Authentication
-   failures are already recorded durably.)
+1. **Failure auditing for the dashboard path** — refused voice transfers are now
+   recorded durably; a rejected dashboard credit still rolls back its own audit
+   row.
 2. **Remove the development test helpers** (`cv_test_*`) from the production
    database.
 3. **Scheduled reconciliation with alerting** — run the ledger-versus-balance
@@ -182,19 +204,22 @@ These must be closed before real money or real customers:
 4. **Administrator password delivery** — the first organization password is
    shown once on screen; it needs a real delivery and forced-reset flow.
 5. **Backup and restore drill** — proven point-in-time recovery of the ledger.
-6. **Per-currency rounding enforced on input** before amounts are spoken aloud.
+6. **Recording policy** — retention, consent announcements and access auditing
+   are undecided; recording stays off until they are.
+7. **Load testing** of the call and authentication path.
 
-*Closed in Phase 2A: the credential verification service, call-session records,
-organization-level rate limiting, and security events in the audit vocabulary.*
+*Closed in Phase 2A: credential verification, call-session records,
+organization-level rate limiting, security audit events.*
+*Closed in Phase 2B: the signed webhook, the Twilio adapter, the IVR engine,
+per-currency amount validation, and durable failure recording for voice.*
 
-## Must-haves (before Phase 2B ships)
+## Must-haves (next)
 
-- Signed, replay-protected webhook route for the voice provider
-- Twilio implementation of the existing `TelephonyProvider` interface
-- IVR conversation engine driving the Phase 2A session service only
+- Scheduled reconciliation with operator alerting
+- Remove the sandbox test helpers from the production database
 - Move customer and account creation behind server functions rather than direct
   table writes
-- Load testing of the authentication path
+- Organization-level voice operations view
 
 
 ## Good to have
@@ -219,8 +244,13 @@ Tailwind v4, shadcn/ui, TanStack Query, Supabase/PostgreSQL.
   `src/lib/*.functions.ts` (server functions); never in components.
 - Money moves only through the database functions `post_credit`,
   `execute_transfer` and `reverse_transfer`.
-- Telephony is abstracted behind `src/lib/telephony/provider.ts`; no provider is
-  implemented yet.
+- Telephony is abstracted behind `src/lib/telephony/provider.ts`; the Twilio
+  implementation lives in `src/lib/telephony/twilio-provider.server.ts` and is
+  selected by `TELEPHONY_PROVIDER`. `NONE` keeps development and tests working
+  without any Twilio account.
+- The public voice webhook is `POST /api/public/voice/twilio`; configure that
+  URL on the Twilio number and set `TWILIO_WEBHOOK_BASE_URL` to the same origin.
+  See `.env.example`.
 - Voice authentication and call sessions live in `src/lib/voice/`, backed by the
   `cv_*` database functions; they are provider-neutral.
 - All schema changes are migrations in `supabase/migrations`.
@@ -233,9 +263,13 @@ bun run test:concurrency        # Phase 1 — account-number and double-spend pr
 bun run test:voice              # Phase 2A — 65 call authentication assertions
 bun run test:voice:concurrency  # Phase 2A — credential lock, replay and session races
 bun run test:hash               # Phase 2A — credential hashing tests
+bun run test:ivr                # Phase 2B — 53 voice transfer and customer-care assertions
+bun run test:twilio             # Phase 2B — 27 signature, TwiML and amount tests
+bun run test:voice:e2e          # Phase 2B — 29 end-to-end IVR tests (no Twilio account needed)
+bun run test:ivr:concurrency    # Phase 2B — duplicate callback, duplicate transfer, parallel callers
 ```
 
-All except `test:hash` require `SUPABASE_DB_URL` and are safe to re-run: the SQL
+All except `test:hash` and `test:twilio` require `SUPABASE_DB_URL` and are safe to re-run: the SQL
 suites roll back entirely, the shell suites remove their fixtures.
 
 A full audit of the hardening work is in
