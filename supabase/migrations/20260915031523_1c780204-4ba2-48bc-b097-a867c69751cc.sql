@@ -1,0 +1,1 @@
+grant select on public.call_auth_failures to sandbox_exec;
