@@ -268,6 +268,32 @@ begin
   insert into cv3_results values ('signed-in users see no other organization''s failures', blocked, 'blocked');
 
   reset role;
+
+  -- Regression (forensic audit): RLS does not restrict TRUNCATE, so signed-in
+  -- users must not hold write/TRUNCATE privileges on call or financial
+  -- bookkeeping tables.
+  select count(*) into n
+  from information_schema.role_table_grants
+  where table_schema = 'public'
+    and grantee in ('anon', 'authenticated')
+    and privilege_type <> 'SELECT'
+    and table_name in ('call_sessions', 'call_session_events', 'call_auth_failures',
+                       'financial_failure_events', 'financial_idempotency',
+                       'tenant_account_sequences');
+  insert into cv3_results values ('no write or truncate grants on voice/financial tables', n = 0, 'grants=' || n);
+
+  select count(*) into n
+  from information_schema.role_table_grants
+  where table_schema = 'public' and grantee = 'anon'
+    and table_name in ('call_sessions', 'financial_idempotency', 'call_transfer_grants');
+  insert into cv3_results values ('anonymous role has no access to voice/financial tables', n = 0, 'grants=' || n);
+
+  select count(*) into n
+  from information_schema.routine_privileges
+  where specific_schema = 'public' and grantee in ('anon', 'authenticated')
+    and routine_name like 'cv_test_%';
+  insert into cv3_results values ('development test helpers are not exposed to clients', n = 0, 'grants=' || n);
+
 end $priv$;
 
 \pset border 2

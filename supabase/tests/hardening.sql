@@ -160,13 +160,21 @@ begin
   exception when others then ok := true; msg := sqlerrm; end;
   insert into cv_results values ('self transfer rejected', ok, msg);
 
+  -- privileged setup is performed as the test role: the helper is no longer
+  -- callable by signed-in users (forensic audit fix).
+  execute 'set local role sandbox_exec';
   perform public.cv_test_admin('suspend_account', aa2);
+  execute 'set local role authenticated';
   begin
     perform public.execute_transfer(aa1, aa2, 100, null);
     ok := false; msg := 'transfer to suspended account succeeded';
   exception when others then ok := true; msg := sqlerrm; end;
   insert into cv_results values ('transfer to an inactive account rejected', ok, msg);
+  -- privileged setup is performed as the test role: the helper is no longer
+  -- callable by signed-in users (forensic audit fix).
+  execute 'set local role sandbox_exec';
   perform public.cv_test_admin('activate_account', aa2);
+  execute 'set local role authenticated';
 
   perform public.execute_transfer(aa1, aa2, 500, null, 'idem-transfer-1');
   perform public.execute_transfer(aa1, aa2, 500, null, 'idem-transfer-1');
@@ -224,7 +232,11 @@ begin
   insert into cv_results values ('cached balances reconcile with the ledger', n = 0, 'drifting accounts=' || n);
 
   -- ---------- suspended organization ----------
+  -- privileged setup is performed as the test role: the helper is no longer
+  -- callable by signed-in users (forensic audit fix).
+  execute 'set local role sandbox_exec';
   perform public.cv_test_admin('suspend_tenant', ta);
+  execute 'set local role authenticated';
   begin
     perform public.post_credit(aa1, 100, 'CREDIT_ADJUSTMENT', null);
     ok := false; msg := 'credit under a suspended organization succeeded';

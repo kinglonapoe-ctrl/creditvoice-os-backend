@@ -194,24 +194,41 @@ Full detail: [`PHASE-2B-TWILIO-IVR-REPORT.md`](./PHASE-2B-TWILIO-IVR-REPORT.md).
 
 These must be closed before real money or real customers:
 
-1. **Failure auditing for the dashboard path** — refused voice transfers are now
+1. **Live telephony verification** — no real Twilio call has ever been placed
+   against this system. A signed inbound call, authentication, balance and a
+   real transfer must be proven against a staging organization.
+2. **Failure auditing for the dashboard path** — refused voice transfers are now
    recorded durably; a rejected dashboard credit still rolls back its own audit
    row.
-2. **Remove the development test helpers** (`cv_test_*`) from the production
-   database.
-3. **Scheduled reconciliation with alerting** — run the ledger-versus-balance
+3. **Remove the development test helpers** (`cv_test_*`) from the production
+   database. They now refuse every caller except the sandbox test role and are
+   no longer callable by signed-in users, but they should not exist in
+   production.
+4. **Scheduled reconciliation with alerting** — run the ledger-versus-balance
    check automatically and raise an alarm on any drift.
-4. **Administrator password delivery** — the first organization password is
+5. **Administrator password delivery** — the first organization password is
    shown once on screen; it needs a real delivery and forced-reset flow.
-5. **Backup and restore drill** — proven point-in-time recovery of the ledger.
-6. **Recording policy** — retention, consent announcements and access auditing
+6. **Backup and restore drill** — proven point-in-time recovery of the ledger.
+7. **Recording policy** — retention, consent announcements and access auditing
    are undecided; recording stays off until they are.
-7. **Load testing** of the call and authentication path.
+8. **Load testing** of the call and authentication path.
 
 *Closed in Phase 2A: credential verification, call-session records,
 organization-level rate limiting, security audit events.*
 *Closed in Phase 2B: the signed webhook, the Twilio adapter, the IVR engine,
 per-currency amount validation, and durable failure recording for voice.*
+
+## Independent forensic audit
+
+A full forensic audit of the Twilio → webhook → session → IVR → transfer →
+ledger path was performed against the code, migrations, live database
+privileges and every test suite. Verdict: **passed with non-blocking
+findings**. One privilege defect was found and fixed (signed-in users held
+write and truncate rights on call and financial bookkeeping tables) along with
+an exposed development helper, and regression tests were added.
+
+Full detail: [`PHASE-2B-FORENSIC-AUDIT-REPORT.md`](./PHASE-2B-FORENSIC-AUDIT-REPORT.md).
+
 
 ## Must-haves (next)
 
