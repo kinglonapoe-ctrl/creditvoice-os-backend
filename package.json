@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:db": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/hardening.sql",
+    "test:concurrency": "bash supabase/tests/concurrency.sh"
   },
   "overrides": {
     "rolldown": "1.2.1"
