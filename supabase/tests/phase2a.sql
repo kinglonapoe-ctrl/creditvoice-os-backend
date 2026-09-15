@@ -11,6 +11,7 @@
 begin;
 
 create temporary table cv2_results(name text, passed boolean, detail text) on commit drop;
+grant all on cv2_results to authenticated;
 
 do $suite$
 declare
