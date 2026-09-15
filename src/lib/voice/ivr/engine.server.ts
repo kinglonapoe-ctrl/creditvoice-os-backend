@@ -289,22 +289,41 @@ export async function handleVoiceTurn(input: VoiceTurnInput): Promise<string> {
   const digits = (input.digits ?? "").trim();
 
   // ---- replay protection ----------------------------------------------
-  const eventId = await sha256Hex(
-    `${provider}|${input.callSid}|${state}|${snapshot.ivr_retries}|${digits}`,
-  );
-  const claimed = await claimProviderEvent({
+  // A lost response makes Twilio resend an identical request. The session
+  // remembers the last request it handled and the exact TwiML it answered
+  // with, so a retry replays that answer instead of advancing the call a
+  // second time. A genuine repeat of the same key later in the call carries a
+  // different preceding turn and is processed normally.
+  const fingerprint = await sha256Hex(`${provider}|${input.callSid}|${input.step}|${state}|${digits}`);
+  const turn = await voiceRpc<{ replay: boolean; cached: string | null; turn: number }>("cv_ivr_claim_turn", {
+    _session_id: sessionId,
+    _fingerprint: fingerprint,
+  });
+  if (turn.replay) {
+    return turn.cached ?? promptFor(state, input, config);
+  }
+  await claimProviderEvent({
     sessionId,
     provider,
-    providerEventId: eventId,
+    providerEventId: `${input.callSid}:${turn.turn}`,
     eventType: `IVR_${state}`,
     payload: { step: input.step },
-  });
-  if (!claimed) {
-    // A duplicate callback re-renders the current prompt and changes nothing.
-    return promptFor(state, input, config);
-  }
+  }).catch(() => false);
 
   // ---- state machine ---------------------------------------------------
+  const xml = await runState(state, sessionId, snapshot, digits, input, config);
+  await voiceRpc("cv_ivr_store_response", { _session_id: sessionId, _response: xml }).catch(() => undefined);
+  return xml;
+}
+
+async function runState(
+  state: IvrState,
+  sessionId: string,
+  snapshot: IvrSnapshot,
+  digits: string,
+  input: VoiceTurnInput,
+  config: IvrConfig,
+): Promise<string> {
   switch (state) {
     case "ACCESS_CODE": {
       if (!digits) return retryOrEnd(snapshot, "ACCESS_CODE", input, config, "AUTHENTICATION_FAILED");
