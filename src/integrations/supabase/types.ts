@@ -1341,6 +1341,13 @@ export type Database = {
         Returns: undefined
       }
       cv_test_cleanup: { Args: { _tenant_id: string }; Returns: undefined }
+      cv_test_set_tenant_status: {
+        Args: {
+          _status: Database["public"]["Enums"]["tenant_status"]
+          _tenant_id: string
+        }
+        Returns: undefined
+      }
       cv_test_setup: { Args: never; Returns: Json }
       cv_test_voice_cleanup: {
         Args: { _tenant_ids: string[] }
