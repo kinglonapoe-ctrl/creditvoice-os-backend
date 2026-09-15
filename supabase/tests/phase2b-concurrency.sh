@@ -16,17 +16,17 @@ TMP=$(mktemp -d)
 fail=0
 q() { psql "$DB" -Atc "$1"; }
 
-SEED=$(q "select public.cv_test_voice_setup('pbkdf2\$1\$00\$aa','pbkdf2\$1\$00\$bb')")
+SEED=$(q "select cv_test.cv_test_voice_setup('pbkdf2\$1\$00\$aa','pbkdf2\$1\$00\$bb')")
 jget() { echo "$SEED" | python3 -c "import json,sys; print(json.load(sys.stdin)['$1'])"; }
 TA=$(jget ta); TB=$(jget tb); TSUS=$(jget tsus)
 NUM_A=$(jget num_a); ACCT_A=$(jget acct_a); AA1=$(jget aa1)
 NUM_B=$(jget num_b); ACCT_B=$(jget acct_b)
 
-EXTRA=$(q "select public.cv_test_add_account('$TA','QA Conc Recipient')")
+EXTRA=$(q "select cv_test.cv_test_add_account('$TA','QA Conc Recipient')")
 REC=$(echo "$EXTRA" | python3 -c "import json,sys; print(json.load(sys.stdin)['account_number'])")
-q "select public.cv_test_fund_account('$AA1', 100000)" >/dev/null
+q "select cv_test.cv_test_fund_account('$AA1', 100000)" >/dev/null
 
-cleanup() { q "select public.cv_test_voice_cleanup(array['$TA','$TB','$TSUS']::uuid[])" >/dev/null; rm -rf "$TMP"; }
+cleanup() { q "select cv_test.cv_test_voice_cleanup(array['$TA','$TB','$TSUS']::uuid[])" >/dev/null; rm -rf "$TMP"; }
 trap cleanup EXIT
 
 authenticate() {  # $1 caller number, $2 dialled number, $3 account number, $4 call sid
@@ -74,7 +74,7 @@ else
 fi
 
 echo "3) simultaneous callers stay isolated"
-EXTRA2=$(q "select public.cv_test_add_account('$TA','QA Conc Caller 2')")
+EXTRA2=$(q "select cv_test.cv_test_add_account('$TA','QA Conc Caller 2')")
 ACCT2=$(echo "$EXTRA2" | python3 -c "import json,sys; print(json.load(sys.stdin)['account_number'])")
 CUST2=$(echo "$EXTRA2" | python3 -c "import json,sys; print(json.load(sys.stdin)['customer_id'])")
 q "insert into public.customer_pins (customer_id, tenant_id, pin_hash) values ('$CUST2','$TA','pbkdf2\$1\$00\$bb')" >/dev/null

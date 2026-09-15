@@ -16,7 +16,7 @@ TMP=$(mktemp -d)
 fail=0
 
 echo "1) account number allocation under concurrency"
-SEED=$(psql "$DB" -Atc "select public.cv_test_setup()")
+SEED=$(psql "$DB" -Atc "select cv_test.cv_test_setup()")
 TENANT=$(echo "$SEED" | python3 -c 'import json,sys; print(json.load(sys.stdin)["ta"])')
 TENANT2=$(echo "$SEED" | python3 -c 'import json,sys; print(json.load(sys.stdin)["tb"])')
 for i in $(seq 1 30); do
@@ -25,7 +25,7 @@ done
 wait
 total=$(grep -c . "$TMP/numbers.txt" | tr -d ' ')
 distinct=$(sort -u "$TMP/numbers.txt" | grep -c . | tr -d ' ')
-psql "$DB" -q -c "select public.cv_test_cleanup('$TENANT'); select public.cv_test_cleanup('$TENANT2')" >/dev/null
+psql "$DB" -q -c "select cv_test.cv_test_cleanup('$TENANT'); select cv_test.cv_test_cleanup('$TENANT2')" >/dev/null
 if [ "$total" = "30" ] && [ "$distinct" = "30" ]; then
   echo "   PASS  30 concurrent allocations, $distinct distinct numbers"
 else
@@ -33,7 +33,7 @@ else
 fi
 
 echo "2) double spend: two concurrent 8,000 transfers from a 10,000 balance"
-IDS=$(psql "$DB" -Atc "select public.cv_test_setup()")
+IDS=$(psql "$DB" -Atc "select cv_test.cv_test_setup()")
 AA1=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["aa1"])')
 AA2=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["aa2"])')
 UA=$(echo "$IDS" | python3 -c 'import json,sys; print(json.load(sys.stdin)["ua"])')
@@ -85,7 +85,7 @@ else
   cat "$TMP/a.out" "$TMP/b.out"; fail=1
 fi
 
-psql "$DB" -q -c "select public.cv_test_cleanup('$TA'); select public.cv_test_cleanup('$TB')" \
+psql "$DB" -q -c "select cv_test.cv_test_cleanup('$TA'); select cv_test.cv_test_cleanup('$TB')" \
   >/dev/null 2>&1 || echo "   WARN  test organizations could not be removed automatically"
 rm -rf "$TMP"
 exit $fail

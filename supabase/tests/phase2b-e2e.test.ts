@@ -52,15 +52,15 @@ beforeAll(async () => {
   const accessHash = await hashSecret(ACCESS_CODE);
   const pinHash = await hashSecret(PIN);
   ids = JSON.parse(
-    sql(`select public.cv_test_voice_setup('${accessHash}','${pinHash}')`),
+    sql(`select cv_test.cv_test_voice_setup('${accessHash}','${pinHash}')`),
   ) as Record<string, string>;
-  recipient = JSON.parse(sql(`select public.cv_test_add_account('${ids["ta"]}','QA E2E Recipient')`));
-  sql(`select public.cv_test_fund_account('${ids["aa1"]}', 100000)`);
+  recipient = JSON.parse(sql(`select cv_test.cv_test_add_account('${ids["ta"]}','QA E2E Recipient')`));
+  sql(`select cv_test.cv_test_fund_account('${ids["aa1"]}', 100000)`);
 });
 
 afterAll(() => {
   sql(
-    `select public.cv_test_voice_cleanup(array['${ids["ta"]}','${ids["tb"]}','${ids["tsus"]}']::uuid[])`,
+    `select cv_test.cv_test_voice_cleanup(array['${ids["ta"]}','${ids["tb"]}','${ids["tsus"]}']::uuid[])`,
   );
 });
 

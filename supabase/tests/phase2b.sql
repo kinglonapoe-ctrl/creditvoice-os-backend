@@ -17,15 +17,15 @@ declare
   sid uuid; code_id uuid; r jsonb; n integer; before_bal numeric; after_bal numeric;
   rec_acct text; rec_id uuid; src_id uuid; trid1 uuid; key1 text; nowt time;
 begin
-  ids := public.cv_test_voice_setup('pbkdf2$1$00$aa', 'pbkdf2$1$00$bb');
+  ids := cv_test.cv_test_voice_setup('pbkdf2$1$00$aa', 'pbkdf2$1$00$bb');
   ta := (ids->>'ta')::uuid; tb := (ids->>'tb')::uuid; tsus := (ids->>'tsus')::uuid;
   src_id := (ids->>'aa1')::uuid;
 
-  extra := public.cv_test_add_account(ta, 'QA Recipient');
+  extra := cv_test.cv_test_add_account(ta, 'QA Recipient');
   rec_acct := extra->>'account_number';
   rec_id := (extra->>'account_id')::uuid;
 
-  perform public.cv_test_fund_account(src_id, 100000);
+  perform cv_test.cv_test_fund_account(src_id, 100000);
 
   -- authenticate a call exactly as Phase 2A does -----------------------
   sid := public.cv_create_call_session('+2348123456789', ids->>'num_a', 'TWILIO', 'CA-TEST-1', null);
@@ -183,13 +183,13 @@ begin
   sid := public.cv_create_call_session('+2348123456780', ids->>'num_a', 'TWILIO', 'CA-TEST-2', null);
   perform public.cv_resolve_tenant(sid);
 
-  perform public.cv_test_set_care(ta, jsonb_build_object('enabled', false));
+  perform cv_test.cv_test_set_care(ta, jsonb_build_object('enabled', false));
   r := public.cv_customer_care_route(sid);
   insert into cv3_results values ('customer care disabled is unavailable',
     (r->>'available')::boolean = false, r::text);
 
   nowt := (now() at time zone 'UTC')::time;
-  perform public.cv_test_set_care(ta, jsonb_build_object(
+  perform cv_test.cv_test_set_care(ta, jsonb_build_object(
     'enabled', true, 'timezone', 'UTC', 'routing_mode', 'LIVE_AGENT', 'after_hours_mode', 'VOICEMAIL',
     'primary_number', '+2348000000001', 'voicemail_enabled', true,
     'business_hours_start', (nowt - interval '1 hour')::time::text,
@@ -200,19 +200,19 @@ begin
   insert into cv3_results values ('business hours are evaluated in the organization timezone',
     (r->>'in_hours')::boolean, r::text);
 
-  perform public.cv_test_set_care(ta, jsonb_build_object(
+  perform cv_test.cv_test_set_care(ta, jsonb_build_object(
     'business_hours_start', (nowt + interval '2 hours')::time::text,
     'business_hours_end', (nowt + interval '3 hours')::time::text));
   r := public.cv_customer_care_route(sid);
   insert into cv3_results values ('outside business hours the after-hours mode applies',
     (r->>'available')::boolean and r->>'action' = 'VOICEMAIL' and (r->>'in_hours')::boolean = false, r::text);
 
-  perform public.cv_test_set_care(ta, jsonb_build_object('after_hours_mode', 'VOICEMAIL', 'voicemail_enabled', false));
+  perform cv_test.cv_test_set_care(ta, jsonb_build_object('after_hours_mode', 'VOICEMAIL', 'voicemail_enabled', false));
   r := public.cv_customer_care_route(sid);
   insert into cv3_results values ('after-hours with voicemail disabled is unavailable',
     (r->>'available')::boolean = false, r::text);
 
-  perform public.cv_test_set_care(ta, jsonb_build_object(
+  perform cv_test.cv_test_set_care(ta, jsonb_build_object(
     'timezone', 'Pacific/Kiritimati', 'routing_mode', 'LIVE_AGENT', 'after_hours_mode', 'LIVE_AGENT',
     'voicemail_enabled', true,
     'business_hours_start', (nowt - interval '1 hour')::time::text,
@@ -221,7 +221,7 @@ begin
   insert into cv3_results values ('a different timezone changes the business-hours answer',
     (r->>'in_hours')::boolean = false, r::text);
 
-  perform public.cv_test_voice_cleanup(array[ta, tb, tsus]);
+  perform cv_test.cv_test_voice_cleanup(array[ta, tb, tsus]);
 end $suite$;
 
 -- ============ PRIVILEGES ============
