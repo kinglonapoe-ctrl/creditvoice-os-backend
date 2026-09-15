@@ -11,7 +11,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:db": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/hardening.sql",
-    "test:concurrency": "bash supabase/tests/concurrency.sh"
+    "test:concurrency": "bash supabase/tests/concurrency.sh",
+    "test:voice": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase2a.sql",
+    "test:voice:concurrency": "bash supabase/tests/phase2a-concurrency.sh",
+    "test:hash": "bun test supabase/tests/phase2a-hash.test.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
