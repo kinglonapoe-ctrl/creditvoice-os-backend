@@ -154,6 +154,7 @@ export type Database = {
           metadata: Json
           pending_amount: number | null
           pending_recipient_account_id: string | null
+          pending_recipient_input: string | null
           pending_transfer_key: string | null
           pin_attempts: number
           provider: string
@@ -182,6 +183,7 @@ export type Database = {
           metadata?: Json
           pending_amount?: number | null
           pending_recipient_account_id?: string | null
+          pending_recipient_input?: string | null
           pending_transfer_key?: string | null
           pin_attempts?: number
           provider?: string
@@ -210,6 +212,7 @@ export type Database = {
           metadata?: Json
           pending_amount?: number | null
           pending_recipient_account_id?: string | null
+          pending_recipient_input?: string | null
           pending_transfer_key?: string | null
           pin_attempts?: number
           provider?: string
@@ -1348,6 +1351,7 @@ export type Database = {
           metadata: Json
           pending_amount: number | null
           pending_recipient_account_id: string | null
+          pending_recipient_input: string | null
           pending_transfer_key: string | null
           pin_attempts: number
           provider: string
@@ -1439,6 +1443,10 @@ export type Database = {
         Returns: Json
       }
       cv_ivr_config: { Args: { _tenant_id: string }; Returns: Json }
+      cv_ivr_set_recipient: {
+        Args: { _recipient: string; _session_id: string }
+        Returns: undefined
+      }
       cv_ivr_set_state: {
         Args: { _ivr_state: string; _retries?: number; _session_id: string }
         Returns: undefined
@@ -1464,6 +1472,7 @@ export type Database = {
           metadata: Json
           pending_amount: number | null
           pending_recipient_account_id: string | null
+          pending_recipient_input: string | null
           pending_transfer_key: string | null
           pin_attempts: number
           provider: string
