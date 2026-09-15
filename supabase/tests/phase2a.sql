@@ -46,11 +46,11 @@ begin
   r := public.cv_resolve_tenant(sid2);
   insert into cv2_results values ('non voice-capable number rejected', (r->>'ok')::boolean = false, r::text);
 
-  update public.tenants set status = 'SUSPENDED' where id = tsus;
+  perform public.cv_test_set_tenant_status(tsus, 'SUSPENDED');
   sid2 := public.cv_create_call_session('+2348111111111', ids->>'num_suspended_tenant');
   r := public.cv_resolve_tenant(sid2);
   insert into cv2_results values ('suspended organization cannot receive calls', (r->>'ok')::boolean = false, r::text);
-  update public.tenants set status = 'CLOSED' where id = tsus;
+  perform public.cv_test_set_tenant_status(tsus, 'CLOSED');
   sid2 := public.cv_create_call_session('+2348111111111', ids->>'num_suspended_tenant');
   r := public.cv_resolve_tenant(sid2);
   insert into cv2_results values ('closed organization cannot receive calls', (r->>'ok')::boolean = false, r::text);
@@ -177,11 +177,11 @@ begin
     (r->>'allowed')::boolean = false, r::text);
 
   -- organization suspended mid-call
-  update public.tenants set status = 'SUSPENDED' where id = ta;
+  perform public.cv_test_set_tenant_status(ta, 'SUSPENDED');
   r := public.cv_authorize_action(sid, 'CHECK_BALANCE');
   insert into cv2_results values ('suspended organization blocks authorized actions',
     (r->>'allowed')::boolean = false and r->>'reason' = 'ORGANIZATION_NOT_OPERATIONAL', r::text);
-  update public.tenants set status = 'ACTIVE' where id = ta;
+  perform public.cv_test_set_tenant_status(ta, 'ACTIVE');
 
   -- ============ STATE MACHINE ============
   insert into cv2_results values ('NEW cannot jump to AUTHENTICATED',
