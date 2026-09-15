@@ -221,17 +221,22 @@ Tailwind v4, shadcn/ui, TanStack Query, Supabase/PostgreSQL.
   `execute_transfer` and `reverse_transfer`.
 - Telephony is abstracted behind `src/lib/telephony/provider.ts`; no provider is
   implemented yet.
+- Voice authentication and call sessions live in `src/lib/voice/`, backed by the
+  `cv_*` database functions; they are provider-neutral.
 - All schema changes are migrations in `supabase/migrations`.
 
 ### Tests
 
 ```bash
-bun run test:db            # 40 isolation, integrity and immutability assertions
-bun run test:concurrency   # account-number and double-spend concurrency proofs
+bun run test:db                 # Phase 1 — 40 isolation, integrity and immutability assertions
+bun run test:concurrency        # Phase 1 — account-number and double-spend proofs
+bun run test:voice              # Phase 2A — 65 call authentication assertions
+bun run test:voice:concurrency  # Phase 2A — credential lock, replay and session races
+bun run test:hash               # Phase 2A — credential hashing tests
 ```
 
-Both require `SUPABASE_DB_URL` and are safe to re-run: the first rolls back
-entirely, the second removes its fixtures.
+All except `test:hash` require `SUPABASE_DB_URL` and are safe to re-run: the SQL
+suites roll back entirely, the shell suites remove their fixtures.
 
 A full audit of the hardening work is in
 [`PRE-TELEPHONY-HARDENING-REPORT.md`](./PRE-TELEPHONY-HARDENING-REPORT.md).
