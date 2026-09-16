@@ -190,33 +190,55 @@ Real telephone calls now reach the credit engine.
 
 Full detail: [`PHASE-2B-TWILIO-IVR-REPORT.md`](./PHASE-2B-TWILIO-IVR-REPORT.md).
 
+## Phase 2B.5 — Production readiness: NOT YET PASSED (one gate outstanding)
+
+Four production-readiness gates were executed. Three passed on measured
+evidence; the fourth could not be attempted in this environment.
+
+- **Gate A — development test helpers: PASSED.** No `cv_test_*` function exists
+  in the application schema any more; the fixtures live in a separate `cv_test`
+  schema that no application role can reach, so the regression suites still run.
+- **Gate B — backup and restore: PASSED WITH LIMITATIONS.** A real backup was
+  really restored into an isolated database and verified against the source on
+  23 checks, with no ledger drift. The drill found and fixed a real defect: four
+  orphaned voice-failure rows, left by a development cleanup fixture, made the
+  first restore fail. Platform point-in-time recovery and a real RPO remain
+  unproven.
+- **Gate C — load testing: PASSED.** 913 signed webhook turns at 5, 20 and 50
+  concurrent callers, no failures; 78 concurrent voice transfers produced
+  exactly 78 transfers, 2 ledger entries each, no drift, and 50 simultaneous
+  duplicate confirmations still moved money once. No capacity ceiling was
+  reached and none is claimed.
+- **Gate D — live Twilio call: NOT EXECUTED.** No Twilio account, no published
+  HTTPS endpoint and no telephone line exist here.
+
+Full detail: [`PHASE-2B.5-PRODUCTION-READINESS-REPORT.md`](./PHASE-2B.5-PRODUCTION-READINESS-REPORT.md).
+
 ## Launch blockers
 
 These must be closed before real money or real customers:
 
 1. **Live telephony verification** — no real Twilio call has ever been placed
    against this system. A signed inbound call, authentication, balance and a
-   real transfer must be proven against a staging organization.
+   real transfer must be proven against a pilot organization. *(Still open —
+   blocking.)*
 2. **Failure auditing for the dashboard path** — refused voice transfers are now
    recorded durably; a rejected dashboard credit still rolls back its own audit
    row.
-3. **Remove the development test helpers** (`cv_test_*`) from the production
-   database. They now refuse every caller except the sandbox test role and are
-   no longer callable by signed-in users, but they should not exist in
-   production.
-4. **Scheduled reconciliation with alerting** — run the ledger-versus-balance
+3. **Scheduled reconciliation with alerting** — run the ledger-versus-balance
    check automatically and raise an alarm on any drift.
-5. **Administrator password delivery** — the first organization password is
+4. **Administrator password delivery** — the first organization password is
    shown once on screen; it needs a real delivery and forced-reset flow.
-6. **Backup and restore drill** — proven point-in-time recovery of the ledger.
-7. **Recording policy** — retention, consent announcements and access auditing
+5. **Recording policy** — retention, consent announcements and access auditing
    are undecided; recording stays off until they are.
-8. **Load testing** of the call and authentication path.
 
 *Closed in Phase 2A: credential verification, call-session records,
 organization-level rate limiting, security audit events.*
 *Closed in Phase 2B: the signed webhook, the Twilio adapter, the IVR engine,
 per-currency amount validation, and durable failure recording for voice.*
+*Closed in Phase 2B.5: development test helpers removed from the application
+schema, a verified backup-and-restore drill, and load testing of the call,
+authentication and transfer path.*
 
 ## Independent forensic audit
 
