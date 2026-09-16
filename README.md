@@ -254,8 +254,8 @@ Full detail: [`PHASE-2B-FORENSIC-AUDIT-REPORT.md`](./PHASE-2B-FORENSIC-AUDIT-REP
 
 ## Must-haves (next)
 
+- One real inbound Twilio call against a deployed pilot organization
 - Scheduled reconciliation with operator alerting
-- Remove the sandbox test helpers from the production database
 - Move customer and account creation behind server functions rather than direct
   table writes
 - Organization-level voice operations view
