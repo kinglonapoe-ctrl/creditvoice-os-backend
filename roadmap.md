@@ -13,12 +13,21 @@
 - [x] Platform-admin Voice Operations view
 - [x] `.env.example`, README update, `PHASE-2B-TWILIO-IVR-REPORT.md`
 
-## Open before real customers (see report section 13)
+## Phase 2B.5 — production readiness gates — NOT YET PASSED (Gate D outstanding)
 
+- [x] Gate A — test helpers moved out of the application schema into `cv_test`
+- [x] Gate B — backup taken, restored into an isolated database, verified; one
+      orphaned-row defect found and fixed
+- [x] Gate C — load harness (`bun run test:load`), 913 turns, integrity held
+- [ ] Gate D — one real inbound Twilio call (blocked: no Twilio account, no
+      published HTTPS endpoint, no telephone line)
+
+## Open before real customers (see PHASE-2B.5-PRODUCTION-READINESS-REPORT.md)
+
+- [ ] Live Twilio call verification (blocking)
 - [ ] Dashboard financial failure auditing
-- [ ] Remove sandbox test helpers from production
 - [ ] Scheduled reconciliation with operator alerting
 - [ ] Secure first-administrator password delivery
-- [ ] Backup and restore drill
 - [ ] Recording retention, consent and access-audit policy
-- [ ] Load testing of the call path
+- [ ] Purge the 21 tenant-less simulated call sessions before the pilot
+- [ ] Add `.env` to `.gitignore` (it holds no secret today)
