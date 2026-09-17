@@ -302,10 +302,11 @@ bun run test:concurrency        # Phase 1 — account-number and double-spend pr
 bun run test:voice              # Phase 2A — 65 call authentication assertions
 bun run test:voice:concurrency  # Phase 2A — credential lock, replay and session races
 bun run test:hash               # Phase 2A — credential hashing tests
-bun run test:ivr                # Phase 2B — 53 voice transfer and customer-care assertions
+bun run test:ivr                # Phase 2B — 56 voice transfer and customer-care assertions
 bun run test:twilio             # Phase 2B — 27 signature, TwiML and amount tests
 bun run test:voice:e2e          # Phase 2B — 29 end-to-end IVR tests (no Twilio account needed)
 bun run test:ivr:concurrency    # Phase 2B — duplicate callback, duplicate transfer, parallel callers
+bun run test:load               # Phase 2B.5 — load harness (LOAD_LEVELS=5,20,50 by default)
 ```
 
 All except `test:hash` and `test:twilio` require `SUPABASE_DB_URL` and are safe to re-run: the SQL
