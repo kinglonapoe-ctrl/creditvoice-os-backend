@@ -2,7 +2,13 @@
  * Server-only hashing for organization access codes and customer PINs.
  * Plaintext values are never stored or logged.
  */
-const ITERATIONS = 150_000;
+/**
+ * The edge runtime (workerd) rejects PBKDF2 derivations above 100,000
+ * iterations with NotSupportedError, so this is the highest value that can be
+ * both produced and verified in production. Keep hashes at or below this cap.
+ */
+export const MAX_SUPPORTED_ITERATIONS = 100_000;
+const ITERATIONS = MAX_SUPPORTED_ITERATIONS;
 
 function toHex(buffer: ArrayBuffer) {
   return Array.from(new Uint8Array(buffer))
