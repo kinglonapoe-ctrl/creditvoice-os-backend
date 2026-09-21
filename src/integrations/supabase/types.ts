@@ -1334,6 +1334,13 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      current_user_role_tenant: {
+        Args: never
+        Returns: {
+          role: Database["public"]["Enums"]["app_role"]
+          tenant_id: string
+        }[]
+      }
       current_user_tenant_id: { Args: never; Returns: string }
       cv_apply_transition: {
         Args: {
