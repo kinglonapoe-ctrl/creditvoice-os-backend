@@ -32,6 +32,14 @@ export async function hashSecret(secret: string): Promise<string> {
 export async function verifySecret(secret: string, stored: string): Promise<boolean> {
   const [scheme, iterations, saltHex, hashHex] = stored.split("$");
   if (scheme !== "pbkdf2" || !saltHex || !hashHex) return false;
+  const rounds = Number(iterations);
+  if (!Number.isFinite(rounds) || rounds <= 0) return false;
+  if (rounds > MAX_SUPPORTED_ITERATIONS) {
+    // Unverifiable in the edge runtime: fail loudly instead of silently denying.
+    throw new Error(
+      `stored hash uses ${rounds} PBKDF2 iterations, above the ${MAX_SUPPORTED_ITERATIONS} runtime limit; re-hash the secret`,
+    );
+  }
   const salt = new Uint8Array((saltHex.match(/.{2}/g) ?? []).map((h) => parseInt(h, 16)));
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), "PBKDF2", false, [
     "deriveBits",
