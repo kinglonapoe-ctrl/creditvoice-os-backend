@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790012324293,
+      "tag": "0000_fix_role_tenant_pairing_and_call_event_scope",
+      "breakpoints": true
+    }
+  ]
+}
