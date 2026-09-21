@@ -4,12 +4,31 @@
  */
 import { expect, test } from "bun:test";
 
-import { generateNumericCode, hashSecret, verifySecret } from "../../src/lib/secure-hash.server";
+import {
+  MAX_SUPPORTED_ITERATIONS,
+  generateNumericCode,
+  hashSecret,
+  verifySecret,
+} from "../../src/lib/secure-hash.server";
 
 test("a stored credential never contains the plaintext", async () => {
   const stored = await hashSecret("481902");
   expect(stored).not.toContain("481902");
-  expect(stored.startsWith("pbkdf2$150000$")).toBe(true);
+  expect(stored.startsWith(`pbkdf2$${MAX_SUPPORTED_ITERATIONS}$`)).toBe(true);
+});
+
+// Regression: workerd rejects PBKDF2 above 100,000 iterations with
+// NotSupportedError, which took down live access-code verification.
+test("issued hashes stay within the edge runtime iteration limit", async () => {
+  const stored = await hashSecret("481902");
+  expect(Number(stored.split("$")[1])).toBeLessThanOrEqual(100_000);
+});
+
+test("a hash above the runtime limit fails loudly instead of silently denying", async () => {
+  const stored = await hashSecret("481902");
+  const parts = stored.split("$");
+  const unverifiable = `pbkdf2$150000$${parts[2]}$${parts[3]}`;
+  expect(verifySecret("481902", unverifiable)).rejects.toThrow(/runtime limit/);
 });
 
 test("the correct credential verifies", async () => {
