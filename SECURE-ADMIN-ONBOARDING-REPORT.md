@@ -98,3 +98,10 @@ No template was scaffolded while the prerequisite domain was absent; no readines
 | Database atomic/concurrent claim regressions | Previously blocked by restricted test execution privileges; not rerun or bypassed |
 
 Stop point: await owned sender-domain setup. Preserve pilot number, inactive test tenant and financial balances. No Gate D or production-readiness status change.
+## Email infrastructure — 2026-10-17, 03:40 UTC
+
+- Sender domain `notify.creditvoice.securecloudweb.net` registered; DNS verification in progress (up to 72 hours). NS records delegated to Lovable nameservers at the user's DNS provider.
+- Managed auth email templates scaffolded: all six types (signup, invite, magiclink, recovery, email_change, reauthentication) with the managed webhook route; deploys with the app on publish.
+- Recovery template adapted to the secure onboarding contract: the native token hash travels in the URL fragment (`#token_hash=...&type=recovery`), the request ID from the redirect destination is preserved, and the canonical destination is `https://creditvoice.lovable.app/reset-password`.
+- Server env loading added for server routes; `/lovable/*` routes bypass app middleware; build verified OK.
+- Remaining blockers: DNS verification completion, publish, hosted auth callback allowlist verification, then setting `ADMIN_ONBOARDING_BASE_URL` and `ADMIN_ONBOARDING_EMAIL_READY=true`, then the real email/setup/sign-in acceptance sequence. End-to-end onboarding remains NOT VERIFIED.
