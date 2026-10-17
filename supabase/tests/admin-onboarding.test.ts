@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { canVerify, eligibleAdministrator, validPassword, REQUESTS_PER_HOUR, ATTEMPTS_PER_HOUR } from './policy';
+import { canVerify, eligibleAdministrator, validPassword, REQUESTS_PER_HOUR, ATTEMPTS_PER_HOUR } from '../../src/lib/onboarding/policy';
 describe('administrator onboarding security',()=>{
  test('expired link cannot verify',()=>expect(canVerify('PENDING','2026-10-16T00:00:00Z',0,Date.parse('2026-10-17T00:00:00Z'))).toBe(false));
  test('verified link cannot be reused',()=>expect(canVerify('VERIFIED','2026-10-18T00:00:00Z',0,Date.parse('2026-10-17T00:00:00Z'))).toBe(false));

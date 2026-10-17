@@ -36,7 +36,7 @@ async function requestLink(email: string, purpose: 'SETUP'|'RECOVERY', actor?: s
   const {data:roles}=profile ? await admin.from('user_roles').select('role,tenant_id').eq('user_id',profile.id) : {data:[]};
   if(!profile || !eligibleAdministrator(roles??[],tenantId)){await audit(admin,'ADMIN_RECOVERY_REQUESTED');return;}
   const role=roles?.[0];
-  const {data:row,error}=await admin.from('admin_onboarding_requests').insert({user_id:profile.id,tenant_id:role?.tenant_id,purpose}).select().single();
+  const {data:row,error}=await admin.from('admin_onboarding_requests').insert({user_id:profile.id,tenant_id:role?.tenant_id ?? null,purpose}).select().single();
   if(error || !row)throw new Error('Authentication unavailable.');
   await audit(admin,purpose==='SETUP'?'ADMIN_INVITATION_REQUESTED':'ADMIN_RECOVERY_REQUESTED',row,actor);
   const result=await authClient().auth.resetPasswordForEmail(email,{redirectTo:`${base}/reset-password?request=${row.id}`});
@@ -66,7 +66,7 @@ export const verifyAdministratorLink=createServerFn({method:'POST'}).inputValida
   const {data:allowed}=await admin.rpc('admin_onboarding_rate_limit',{_key:await digest(`verify:${data.requestId}`),_limit:ATTEMPTS_PER_HOUR});
   if(!allowed)throw new Error('This password link is invalid or expired.');
   const {data:row}=await admin.from('admin_onboarding_requests').select('*').eq('id',data.requestId).single();
-  if(!row) {await audit(admin,'ADMIN_ONBOARDING_INVALID_LINK');throw new Error('This password link is invalid or expired.');}
+  if(!row || !row.user_id) {await audit(admin,'ADMIN_ONBOARDING_INVALID_LINK');throw new Error('This password link is invalid or expired.');}
   if(!canVerify(row.status,row.expires_at,row.attempts)){
     if(Date.parse(row.expires_at)<=Date.now() && row.status==='PENDING'){await admin.from('admin_onboarding_requests').update({status:'EXPIRED'}).eq('id',row.id);await audit(admin,'ADMIN_ONBOARDING_EXPIRED',row);}
     else await audit(admin,'ADMIN_ONBOARDING_LINK_REJECTED',row);
