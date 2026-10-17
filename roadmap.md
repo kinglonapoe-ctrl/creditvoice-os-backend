@@ -2,6 +2,7 @@
 
 ## First isolated test organization — blocked on operator decisions
 
+- [ ] Implement authorized secure tenant-admin setup/recovery, audit and abuse protection; verify delivery dependencies and preserve pilot/money.
 - [x] Investigate uploaded onboarding blockers: no eligible number, missing secure recovery/setup workflow, expanded read-only isolation verified; approvals documented without changing mappings or money.
 - [x] Inspect existing workflows, deployed state and current number ownership.
 - [x] Create CreditVoice Test Cooperative and tenant administrator through supported workflows.
