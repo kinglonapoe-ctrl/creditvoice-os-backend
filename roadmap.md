@@ -3,9 +3,11 @@
 ## First isolated test organization — blocked on operator decisions
 
 - [x] Inspect existing workflows, deployed state and current number ownership.
-- [ ] Create CreditVoice Test Cooperative through supported workflows — needs intended administrator details and legal name.
-- [ ] Configure customers, secure credentials, opening credit and safe customer care — depends on provisioning; credit requires ACTIVE tenant.
-- [ ] Verify ledger balances, tenant isolation and activation — sole Twilio number is mapped to CreditVoice Pilot; reassignment needs operator approval.
+- [x] Create CreditVoice Test Cooperative and tenant administrator through supported workflows.
+- [x] Create two test customers/accounts, issue hashed credentials and save safe disabled customer care.
+- [x] Verify tenant-admin isolation, zero ledger balances and rejection of activation without a number.
+- [ ] Post requested opening credits and activate — no unmapped voice number; operator explicitly kept CreditVoice Pilot mapping.
+- [ ] Secure administrator credential handoff — approval is once-only; supported secure delivery/reset needed for independent operator access.
 - [x] Report verified evidence and blockers in FIRST-TEST-TENANT-SETUP-REPORT.md.
 
 ## Phase 1 — foundation and hardening — complete
