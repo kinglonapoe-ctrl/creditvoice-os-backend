@@ -26,11 +26,13 @@ function authClient() {
 }
 async function requestLink(email: string, purpose: 'SETUP'|'RECOVERY', actor?: string, tenantId?: string) {
   const base=deliveryBase(); const admin=await adminClient();
+  const { data: globallyAllowed, error: globalError } = await admin.rpc('admin_onboarding_rate_limit', { _key: await digest('request:global'), _limit: 30 });
+  if(globalError || !globallyAllowed) { await audit(admin,'ADMIN_ONBOARDING_RATE_LIMITED',undefined,actor); return; }
   const key=await digest(`request:${email.toLowerCase()}`);
   const {data:allowed,error:limitError}=await admin.rpc('admin_onboarding_rate_limit',{_key:key,_limit:REQUESTS_PER_HOUR});
   if(limitError)throw new Error('Authentication unavailable.');
   if(!allowed){await audit(admin,'ADMIN_ONBOARDING_RATE_LIMITED',undefined,actor);return;}
-  const {data:profile}=await admin.from('profiles').select('id').ilike('email',email).maybeSingle();
+  const {data:profile}=await admin.from('profiles').select('id').eq('email',email.toLowerCase()).maybeSingle();
   const {data:roles}=profile ? await admin.from('user_roles').select('role,tenant_id').eq('user_id',profile.id) : {data:[]};
   if(!profile || !eligibleAdministrator(roles??[],tenantId)){await audit(admin,'ADMIN_RECOVERY_REQUESTED');return;}
   const role=roles?.[0];
@@ -50,6 +52,8 @@ export const sendAdministratorSetup=createServerFn({method:'POST'}).middleware([
   if(error || !roles?.length)throw new Error('Platform administrator access required.');
   deliveryBase();
   const admin=await adminClient();
+  const {data:globalAllowed}=await admin.rpc('admin_onboarding_rate_limit',{_key:await digest('verify:global'),_limit:100});
+  if(!globalAllowed)throw new Error('This password link is invalid or expired.');
   const {data:target}=await admin.from('user_roles').select('user_id').eq('tenant_id',data.tenantId).eq('role','TENANT_ADMIN').single();
   if(!target)throw new Error('An existing organization administrator is required.');
   const {data:user}=await admin.auth.admin.getUserById(target.user_id);
@@ -87,7 +91,7 @@ export const completeAdministratorSetup=createServerFn({method:'POST'}).middlewa
   const {data:row}=await admin.from('admin_onboarding_requests').select('*').eq('id',data.requestId).single();
   if(!row || !eligibleAdministrator(roles??[],row.tenant_id??undefined))throw new Error('This password link is invalid or expired.');
   const {data:claimed,error}=await admin.rpc('admin_onboarding_claim',{_id:row.id,_session_hash:await digest(bearer),_user_id:context.userId});
-  if(error || !claimed){await audit(admin,'ADMIN_ONBOARDING_COMPLETION_REJECTED',row);throw new Error('This password link is invalid or expired.');}
+  if(error || !claimed){await audit(admin,Date.parse(row.expires_at)<=Date.now()?'ADMIN_ONBOARDING_EXPIRED':'ADMIN_ONBOARDING_COMPLETION_REJECTED',row);throw new Error('This password link is invalid or expired.');}
   // Bound, one-time verified recovery session; never change roles or other accounts.
   const {error:update}=await admin.auth.admin.updateUserById(context.userId,{password:data.password});
   await admin.from('admin_onboarding_requests').update({status:update?'FAILED':'COMPLETED',session_hash:null}).eq('id',row.id);

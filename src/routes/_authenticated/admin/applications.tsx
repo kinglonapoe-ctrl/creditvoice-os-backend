@@ -32,7 +32,7 @@ function Applications() {
   const applications = useQuery({ queryKey: ["applications"], queryFn: listApplications });
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [reason, setReason] = useState("");
-  const [issued, setIssued] = useState<{ email: string; password: string | null } | null>(null);
+  const [issued, setIssued] = useState<{ email: string } | null>(null);
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["applications"] });
@@ -50,7 +50,7 @@ function Applications() {
     mutationFn: (id: string) => approveApplication({ data: { applicationId: id } }),
     onSuccess: (result) => {
       refresh();
-      setIssued({ email: result.adminEmail, password: result.temporaryPassword });
+      setIssued({ email: result.adminEmail });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -122,7 +122,7 @@ function Applications() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => navigate({ to: "/admin/tenants/$tenantId", params: { tenantId: a.tenant_id! } })}
+                        onClick={() => { if (a.tenant_id) navigate({ to: "/admin/tenants/$tenantId", params: { tenantId: a.tenant_id } }); }}
                       >
                         Open setup
                       </Button>
@@ -181,16 +181,8 @@ function Applications() {
               <span className="text-muted-foreground">Administrator email: </span>
               <span className="font-medium">{issued?.email}</span>
             </p>
-            {issued?.password ? (
-              <p>
-                <span className="text-muted-foreground">Temporary password: </span>
-                <span className="font-mono font-medium">{issued.password}</span>
-              </p>
-            ) : (
-              <p className="text-muted-foreground">This administrator already had a CreditVoice OS login.</p>
-            )}
             <p className="text-xs text-muted-foreground">
-              Share this once through a secure channel. It is not stored and cannot be shown again.
+              Open organization setup to send the administrator a secure password setup email. No password is displayed.
             </p>
           </div>
           <DialogFooter>
