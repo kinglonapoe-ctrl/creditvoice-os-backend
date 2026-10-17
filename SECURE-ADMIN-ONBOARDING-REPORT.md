@@ -59,3 +59,42 @@ Secure next steps:
 No phone acquisition/reassignment, tenant activation, credential issuance to caller, opening credit, transfer or direct balance/ledger write. Pilot voice implementation untouched. New SQL fixtures were rolled back after permission failure. Actual final read verifies test remains CONFIGURATION, accounts remain zero, sole number remains Pilot ACTIVE; no onboarding request rows were created while dispatch is disabled.
 
 This is not a production-readiness PASS: managed template/redirect configuration, real delivery, successful native token flow, atomic DB regressions and adversarial end-to-end checks remain acceptance blockers. No Gate D change.
+
+## Follow-up verification — 2026-10-17, after 02:08 UTC request
+
+Outcome: BLOCKED; end-to-end administrator onboarding is NOT VERIFIED. No application code, auth setting, credential, mapping or financial record was changed in this follow-up.
+
+### Supported configuration and manual prerequisite
+
+The live email-status check again returned `not_started`: no sender domain configured. Built-in default Auth emails exist, but their default redirect format does not satisfy this application's fragment-token contract. Do not enable dispatch merely because default Auth email exists.
+
+1. Open the supported email-domain setup dialog and supply a real domain you own. Follow the exact verification records shown in Cloud → Emails; no invented domain, sender address or DNS values. A Gmail recipient address cannot serve as an owned sender domain. Domain selection/verification is the immediate external blocker.
+2. Once a domain is configured, use the platform-managed auth-template scaffolding. For this TanStack project the managed auth email handler deploys with the app; do not create an alternate email service or an Edge Function. Preserve the six template types: Confirm signup (`signup`), Invite (`invite`), Magic link (`magiclink`), Password reset (`recovery`), Email change (`email_change`), Reauthentication (`reauthentication`).
+3. The existing administrator SETUP and RECOVERY actions both use native password-recovery emails for an already provisioned administrator. The required active template is Password reset (`recovery`), not a new-identity invitation API. Preserve Auth's `RedirectTo` request UUID and append native `token_hash` and `type=recovery` in the fragment. Destination shape: `https://creditvoice.lovable.app/reset-password?request=<request UUID>#token_hash=<native hash>&type=recovery`. These are symbolic placeholders, never real credentials.
+4. In More → Cloud → Users → Auth settings, verify email/password is enabled, the published callback is permitted, and native token expiry/password/email-rate settings are appropriate. Native expiry remains unverified; application request expiry is one hour. Keep email confirmation and current security settings unchanged. Do not change auto-confirm or public signup merely to run tests.
+5. Through supported project secret management, configure server-only `ADMIN_ONBOARDING_BASE_URL=https://creditvoice.lovable.app`; set server-only `ADMIN_ONBOARDING_EMAIL_READY=true` only after template and callback configuration are verified. Both names were absent from the current sandbox environment-name check. Existing generated Auth configuration remains untouched; managed sending uses the platform-injected `LOVABLE_API_KEY`, not a user-supplied provider credential. No private key belongs in client configuration.
+6. Publish only on explicit operator instruction, then run the real email/setup/sign-in/recovery acceptance sequence with the intended administrator. Inspect managed delivery events and have the recipient confirm inbox receipt; an accepted send alone is not inbox-delivery evidence.
+
+No template was scaffolded while the prerequisite domain was absent; no readiness variable was enabled, no email was sent and no password was changed.
+
+### Tests actually run in this follow-up
+
+- `bun test supabase/tests/admin-onboarding.test.ts`: 12 passed, 0 failed, 12 assertions. Policy-only evidence for expiry, reuse-state rejection, attempt budgets, tenant/role matching and password requirements; not native token or full-flow acceptance.
+- Playwright at localhost `/reset-password` without a token: generic invalid/expired alert visible; zero password inputs. Screenshot retained under `/tmp/browser/onboarding-email-verification/invalid.png`.
+- Read-only database check: test tenant remains CONFIGURATION; accounts 10001 and 10002 each have balance `0.0000`; test transaction count zero; sole voice-capable number remains ACTIVE for CreditVoice Pilot. Onboarding request count zero. Authenticated SELECT on request storage and EXECUTE on completion-claim routine both denied.
+- Onboarding audit metadata with nonempty content: zero records. Source review found no explicit password/token logging in onboarding handlers and empty audit metadata. This does not prove absence of secrets across all production/provider logs; full live log review is blocked with the unperformed flow.
+
+### Acceptance matrix
+
+| Check | Current evidence |
+| --- | --- |
+| Setup request, actual email, correct redirect | BLOCKED: sender/template/callback configuration |
+| Initial password setup and intended-admin sign-in | BLOCKED: no valid delivered link |
+| Invalid/missing token | Missing-token browser rejection verified; native invalid-token test blocked |
+| Expired/reused token | Policy tests pass; real native-provider tests blocked |
+| Recovery request and successful recovery | BLOCKED: no configured delivery |
+| Privilege escalation / cross-tenant access | Role/tenant policy tests and restricted storage grants verified; post-onboarding signed-in tenant-isolation flow blocked |
+| Secret-free live logs and audit | Source/audit checks only; complete live-flow review unverified |
+| Database atomic/concurrent claim regressions | Previously blocked by restricted test execution privileges; not rerun or bypassed |
+
+Stop point: await owned sender-domain setup. Preserve pilot number, inactive test tenant and financial balances. No Gate D or production-readiness status change.
