@@ -15,6 +15,13 @@
       "when": 1792202404566,
       "tag": "0001_administrator_onboarding_security",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792202663091,
+      "tag": "0002_restrict_admin_onboarding_table_grants",
+      "breakpoints": true
     }
   ]
 }
