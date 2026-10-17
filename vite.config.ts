@@ -9,7 +9,7 @@ import { loadEnv } from "vite";
 
 // Server routes need non-VITE_ env vars (e.g. SUPABASE_SERVICE_ROLE_KEY).
 // Load them into process.env for server-side code only — never into envDefine.
-const serverEnv = loadEnv(process.env.NODE_ENV ?? "development", process.cwd(), "");
+const serverEnv = loadEnv(process.env["NODE_ENV"] ?? "development", process.cwd(), "");
 Object.assign(process.env, serverEnv);
 
 export default defineConfig({
