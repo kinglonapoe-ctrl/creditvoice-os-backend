@@ -195,8 +195,8 @@ export const approveApplication = createServerFn({ method: "POST" })
     return {
       tenantId: tenant.id as string,
       adminEmail: app.admin_email as string,
-      // Shown once during secure issuance so the organization can sign in.
-      temporaryPassword: created?.user ? tempPassword : null,
+      // Passwords are never returned. The administrator uses an expiring email setup link.
+      temporaryPassword: null,
     };
   });
 

@@ -21,8 +21,17 @@ import { formatDate } from "@/lib/format";
 import { assignPhoneNumber, issueAccessCode, setTenantStatus } from "@/lib/platform.functions";
 import { getTenant, listPhoneNumbers } from "@/lib/services/platform";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { sendAdministratorSetup } from "@/lib/onboarding.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/tenants/$tenantId")({
+  head: () => ({ meta: [
+    { title: "Organization setup — CreditVoice OS" },
+    { name: "description", content: "Organization activation and secure administrator onboarding." },
+    { property: "og:title", content: "Organization setup — CreditVoice OS" },
+    { property: "og:description", content: "Organization activation and secure administrator onboarding." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: TenantSetup,
 });
 
@@ -31,6 +40,12 @@ function TenantSetup() {
   const queryClient = useQueryClient();
   const [selectedNumber, setSelectedNumber] = useState("");
   const [issuedCode, setIssuedCode] = useState<string | null>(null);
+  const sendSetup = useServerFn(sendAdministratorSetup);
+  const setup = useMutation({
+    mutationFn: () => sendSetup({ data: { tenantId } }),
+    onSuccess: result => toast.success(result.message),
+    onError: () => toast.error("Password setup email is unavailable or this request is not authorized. Check secure email configuration."),
+  });
 
   const tenant = useQuery({ queryKey: ["tenant", tenantId], queryFn: () => getTenant(tenantId) });
   const numbers = useQuery({ queryKey: ["phone-numbers"], queryFn: listPhoneNumbers });
@@ -110,6 +125,11 @@ function TenantSetup() {
           </div>
         }
       />
+
+      <section className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-6">
+        <h2 className="font-display text-base font-semibold">Administrator access</h2>
+        <Button variant="outline" disabled={setup.isPending} onClick={() => setup.mutate()}>Send administrator setup email</Button>
+      </section>
 
       <Card className="mb-6">
         <CardHeader>

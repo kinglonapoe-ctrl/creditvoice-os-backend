@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_onboarding_rate_limits: {
+        Row: {
+          attempts: number
+          key_hash: string
+          window_started_at: string
+        }
+        Insert: {
+          attempts?: number
+          key_hash: string
+          window_started_at?: string
+        }
+        Update: {
+          attempts?: number
+          key_hash?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
+      admin_onboarding_requests: {
+        Row: {
+          attempts: number
+          created_at: string
+          expires_at: string
+          id: string
+          purpose: string
+          session_hash: string | null
+          status: string
+          tenant_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          purpose: string
+          session_hash?: string | null
+          status?: string
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          purpose?: string
+          session_hash?: string | null
+          status?: string
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_onboarding_requests_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           actor_id: string | null
@@ -1321,6 +1383,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_onboarding_claim: {
+        Args: { _id: string; _session_hash: string; _user_id: string }
+        Returns: boolean
+      }
+      admin_onboarding_rate_limit: {
+        Args: { _key: string; _limit: number }
+        Returns: boolean
+      }
       allocate_account_number: { Args: { _tenant_id: string }; Returns: string }
       assert_tenant_operational: {
         Args: { _tenant_id: string }

@@ -2,13 +2,15 @@
 
 ## First isolated test organization — blocked on operator decisions
 
+- [x] Implement secure tenant-admin setup/recovery controls, audit and abuse protection; remove temporary-password disclosure.
+- [ ] Accept secure onboarding end-to-end — blocked on managed recovery template/redirect configuration, delivery verification and authorized service-only database tests.
 - [x] Investigate uploaded onboarding blockers: no eligible number, missing secure recovery/setup workflow, expanded read-only isolation verified; approvals documented without changing mappings or money.
 - [x] Inspect existing workflows, deployed state and current number ownership.
 - [x] Create CreditVoice Test Cooperative and tenant administrator through supported workflows.
 - [x] Create two test customers/accounts, issue hashed credentials and save safe disabled customer care.
 - [x] Verify tenant-admin isolation, zero ledger balances and rejection of activation without a number.
 - [ ] Post requested opening credits and activate — no unmapped voice number; operator explicitly kept CreditVoice Pilot mapping.
-- [ ] Secure administrator credential handoff — invitation/password-setup/recovery workflow absent; needs explicit implementation authorization and verified email delivery.
+- [ ] Secure administrator credential handoff — implemented dispatch remains disabled pending secure email configuration and actual delivery/setup verification.
 - [x] Report verified evidence and blockers in FIRST-TEST-TENANT-SETUP-REPORT.md.
 
 ## Phase 1 — foundation and hardening — complete
