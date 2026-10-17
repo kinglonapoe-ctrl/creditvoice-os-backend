@@ -13,7 +13,8 @@ const SITE_NAME = "CreditVoice OS Backend"
 const SENDER_DOMAIN = "notify.creditvoice.securecloudweb.net"
 const ROOT_DOMAIN = "creditvoice.securecloudweb.net"
 const FROM_DOMAIN = "creditvoice.securecloudweb.net"
-const SITE_URL = `https://${ROOT_DOMAIN}`
+// Canonical app destination for administrator onboarding links.
+const SITE_URL = "https://creditvoice.lovable.app"
 
 // The SDK handler owns verification, dispatch, and retry semantics; this file
 // owns only the email decisions: subjects, templates, and per-type props.
@@ -56,11 +57,21 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
             },
             recovery: {
               subject: 'Reset your password',
-              render: (data) =>
-                React.createElement(RecoveryEmail, {
+              render: (data) => {
+                // Secure onboarding contract: the native token_hash travels in
+                // the URL fragment (never the query string), and the request ID
+                // from RedirectTo is preserved. Destination shape:
+                // <callback_url>#token_hash=<hash>&type=recovery
+                const tokenHash = (data as { token_hash?: string | null }).token_hash
+                const destination = data.callback_url || `${SITE_URL}/reset-password`
+                const confirmationUrl = tokenHash
+                  ? `${destination}#token_hash=${encodeURIComponent(tokenHash)}&type=recovery`
+                  : data.url
+                return React.createElement(RecoveryEmail, {
                   siteName: SITE_NAME,
-                  confirmationUrl: data.url,
-                }),
+                  confirmationUrl,
+                })
+              },
             },
             email_change: {
               subject: 'Confirm your new email',
