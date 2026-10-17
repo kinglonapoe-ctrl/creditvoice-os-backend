@@ -17,6 +17,8 @@ Date: 2026-10-17 UTC. Status: IMPLEMENTED, DISPATCH BLOCKED; NOT END-TO-END ACCE
 
 Applied by managed migration tool: `drizzle/migrations/0001_administrator_onboarding_security.sql`. Types regenerated.
 
+Follow-up applied: `drizzle/migrations/0002_restrict_admin_onboarding_table_grants.sql`, explicitly revoking automatic client grants on both service-only tables. RLS already denied rows, but final privileges are narrowed too.
+
 Two RLS-enabled, service-only tables: `admin_onboarding_requests` (non-secret request IDs, tenant/user, status, one-hour outer expiry, session digest) and `admin_onboarding_rate_limits` (hashed buckets). No browser table grants or policies. Two service-only routines implement atomic hourly rate counting and completion claim. No existing financial schema or function was modified.
 
 Limits: 3 email requests per normalized address/hour; global 30/hour. Verification 10/request/hour and global 100/hour; 5 failed native token attempts per request. Native Auth expiry/reuse rules apply independently; effective expiry is the earlier of native token expiry and one-hour request expiry. No custom OTP generator. Global limits are conservative and can cause denial of service under hostile saturation; production tuning and additional perimeter abuse protection remain advisable.
