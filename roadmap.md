@@ -1,11 +1,12 @@
 # CreditVoice OS — roadmap
 
-## First isolated test organization — in progress
+## First isolated test organization — blocked on operator decisions
 
-- [ ] Inspect existing workflows, deployed state and current number ownership.
-- [ ] Reuse or create CreditVoice Test Cooperative through supported workflows.
-- [ ] Configure customers, secure credentials, opening credit and safe customer care.
-- [ ] Verify ledger balances, tenant isolation and activation; report operator blockers.
+- [x] Inspect existing workflows, deployed state and current number ownership.
+- [ ] Create CreditVoice Test Cooperative through supported workflows — needs intended administrator details and legal name.
+- [ ] Configure customers, secure credentials, opening credit and safe customer care — depends on provisioning; credit requires ACTIVE tenant.
+- [ ] Verify ledger balances, tenant isolation and activation — sole Twilio number is mapped to CreditVoice Pilot; reassignment needs operator approval.
+- [x] Report verified evidence and blockers in FIRST-TEST-TENANT-SETUP-REPORT.md.
 
 ## Phase 1 — foundation and hardening — complete
 ## Phase 2A — secure voice authentication — complete
