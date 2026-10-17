@@ -2,6 +2,7 @@
 
 ## First isolated test organization — blocked on operator decisions
 
+- [ ] Resolve uploaded onboarding blockers: inspect number eligibility and secure admin access, verify expanded isolation, report approvals without changing mappings or money.
 - [x] Inspect existing workflows, deployed state and current number ownership.
 - [x] Create CreditVoice Test Cooperative and tenant administrator through supported workflows.
 - [x] Create two test customers/accounts, issue hashed credentials and save safe disabled customer care.
