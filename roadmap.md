@@ -1,5 +1,12 @@
 # CreditVoice OS — roadmap
 
+## First isolated test organization — in progress
+
+- [ ] Inspect existing workflows, deployed state and current number ownership.
+- [ ] Reuse or create CreditVoice Test Cooperative through supported workflows.
+- [ ] Configure customers, secure credentials, opening credit and safe customer care.
+- [ ] Verify ledger balances, tenant isolation and activation; report operator blockers.
+
 ## Phase 1 — foundation and hardening — complete
 ## Phase 2A — secure voice authentication — complete
 ## Phase 2B — Twilio adapter, signed webhook, deterministic IVR — complete
