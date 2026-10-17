@@ -8,6 +8,13 @@
       "when": 1790012324293,
       "tag": "0000_fix_role_tenant_pairing_and_call_event_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792202404566,
+      "tag": "0001_administrator_onboarding_security",
+      "breakpoints": true
     }
   ]
 }
