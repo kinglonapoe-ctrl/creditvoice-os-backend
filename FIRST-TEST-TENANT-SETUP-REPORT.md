@@ -4,7 +4,7 @@ Inspection date: 2026-10-17 UTC. Requested organization: CreditVoice Test Cooper
 
 ## Result
 
-**BLOCKED — no organization, customer, account, credential or financial record was created or changed.** No existing record was reused incorrectly; no phone number was reassigned. No transfer was attempted. Gate D status was not changed.
+**BLOCKED — no requested-tenant or existing-pilot organization, customer, account, credential or financial record was created or changed.** No existing record was reused incorrectly; no phone number was reassigned. No setup transfer was attempted. Gate D status was not changed. Automated IVR regressions use isolated QA fixtures, not these organizations.
 
 ## Actual state verified
 
@@ -41,6 +41,7 @@ No separate supported platform-admin tenant creation path was found outside appl
 - Actual database read queries confirmed organization/application counts, enabled NGN, sole number ownership and absence of unassigned voice numbers.
 - Actual deployed database definitions confirmed `post_credit`'s tenant-admin authorization, ACTIVE-tenant prerequisite and destination-number-only voice resolution.
 - No new-tenant end-to-end, ledger reconciliation, credential issuance or isolation test is claimed: those require completing supported provisioning first.
+- Existing automated credential, Twilio signature, IVR and simulated-call regression suite: 63 passed, 0 failed, 104 assertions across `phase2a-hash.test.ts`, `phase2b-unit.test.ts` and `phase2b-e2e.test.ts`. These are automated tests, not live-call evidence or new-tenant verification.
 
 ## Operator actions required
 
