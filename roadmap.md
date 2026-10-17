@@ -4,7 +4,7 @@
 
 - [x] Implement secure tenant-admin setup/recovery controls, audit and abuse protection; remove temporary-password disclosure.
 - [ ] Accept secure onboarding end-to-end — blocked on managed recovery template/redirect configuration, delivery verification and authorized service-only database tests.
-- [ ] Complete administrator email configuration — await owned sender-domain setup; then configure managed recovery template/callback before enabling dispatch and running real setup/recovery/sign-in tests.
+- [ ] Complete administrator email configuration — sender domain `notify.creditvoice.securecloudweb.net` registered and DNS verifying; managed auth templates scaffolded with the fragment-token recovery link. Remaining: DNS verification, publish, callback allowlist check, readiness settings, real delivery tests.
 - [x] Investigate uploaded onboarding blockers: no eligible number, missing secure recovery/setup workflow, expanded read-only isolation verified; approvals documented without changing mappings or money.
 - [x] Inspect existing workflows, deployed state and current number ownership.
 - [x] Create CreditVoice Test Cooperative and tenant administrator through supported workflows.
