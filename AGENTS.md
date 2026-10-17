@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Administrator onboarding uses native Auth recovery tokens with durable request/session binding and an atomic completion claim; do not implement custom OTPs or expose passwords, because token verification and password changes must remain on the existing auth boundary.
+- Administrator setup email dispatch is fail-closed until the managed recovery template and canonical HTTPS destination are verified; token hashes belong in URL fragments to keep them out of application request URLs.

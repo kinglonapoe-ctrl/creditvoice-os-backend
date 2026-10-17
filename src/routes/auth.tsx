@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { loadIdentity, homePathForRole } from "@/lib/identity";
 import { claimPlatformOwnership } from "@/lib/platform.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { requestAdministratorRecovery } from "@/lib/onboarding.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -34,6 +36,13 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [recovery, setRecovery] = useState(false);
+  const [recoveryMessage, setRecoveryMessage] = useState("");
+  const recoverFn = useServerFn(requestAdministratorRecovery);
+  const recover = useMutation({
+    mutationFn: () => recoverFn({ data: { email } }),
+    onSettled: () => setRecoveryMessage("If an eligible administrator account exists, a password link will be sent."),
+  });
 
   useEffect(() => {
     loadIdentity().then((identity) => {
@@ -100,9 +109,21 @@ function AuthPage() {
 
               <TabsContent value="signin" className="space-y-4">
                 <Field id="email" label="Work email" value={email} onChange={setEmail} type="email" />
-                <Field id="password" label="Password" value={password} onChange={setPassword} type="password" />
-                <Button className="w-full" disabled={signIn.isPending} onClick={() => signIn.mutate()}>
-                  {signIn.isPending ? "Signing in…" : "Sign in"}
+                {recovery ? (
+                  <>
+                    <Button className="w-full" disabled={recover.isPending || !email} onClick={() => recover.mutate()}>Send password link</Button>
+                    {recoveryMessage ? <p role="status" className="text-sm text-muted-foreground">{recoveryMessage}</p> : null}
+                  </>
+                ) : (
+                  <>
+                    <Field id="password" label="Password" value={password} onChange={setPassword} type="password" />
+                    <Button className="w-full" disabled={signIn.isPending} onClick={() => signIn.mutate()}>
+                      {signIn.isPending ? "Signing in…" : "Sign in"}
+                    </Button>
+                  </>
+                )}
+                <Button variant="link" onClick={() => { setRecovery(!recovery); setRecoveryMessage(""); setPassword(""); }}>
+                  {recovery ? "Back to sign in" : "Forgot password?"}
                 </Button>
               </TabsContent>
 
