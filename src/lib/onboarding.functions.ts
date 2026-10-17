@@ -52,8 +52,6 @@ export const sendAdministratorSetup=createServerFn({method:'POST'}).middleware([
   if(error || !roles?.length)throw new Error('Platform administrator access required.');
   deliveryBase();
   const admin=await adminClient();
-  const {data:globalAllowed}=await admin.rpc('admin_onboarding_rate_limit',{_key:await digest('verify:global'),_limit:100});
-  if(!globalAllowed)throw new Error('This password link is invalid or expired.');
   const {data:target}=await admin.from('user_roles').select('user_id').eq('tenant_id',data.tenantId).eq('role','TENANT_ADMIN').single();
   if(!target)throw new Error('An existing organization administrator is required.');
   const {data:user}=await admin.auth.admin.getUserById(target.user_id);
@@ -63,6 +61,8 @@ export const sendAdministratorSetup=createServerFn({method:'POST'}).middleware([
 });
 export const verifyAdministratorLink=createServerFn({method:'POST'}).inputValidator(input=>z.object({requestId:z.string().uuid(),tokenHash:z.string().min(20).max(256)}).parse(input)).handler(async({data})=>{
   const admin=await adminClient();
+  const {data:globalAllowed}=await admin.rpc('admin_onboarding_rate_limit',{_key:await digest('verify:global'),_limit:100});
+  if(!globalAllowed)throw new Error('This password link is invalid or expired.');
   const {data:allowed}=await admin.rpc('admin_onboarding_rate_limit',{_key:await digest(`verify:${data.requestId}`),_limit:ATTEMPTS_PER_HOUR});
   if(!allowed)throw new Error('This password link is invalid or expired.');
   const {data:row}=await admin.from('admin_onboarding_requests').select('*').eq('id',data.requestId).single();
@@ -76,8 +76,8 @@ export const verifyAdministratorLink=createServerFn({method:'POST'}).inputValida
   if(!eligibleAdministrator(roles??[],row.tenant_id??undefined))throw new Error('This password link is invalid or expired.');
   const {data:auth,error}=await authClient().auth.verifyOtp({token_hash:data.tokenHash,type:'recovery'});
   if(error || !auth.session || auth.user?.id!==row.user_id){await admin.from('admin_onboarding_requests').update({attempts:row.attempts+1}).eq('id',row.id);await audit(admin,'ADMIN_ONBOARDING_VERIFICATION_FAILED',row);throw new Error('This password link is invalid or expired.');}
-  const {error:save}=await admin.from('admin_onboarding_requests').update({status:'VERIFIED',session_hash:await digest(auth.session.access_token)}).eq('id',row.id).eq('status','PENDING');
-  if(save)throw new Error('This password link is invalid or expired.');
+  const {data:saved,error:save}=await admin.from('admin_onboarding_requests').update({status:'VERIFIED',session_hash:await digest(auth.session.access_token)}).eq('id',row.id).eq('status','PENDING').select('id').maybeSingle();
+  if(save || !saved)throw new Error('This password link is invalid or expired.');
   await audit(admin,'ADMIN_ONBOARDING_LINK_VERIFIED',row);
   return {accessToken:auth.session.access_token,refreshToken:auth.session.refresh_token};
 });
