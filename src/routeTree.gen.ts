@@ -40,6 +40,8 @@ import { Route as AuthenticatedOrgTransfersRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminTenantsIndexRouteImport } from './routes/_authenticated/admin/tenants.index'
 import { Route as AuthenticatedAdminTenantsTenantIdRouteImport } from './routes/_authenticated/admin/tenants.$tenantId'
 import { Route as ApiPublicVoiceTwilioRouteImport } from './routes/api/public/voice/twilio'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -213,6 +215,16 @@ const ApiPublicVoiceTwilioRoute = ApiPublicVoiceTwilioRouteImport.update({
   path: '/api/public/voice/twilio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -244,6 +256,8 @@ export interface FileRoutesByFullPath {
   '/org/': typeof AuthenticatedOrgIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/api/public/voice/twilio': typeof ApiPublicVoiceTwilioRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -274,6 +288,8 @@ export interface FileRoutesByTo {
   '/org': typeof AuthenticatedOrgIndexRoute
   '/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/api/public/voice/twilio': typeof ApiPublicVoiceTwilioRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/admin/tenants': typeof AuthenticatedAdminTenantsIndexRoute
 }
 export interface FileRoutesById {
@@ -308,6 +324,8 @@ export interface FileRoutesById {
   '/_authenticated/org/': typeof AuthenticatedOrgIndexRoute
   '/_authenticated/admin/tenants/$tenantId': typeof AuthenticatedAdminTenantsTenantIdRoute
   '/api/public/voice/twilio': typeof ApiPublicVoiceTwilioRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/_authenticated/admin/tenants/': typeof AuthenticatedAdminTenantsIndexRoute
 }
 export interface FileRouteTypes {
@@ -342,6 +360,8 @@ export interface FileRouteTypes {
     | '/org/'
     | '/admin/tenants/$tenantId'
     | '/api/public/voice/twilio'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/admin/tenants/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -372,6 +392,8 @@ export interface FileRouteTypes {
     | '/org'
     | '/admin/tenants/$tenantId'
     | '/api/public/voice/twilio'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/admin/tenants'
   id:
     | '__root__'
@@ -405,6 +427,8 @@ export interface FileRouteTypes {
     | '/_authenticated/org/'
     | '/_authenticated/admin/tenants/$tenantId'
     | '/api/public/voice/twilio'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/_authenticated/admin/tenants/'
   fileRoutesById: FileRoutesById
 }
@@ -414,6 +438,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicVoiceTwilioRoute: typeof ApiPublicVoiceTwilioRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -635,6 +661,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicVoiceTwilioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -730,6 +770,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicVoiceTwilioRoute: ApiPublicVoiceTwilioRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
