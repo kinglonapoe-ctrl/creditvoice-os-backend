@@ -18,6 +18,7 @@ import {
   verifyCustomerPin,
   verifyTenantAccessCode,
 } from "@/lib/voice/call-session.server";
+import { accountDigitLimit } from "@/lib/account-numbering";
 import { getCallAccountSummary, requireCallContext } from "@/lib/voice/actions.server";
 import { voiceRpc } from "@/lib/voice/db.server";
 import { parseDtmfAmount } from "@/lib/voice/money";
@@ -72,6 +73,8 @@ interface IvrConfig {
   transfers_enabled: boolean;
   balance_enquiry_enabled: boolean;
   recording_enabled: boolean;
+  account_number_min_length: number;
+  account_number_max_length: number;
 }
 
 const FALLBACK_CONFIG: IvrConfig = {
@@ -86,6 +89,8 @@ const FALLBACK_CONFIG: IvrConfig = {
   transfers_enabled: true,
   balance_enquiry_enabled: true,
   recording_enabled: false,
+  account_number_min_length: 1,
+  account_number_max_length: 20,
 };
 
 async function sha256Hex(value: string): Promise<string> {
@@ -141,7 +146,7 @@ function promptFor(state: IvrState, input: VoiceTurnInput, config: IvrConfig, le
         action: action(input.basePath, "account"),
         prompt: PROMPTS.accountNumber,
         finishOnKey: "#",
-        numDigits: 20,
+        numDigits: accountDigitLimit(config),
         timeoutSeconds: timeout,
       });
       break;
@@ -166,7 +171,7 @@ function promptFor(state: IvrState, input: VoiceTurnInput, config: IvrConfig, le
         action: action(input.basePath, "transfer_recipient"),
         prompt: PROMPTS.transferRecipient,
         finishOnKey: "#",
-        numDigits: 20,
+        numDigits: accountDigitLimit(config),
         timeoutSeconds: timeout,
       });
       break;

@@ -1000,6 +1000,50 @@ export type Database = {
           },
         ]
       }
+      tenant_account_number_settings: {
+        Row: {
+          created_at: string
+          format: string
+          max_length: number
+          min_length: number
+          mode: string
+          pad_length: number | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          format?: string
+          max_length?: number
+          min_length?: number
+          mode?: string
+          pad_length?: number | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          format?: string
+          max_length?: number
+          min_length?: number
+          mode?: string
+          pad_length?: number | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_account_number_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_account_sequences: {
         Row: {
           next_number: number
@@ -1383,6 +1427,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_number_matches_rules: {
+        Args: { _number: string; _tenant_id: string }
+        Returns: boolean
+      }
       admin_onboarding_claim: {
         Args: { _id: string; _session_hash: string; _user_id: string }
         Returns: boolean
@@ -1666,6 +1714,16 @@ export type Database = {
       reverse_transfer: {
         Args: { _reason?: string; _transfer_id: string }
         Returns: string
+      }
+      set_account_numbering_settings: {
+        Args: {
+          _max_length: number
+          _min_length: number
+          _mode: string
+          _pad_length?: number
+          _tenant_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

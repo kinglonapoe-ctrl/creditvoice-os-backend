@@ -22,7 +22,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatMoney } from "@/lib/format";
 import { useIdentity } from "@/lib/identity";
-import { createAccount, listAccounts, listCustomers, updateAccount } from "@/lib/services/organization";
+import { accountNumberMatches, LEGACY_RULES } from "@/lib/account-numbering";
+import { createAccount, getNumberingSettings, listAccounts, listCustomers, updateAccount } from "@/lib/services/organization";
 import { getTenant } from "@/lib/services/platform";
 
 export const Route = createFileRoute("/_authenticated/org/accounts")({
@@ -36,12 +37,28 @@ function Accounts() {
   const [open, setOpen] = useState(false);
   const [customerId, setCustomerId] = useState("");
   const [creditLimit, setCreditLimit] = useState("0");
+  const [accountNumber, setAccountNumber] = useState("");
 
   const tenant = useQuery({ queryKey: ["tenant", tenantId], queryFn: () => getTenant(tenantId), enabled: !!tenantId });
   const accounts = useQuery({ queryKey: ["accounts", tenantId], queryFn: () => listAccounts(tenantId), enabled: !!tenantId });
   const customers = useQuery({ queryKey: ["customers", tenantId], queryFn: () => listCustomers(tenantId), enabled: !!tenantId });
 
+  const numbering = useQuery({ queryKey: ["numbering", tenantId], queryFn: () => getNumberingSettings(tenantId), enabled: !!tenantId });
+
   const currency = tenant.data?.currency_code ?? "USD";
+  const rules = numbering.data ?? LEGACY_RULES;
+  const manual = rules.mode === "MANUAL";
+  const trimmed = accountNumber.trim();
+  const numberError =
+    trimmed === ""
+      ? manual
+        ? "An account number is required."
+        : null
+      : accountNumberMatches(trimmed, rules)
+        ? null
+        : rules.min_length === rules.max_length
+          ? `Use exactly ${rules.min_length} digits.`
+          : `Use ${rules.min_length} to ${rules.max_length} digits.`;
 
   const create = useMutation({
     mutationFn: () =>
@@ -50,13 +67,15 @@ function Accounts() {
         customer_id: customerId,
         currency_code: currency,
         credit_limit: Number(creditLimit || 0),
+        account_number: trimmed || null,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts", tenantId] });
       setOpen(false);
       setCustomerId("");
       setCreditLimit("0");
-      toast.success("Account opened with a generated account number.");
+      setAccountNumber("");
+      toast.success(trimmed ? "Account opened." : "Account opened with a generated account number.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -84,7 +103,10 @@ function Accounts() {
               <DialogHeader>
                 <DialogTitle>Open a credit account</DialogTitle>
                 <DialogDescription>
-                  The account number is generated automatically. Balances can only move through the credit engine.
+                  {manual
+                    ? "Enter the account number your organization assigns."
+                    : "Enter a number, or leave it blank to generate one."}{" "}
+                  Balances can only move through the credit engine.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
@@ -104,6 +126,22 @@ function Accounts() {
                   </Select>
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="account-number">Account number{manual ? "" : " (optional)"}</Label>
+                  <Input
+                    id="account-number"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    className="font-mono"
+                    value={accountNumber}
+                    maxLength={rules.max_length}
+                    placeholder={manual ? `${rules.min_length}–${rules.max_length} digits` : "Generated if blank"}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                  />
+                  {accountNumber && numberError ? (
+                    <p className="text-xs text-destructive">{numberError}</p>
+                  ) : null}
+                </div>
+                <div className="space-y-2">
                   <Label>Credit limit ({currency})</Label>
                   <Input
                     type="number"
@@ -114,7 +152,7 @@ function Accounts() {
                 </div>
               </div>
               <DialogFooter>
-                <Button disabled={!customerId || create.isPending} onClick={() => create.mutate()}>
+                <Button disabled={!customerId || !!numberError || create.isPending} onClick={() => create.mutate()}>
                   Open account
                 </Button>
               </DialogFooter>
