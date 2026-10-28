@@ -104,3 +104,18 @@ Read-only investigation completed. No application code, schema, phone mapping, c
 - Thus configuration/mapping preservation and forged-signature rejection are verified; a current successful live pilot call is **not reverified**. Gate D remains unchanged and is not declared PASS. If the operator wants fresh voice proof, a separately controlled real call is needed.
 
 **Next decisions:** approve/provide a separate carrier-allocated voice number and its tenant assignment; separately authorize the missing secure password-setup/recovery workflow. Until then, activation, opening credit and independent administrator access remain blocked.
+
+## Separate US number verified and assigned — 2026-10-28 UTC
+
+Operator authorized verification and assignment of `+13185451559` to CreditVoice Test Cooperative only. This section supersedes the earlier no-available-number blocker; historical evidence above is unchanged.
+
+- Twilio read API via the authorized **Lon's Twilio** connection returned the exact number as an in-use US local number with voice/SMS capability. Provider number ID: `PN945d5cff8126ae9a7ec4687cff76d80d`. It and the Pilot number belong to the same provider account.
+- Both numbers already have incoming voice HTTP POST configured to `https://creditvoice.lovable.app/api/public/voice/twilio`, without an overriding voice application or trunk. No Twilio configuration was changed and no number was purchased.
+- Authenticated requesting platform administrator used the existing `/admin/phone-numbers` Add number and Assign controls. Inventory row `50238e5f-c90c-4eff-92bc-56f50898704e` is now ASSIGNED, primary, to tenant `3f3db4ed-37a1-4c10-befd-08e2b08f04c5`. Database readback and the rendered inventory confirmed the assignment.
+- Assignment audit `e6f275f8-b4dc-42ca-848f-cee39fab7694` records `PHONE_NUMBER_ASSIGNED`, the same tenant/number row, actor role SUPER_ADMIN, timestamp `2026-10-28T08:23:16.658357Z`, and empty metadata. No credential was accessed or issued.
+- Test Cooperative remains CONFIGURATION. Assignment does not activate the organization or make this destination eligible for live tenant resolution. Activation was not authorized or attempted.
+- Pilot number `+18302641691` remains ACTIVE and primary for CreditVoice Pilot. Pilot tenant remains ACTIVE; ledger-derived and cached account balances remain NGN 9,900 and NGN 100. Test Cooperative accounts remain zero with zero ledger entries and no ledger-cache rows. No financial operation was performed.
+- Published voice endpoint rejected a forged form-urlencoded request targeting the new number with HTTP 403. No signed callback or real telephone call was performed; this is not live-call acceptance evidence. Gate D remains outstanding, and Nigeria local-number readiness remains PENDING.
+- No application code, schema, credentials, email settings or runtime configuration changed. Latest preview build signal: build OK, `2026-10-28T08:23:04Z`. No automated suites were rerun for this operational assignment.
+
+Remaining: separately authorized activation, secure administrator/voice-credential handoff and live acceptance testing. Opening credits and transfers remain unauthorized by this request.
