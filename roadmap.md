@@ -2,6 +2,7 @@
 
 ## First isolated test organization — blocked on operator decisions
 
+- [x] Verify operator-provided US number +13185451559 and assign through the supported administrator workflow to Test Cooperative only; provider ownership/voice POST confirmed, Pilot and ledger balances preserved (2026-10-28).
 - [x] Implement secure tenant-admin setup/recovery controls, audit and abuse protection; remove temporary-password disclosure.
 - [ ] Accept secure onboarding end-to-end — blocked on managed recovery template/redirect configuration, delivery verification and authorized service-only database tests.
 - [ ] Complete administrator email configuration — sender domain `notify.creditvoice.securecloudweb.net` registered and DNS verifying; managed auth templates scaffolded with the fragment-token recovery link. Remaining: DNS verification, publish, callback allowlist check, readiness settings, real delivery tests.
@@ -10,7 +11,8 @@
 - [x] Create CreditVoice Test Cooperative and tenant administrator through supported workflows.
 - [x] Create two test customers/accounts, issue hashed credentials and save safe disabled customer care.
 - [x] Verify tenant-admin isolation, zero ledger balances and rejection of activation without a number.
-- [ ] Post requested opening credits and activate — no unmapped voice number; operator explicitly kept CreditVoice Pilot mapping.
+- [ ] Activate Test Cooperative — separate authorization needed; new US number is ASSIGNED, tenant remains CONFIGURATION.
+- [ ] Post requested opening credits — separate explicit money-movement authorization and operational tenant required; both accounts remain zero.
 - [ ] Secure administrator credential handoff — implemented dispatch remains disabled pending secure email configuration and actual delivery/setup verification.
 - [x] Report verified evidence and blockers in FIRST-TEST-TENANT-SETUP-REPORT.md.
 
