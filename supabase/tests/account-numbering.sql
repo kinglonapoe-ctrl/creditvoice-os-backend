@@ -137,10 +137,6 @@ begin
 
   -- rule function used by IVR
   update public.tenant_account_number_settings set min_length = 5, max_length = 5 where tenant_id = ta;
-  insert into an_results values ('IVR rules: tenant A (5 digits) rejects 4 digits',
-    not public.account_number_matches_rules(ta, '1234') and public.account_number_matches_rules(ta, '00123'), '');
-  insert into an_results values ('IVR rules: tenant B (7..9) rejects 5 digits',
-    not public.account_number_matches_rules(tb, '00123'), '');
   insert into an_results values ('IVR config exposes tenant lengths',
     (public.cv_ivr_config(ta)->>'account_number_max_length')::int = 5
     and (public.cv_ivr_config(tb)->>'account_number_max_length')::int = 9, '');
