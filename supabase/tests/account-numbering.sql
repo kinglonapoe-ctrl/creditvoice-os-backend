@@ -32,7 +32,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', ua, 'role', 'authenticated')::text, true);
 
   -- fixed length 6 manual
-  perform public.set_account_numbering_settings(ta, 'MANUAL', 6, 6, null);
+  perform public.set_account_numbering_settings(ta, 'MANUAL', 5, 5, null);
   insert into an_results values ('settings change audit-logged',
     exists (select 1 from public.audit_logs where tenant_id = ta and event_type = 'ACCOUNT_NUMBERING_UPDATED' and actor_id = ua), '');
 
@@ -43,29 +43,29 @@ begin
   insert into an_results values ('manual mode: missing number rejected', ok, msg);
 
   insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number)
-  values (ta, ca, 'NGN', 0, '000123') returning account_number into v;
-  insert into an_results values ('manual: leading zeros preserved, not replaced', v = '000123', v);
+  values (ta, ca, 'NGN', 0, '00123') returning account_number into v;
+  insert into an_results values ('manual: leading zeros preserved, not replaced', v = '00123', v);
 
   begin
-    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '12345');
+    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '1234');
     ok := false; msg := 'inserted';
   exception when others then ok := true; msg := sqlerrm; end;
-  insert into an_results values ('fixed length 6: 5 digits rejected', ok, msg);
+  insert into an_results values ('fixed length 5: 4 digits rejected', ok, msg);
 
   begin
-    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '1234567');
+    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '123456');
     ok := false; msg := 'inserted';
   exception when others then ok := true; msg := sqlerrm; end;
-  insert into an_results values ('fixed length 6: 7 digits rejected', ok, msg);
+  insert into an_results values ('fixed length 5: 6 digits rejected', ok, msg);
 
   begin
-    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '12A456');
+    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '12A45');
     ok := false; msg := 'inserted';
   exception when others then ok := true; msg := sqlerrm; end;
   insert into an_results values ('non-digit number rejected', ok, msg);
 
   begin
-    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '000123');
+    insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, '00123');
     ok := false; msg := 'inserted';
   exception when others then ok := true; msg := sqlerrm; end;
   insert into an_results values ('duplicate within tenant rejected', ok, msg);
@@ -118,8 +118,8 @@ begin
   -- organization B may use the same number
   perform set_config('request.jwt.claims', json_build_object('sub', ub, 'role', 'authenticated')::text, true);
   insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number)
-  values (tb, cb, 'NGN', 0, '000123') returning account_number into v;
-  insert into an_results values ('same number allowed in another tenant', v = '000123', v);
+  values (tb, cb, 'NGN', 0, '00123') returning account_number into v;
+  insert into an_results values ('same number allowed in another tenant', v = '00123', v);
 
   execute 'reset role';
   perform set_config('request.jwt.claims', '', true);
@@ -134,13 +134,13 @@ begin
   insert into an_results values ('automatic honours minimum length', length(v) between 7 and 9, v);
 
   -- rule function used by IVR
-  update public.tenant_account_number_settings set min_length = 6, max_length = 6 where tenant_id = ta;
-  insert into an_results values ('IVR rules: tenant A (6 digits) rejects 5 digits',
-    not public.account_number_matches_rules(ta, '12345') and public.account_number_matches_rules(ta, '000123'), '');
-  insert into an_results values ('IVR rules: tenant B (7..9) rejects 6 digits',
-    not public.account_number_matches_rules(tb, '000123'), '');
+  update public.tenant_account_number_settings set min_length = 5, max_length = 5 where tenant_id = ta;
+  insert into an_results values ('IVR rules: tenant A (5 digits) rejects 4 digits',
+    not public.account_number_matches_rules(ta, '1234') and public.account_number_matches_rules(ta, '00123'), '');
+  insert into an_results values ('IVR rules: tenant B (7..9) rejects 5 digits',
+    not public.account_number_matches_rules(tb, '00123'), '');
   insert into an_results values ('IVR config exposes tenant lengths',
-    (public.cv_ivr_config(ta)->>'account_number_max_length')::int = 6
+    (public.cv_ivr_config(ta)->>'account_number_max_length')::int = 5
     and (public.cv_ivr_config(tb)->>'account_number_max_length')::int = 9, '');
 end $suite$;
 
