@@ -159,14 +159,18 @@ begin
   select attempt_count into att from public.call_sessions where id = sid;
   insert into an_results values ('IVR: wrong-length account rejected and attempt counted',
     r->>'status' = 'REJECTED' and att >= 1, r::text);
-  r := public.cv_identify_account(sid, v->>'acct_b');
+  -- a number that exists only in organization B
+  insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, status, account_number)
+  select tb, customer_id, currency_code, 0, 'ACTIVE', '98765' from public.customer_accounts
+   where tenant_id = tb limit 1;
+  r := public.cv_identify_account(sid, '98765');
   insert into an_results values ('IVR: other tenant account number rejected (same response)', r->>'status' = 'REJECTED', r::text);
   r := public.cv_identify_account(sid, v->>'acct_a');
   insert into an_results values ('IVR: valid own-tenant account identified', (r->>'ok')::boolean, r::text);
   perform public.cv_begin_pin_attempt(sid);
   perform public.cv_finish_pin_attempt(sid, true);
 
-  r := public.cv_prepare_transfer(sid, v->>'acct_b', 100);
+  r := public.cv_prepare_transfer(sid, '98765', 100);
   insert into an_results values ('transfer to other-tenant number rejected',
     r->>'reason' = 'RECIPIENT_UNAVAILABLE', r::text);
   r := public.cv_prepare_transfer(sid, '12', 100);
