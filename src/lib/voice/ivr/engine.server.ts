@@ -18,6 +18,7 @@ import {
   verifyCustomerPin,
   verifyTenantAccessCode,
 } from "@/lib/voice/call-session.server";
+import { accountDigitLimit } from "@/lib/account-numbering";
 import { getCallAccountSummary, requireCallContext } from "@/lib/voice/actions.server";
 import { voiceRpc } from "@/lib/voice/db.server";
 import { parseDtmfAmount } from "@/lib/voice/money";
@@ -91,12 +92,6 @@ const FALLBACK_CONFIG: IvrConfig = {
   account_number_min_length: 1,
   account_number_max_length: 20,
 };
-
-/** Tenant maximum account-number length, clamped to the IVR's 20-digit ceiling. */
-export function accountDigitLimit(config: Pick<IvrConfig, "account_number_max_length">): number {
-  const n = Number(config.account_number_max_length);
-  return Number.isInteger(n) && n >= 1 && n <= 20 ? n : 20;
-}
 
 async function sha256Hex(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));

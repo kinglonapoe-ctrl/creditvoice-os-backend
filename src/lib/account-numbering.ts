@@ -26,3 +26,9 @@ export function validateRules(input: { mode: string; min_length: number; max_len
   }
   return null;
 }
+
+/** Tenant maximum account-number length for phone entry, clamped to the IVR's 20-digit ceiling. */
+export function accountDigitLimit(config: { account_number_max_length?: number | null }): number {
+  const n = Number(config.account_number_max_length);
+  return Number.isInteger(n) && n >= 1 && n <= 20 ? n : 20;
+}

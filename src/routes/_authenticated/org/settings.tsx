@@ -1,12 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { PageHeader } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDay } from "@/lib/format";
 import { useIdentity } from "@/lib/identity";
-import { getTenantNumbers } from "@/lib/services/organization";
+import { validateRules } from "@/lib/account-numbering";
+import { getNumberingSettings, getTenantNumbers, setNumberingSettings } from "@/lib/services/organization";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getTenant } from "@/lib/services/platform";
 
 export const Route = createFileRoute("/_authenticated/org/settings")({
