@@ -36,3 +36,20 @@ Fingerprints of all account numbers/balances (5 accounts), ledger entries (3), t
 ## Remaining
 - Screens not yet exercised signed in as a real organization admin.
 - Changing an organization's rules is blocked if existing numbers would no longer fit (prevents unreachable accounts by phone).
+
+## UI Acceptance Test — 2026-10-28 (real tenant-admin session)
+
+Signed in as the CreditVoice Test Cooperative tenant admin (CONFIGURATION, non-production). Settings-only changes, reverted to AUTOMATIC 5–5. No accounts created; dialogs were closed without submitting.
+
+| Check | Result |
+|---|---|
+| Numbering section visible, loads own tenant (AUTOMATIC 5–5) | PASS |
+| Account form shows account-number field | PASS |
+| Manual mode: field required (no "optional"), "Use 5 to 10 digits." on invalid input | PASS |
+| Automatic mode: "(optional)", "leave it blank to generate one" | PASS |
+| Save valid settings; ACCOUNT_NUMBERING_UPDATED audit rows with before/after (2) | PASS (UI activity-log page not viewed) |
+| Cannot read Pilot settings (empty) or change them ("Not authorized…") | PASS |
+| Conflicting rules (6–8) rejected: "2 existing account number(s) would not fit these rules" | PASS (UI + server) |
+| Server enforcement: invalid lengths, invalid mode rejected by RPC; direct table update affects 0 rows | PASS |
+| Server rejection of malformed number on a real insert | NOT TESTED live (would create an account); covered by DB test suite |
+| Account numbers, balances, ledger, tenant states, phone assignments unchanged (fingerprints identical) | PASS |
