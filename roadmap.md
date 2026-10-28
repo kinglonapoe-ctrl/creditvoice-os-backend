@@ -47,3 +47,10 @@
 - [ ] Recording retention, consent and access-audit policy
 - [ ] Purge the 21 tenant-less simulated call sessions before the pilot
 - [ ] Add `.env` to `.gitignore` (it holds no secret today)
+
+## Tenant-controlled account numbering — implemented
+- [x] Per-organization manual/automatic mode, length range, zero-padding (existing orgs kept automatic 5-digit)
+- [x] Account number field on Open account; Account numbering card on Organization settings
+- [x] Phone menu uses organization length; format checked before lookup
+- [x] Tests: numbering suite 27/27, unit 5/5, concurrency 2/2, existing suites unchanged
+- [ ] Signed-in check of the new form/settings screens as a real organization admin (not yet run)
