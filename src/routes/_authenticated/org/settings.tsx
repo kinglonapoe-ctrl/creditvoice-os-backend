@@ -71,10 +71,108 @@ function OrganizationSettings() {
             </p>
           </CardContent>
         </Card>
+
+        {tenantId ? <NumberingCard tenantId={tenantId} /> : null}
       </div>
     </>
   );
 }
+
+function NumberingCard({ tenantId }: { tenantId: string }) {
+  const queryClient = useQueryClient();
+  const settings = useQuery({ queryKey: ["numbering", tenantId], queryFn: () => getNumberingSettings(tenantId) });
+  const [draft, setDraft] = useState<{ mode: "MANUAL" | "AUTOMATIC"; min: string; max: string; pad: string } | null>(null);
+
+  useEffect(() => {
+    if (settings.data && !draft) {
+      setDraft({
+        mode: settings.data.mode as "MANUAL" | "AUTOMATIC",
+        min: String(settings.data.min_length),
+        max: String(settings.data.max_length),
+        pad: settings.data.pad_length ? String(settings.data.pad_length) : "",
+      });
+    }
+  }, [settings.data, draft]);
+
+  const parsed = draft
+    ? { mode: draft.mode, min_length: Number(draft.min), max_length: Number(draft.max), pad_length: draft.pad ? Number(draft.pad) : null }
+    : null;
+  const error = parsed ? validateRules(parsed) : null;
+
+  const save = useMutation({
+    mutationFn: () =>
+      setNumberingSettings({
+        tenantId,
+        mode: parsed!.mode,
+        minLength: parsed!.min_length,
+        maxLength: parsed!.max_length,
+        padLength: parsed!.pad_length,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["numbering", tenantId] });
+      toast.success("Account numbering updated.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="font-display text-base">Account numbering</CardTitle>
+        <CardDescription>
+          How new account numbers are assigned. Existing numbers never change. Digits only; leading zeros are kept.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!draft ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-4">
+            <div className="space-y-2">
+              <Label>Assignment</Label>
+              <Select value={draft.mode} onValueChange={(v) => setDraft({ ...draft, mode: v as "MANUAL" | "AUTOMATIC" })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MANUAL">Manual — staff enter each number</SelectItem>
+                  <SelectItem value="AUTOMATIC">Automatic — generated if left blank</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="num-min">Minimum digits</Label>
+              <Input id="num-min" inputMode="numeric" value={draft.min} onChange={(e) => setDraft({ ...draft, min: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="num-max">Maximum digits</Label>
+              <Input id="num-max" inputMode="numeric" value={draft.max} onChange={(e) => setDraft({ ...draft, max: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="num-pad">Zero-pad generated to</Label>
+              <Input
+                id="num-pad"
+                inputMode="numeric"
+                placeholder="Off"
+                value={draft.pad}
+                onChange={(e) => setDraft({ ...draft, pad: e.target.value })}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-4 sm:col-span-4">
+              <p className={error ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
+                {error ?? "Callers enter account numbers on the phone using these lengths."}
+              </p>
+              <Button size="sm" disabled={!!error || save.isPending} onClick={() => save.mutate()}>
+                Save numbering
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 function Row({ label, value }: { label: string; value?: string | null | undefined }) {
   return (

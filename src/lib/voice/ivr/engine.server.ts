@@ -72,6 +72,8 @@ interface IvrConfig {
   transfers_enabled: boolean;
   balance_enquiry_enabled: boolean;
   recording_enabled: boolean;
+  account_number_min_length: number;
+  account_number_max_length: number;
 }
 
 const FALLBACK_CONFIG: IvrConfig = {
@@ -86,7 +88,15 @@ const FALLBACK_CONFIG: IvrConfig = {
   transfers_enabled: true,
   balance_enquiry_enabled: true,
   recording_enabled: false,
+  account_number_min_length: 1,
+  account_number_max_length: 20,
 };
+
+/** Tenant maximum account-number length, clamped to the IVR's 20-digit ceiling. */
+export function accountDigitLimit(config: Pick<IvrConfig, "account_number_max_length">): number {
+  const n = Number(config.account_number_max_length);
+  return Number.isInteger(n) && n >= 1 && n <= 20 ? n : 20;
+}
 
 async function sha256Hex(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
@@ -141,7 +151,7 @@ function promptFor(state: IvrState, input: VoiceTurnInput, config: IvrConfig, le
         action: action(input.basePath, "account"),
         prompt: PROMPTS.accountNumber,
         finishOnKey: "#",
-        numDigits: 20,
+        numDigits: accountDigitLimit(config),
         timeoutSeconds: timeout,
       });
       break;
@@ -166,7 +176,7 @@ function promptFor(state: IvrState, input: VoiceTurnInput, config: IvrConfig, le
         action: action(input.basePath, "transfer_recipient"),
         prompt: PROMPTS.transferRecipient,
         finishOnKey: "#",
-        numDigits: 20,
+        numDigits: accountDigitLimit(config),
         timeoutSeconds: timeout,
       });
       break;
