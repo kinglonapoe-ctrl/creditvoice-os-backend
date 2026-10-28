@@ -76,7 +76,9 @@ begin
   values (ta, ca, 'NGN', 0, '4321') returning account_number into v;
   insert into an_results values ('variable 4..8: 4 digits accepted', v = '4321', v);
   -- pre-claim the next sequence value manually
+  execute 'reset role';
   select next_number::text into v from public.tenant_account_sequences where tenant_id = ta;
+  execute 'set local role authenticated';
   insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit, account_number) values (ta, ca, 'NGN', 0, v);
   insert into public.customer_accounts (tenant_id, customer_id, currency_code, credit_limit) values (ta, ca, 'NGN', 0)
   returning account_number into msg;
