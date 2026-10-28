@@ -42,10 +42,39 @@ export async function createAccount(input: {
   customer_id: string;
   currency_code: string;
   credit_limit: number;
+  account_number?: string | null;
 }) {
-  const { data, error } = await supabase.from("customer_accounts").insert(input).select().single();
+  const row = { ...input, account_number: input.account_number?.trim() || null };
+  const { data, error } = await supabase.from("customer_accounts").insert(row as never).select().single();
   if (error) throw error;
   return data;
+}
+
+export async function getNumberingSettings(tenantId: string) {
+  const { data, error } = await supabase
+    .from("tenant_account_number_settings")
+    .select("mode, min_length, max_length, pad_length, updated_at")
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function setNumberingSettings(input: {
+  tenantId: string;
+  mode: "MANUAL" | "AUTOMATIC";
+  minLength: number;
+  maxLength: number;
+  padLength: number | null;
+}) {
+  const { error } = await supabase.rpc("set_account_numbering_settings", {
+    _tenant_id: input.tenantId,
+    _mode: input.mode,
+    _min_length: input.minLength,
+    _max_length: input.maxLength,
+    _pad_length: input.padLength as never,
+  });
+  if (error) throw error;
 }
 
 export async function updateAccount(id: string, patch: Record<string, any>) {
