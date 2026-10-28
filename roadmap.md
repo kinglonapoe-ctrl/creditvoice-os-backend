@@ -2,6 +2,7 @@
 
 ## First isolated test organization — blocked on operator decisions
 
+- [ ] Verify operator-provided US number +13185451559 and assign through the supported administrator workflow to Test Cooperative only; preserve Pilot, tenant status and balances.
 - [x] Implement secure tenant-admin setup/recovery controls, audit and abuse protection; remove temporary-password disclosure.
 - [ ] Accept secure onboarding end-to-end — blocked on managed recovery template/redirect configuration, delivery verification and authorized service-only database tests.
 - [ ] Complete administrator email configuration — sender domain `notify.creditvoice.securecloudweb.net` registered and DNS verifying; managed auth templates scaffolded with the fragment-token recovery link. Remaining: DNS verification, publish, callback allowlist check, readiness settings, real delivery tests.
