@@ -7,6 +7,16 @@
 set -euo pipefail
 DB="${SUPABASE_DB_URL:?SUPABASE_DB_URL is required}"
 TMP=$(mktemp -d); fail=0
+TA=''; TB=''
+cleanup() {
+  local status=$?
+  if [ -n "$TA" ] && [ -n "$TB" ]; then
+    psql "$DB" -v ON_ERROR_STOP=1 -q -c "select cv_test.cv_test_cleanup('$TA'); select cv_test.cv_test_cleanup('$TB')" >/dev/null || status=1
+  fi
+  rm -rf "$TMP"
+  exit "$status"
+}
+trap cleanup EXIT
 SEED=$(psql "$DB" -Atc "select cv_test.cv_test_setup()")
 j() { echo "$SEED" | python3 -c "import json,sys; print(json.load(sys.stdin)['$1'])"; }
 TA=$(j ta); TB=$(j tb); UA=$(j ua); CA=$(j ca)
@@ -36,5 +46,4 @@ rows=$(psql "$DB" -Atc "select count(*) from public.customer_accounts where tena
 if [ "$ok" = 1 ] && [ "$rows" = 1 ]; then echo "   PASS  exactly one succeeded, one row stored"
 else echo "   FAIL  succeeded=$ok rows=$rows"; fail=1; fi
 
-psql "$DB" -q -c "select cv_test.cv_test_cleanup('$TA'); select cv_test.cv_test_cleanup('$TB')" >/dev/null
-rm -rf "$TMP"; exit $fail
+exit $fail

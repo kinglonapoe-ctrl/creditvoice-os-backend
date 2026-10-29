@@ -22,7 +22,8 @@
     "test:ivr:concurrency": "bash supabase/tests/phase2b-concurrency.sh",
     "test:load": "bun run supabase/tests/phase2b-load.ts",
     "test:numbering": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/account-numbering.sql && bun test ./supabase/tests/account-numbering.test.ts",
-    "test:numbering:concurrency": "bash supabase/tests/account-numbering-concurrency.sh"
+    "test:numbering:concurrency": "bash supabase/tests/account-numbering-concurrency.sh",
+    "test:numbering:cleanup": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/account-numbering-cleanup.sql"
   },
   "overrides": {
     "rolldown": "1.2.1"

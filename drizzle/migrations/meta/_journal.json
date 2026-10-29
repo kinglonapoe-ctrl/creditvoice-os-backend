@@ -29,6 +29,13 @@
       "when": 1793184971507,
       "tag": "0003_tenant_account_numbering",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793256118707,
+      "tag": "0004_qa_numbering_settings_cleanup",
+      "breakpoints": true
     }
   ]
 }

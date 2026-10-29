@@ -14,6 +14,18 @@ set -euo pipefail
 DB="${SUPABASE_DB_URL:?SUPABASE_DB_URL is required}"
 TMP=$(mktemp -d)
 fail=0
+TENANT=''; TENANT2=''; TA=''; TB=''
+cleanup() {
+  local status=$?
+  for tid in "$TENANT" "$TENANT2" "$TA" "$TB"; do
+    if [ -n "$tid" ]; then
+      psql "$DB" -v ON_ERROR_STOP=1 -q -c "select cv_test.cv_test_cleanup('$tid')" >/dev/null || status=1
+    fi
+  done
+  rm -rf "$TMP"
+  exit "$status"
+}
+trap cleanup EXIT
 
 echo "1) account number allocation under concurrency"
 SEED=$(psql "$DB" -Atc "select cv_test.cv_test_setup()")
@@ -85,7 +97,4 @@ else
   cat "$TMP/a.out" "$TMP/b.out"; fail=1
 fi
 
-psql "$DB" -q -c "select cv_test.cv_test_cleanup('$TA'); select cv_test.cv_test_cleanup('$TB')" \
-  >/dev/null 2>&1 || echo "   WARN  test organizations could not be removed automatically"
-rm -rf "$TMP"
 exit $fail
