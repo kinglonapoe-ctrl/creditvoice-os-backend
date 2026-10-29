@@ -2,11 +2,17 @@
  * CreditVoice OS — Phase 2B end-to-end IVR tests.
  *
  * Drives the real webhook handler with correctly signed requests against the
- * live database. No Twilio account, no credentials and no telephone call is
+  * ISOLATED test database only (fail-closed guard below). No Twilio account, no credentials and no telephone call is
  * involved: the signature is produced locally with a throwaway token, exactly
  * as Twilio would produce it.
  */
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { QA_CALLER, QA_UNKNOWN_DESTINATION, qaRunPrefix, requireIsolatedDatabase, runCleanupSql } from "./isolated-db-guard";
+
+// Aborts before any setup, request or write unless the target is positively
+// verified as an isolated test database; pins the handler to that database.
+const DB = requireIsolatedDatabase();
+const RUN = qaRunPrefix("e2e");
 
 process.env["TELEPHONY_PROVIDER"] = "TWILIO";
 process.env["TWILIO_ACCOUNT_SID"] = "ACtest";
@@ -21,7 +27,6 @@ const { hashSecret } = await import("../../src/lib/secure-hash.server");
 const { computeTwilioSignature } = await import("../../src/lib/voice/twilio-signature.server");
 const { handleTwilioWebhook } = await import("../../src/lib/voice/webhook.server");
 
-const DB = process.env["SUPABASE_DB_URL"]!;
 const ACCESS_CODE = "24681357";
 const PIN = "1357";
 
@@ -45,7 +50,7 @@ async function post(step: string, params: Record<string, string>, opts: { signat
 }
 
 function call(callSid: string, extra: Record<string, string> = {}) {
-  return { CallSid: callSid, From: "+2348111222333", To: ids["num_a"]!, ...extra };
+  return { CallSid: callSid, From: QA_CALLER, To: ids["num_a"]!, ...extra };
 }
 
 beforeAll(async () => {
@@ -59,6 +64,7 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
+  sql(runCleanupSql(RUN));
   sql(
     `select cv_test.cv_test_voice_cleanup(array['${ids["ta"]}','${ids["tb"]}','${ids["tsus"]}']::uuid[])`,
   );
@@ -67,19 +73,19 @@ afterAll(() => {
 describe("webhook security", () => {
   test("an unsigned request is rejected with 403 and never reaches the engine", async () => {
     const before = sql(`select count(*) from public.call_sessions`);
-    const res = await post("start", call("CA-unsigned"), { signature: null });
+    const res = await post("start", call(`${RUN}-unsigned`), { signature: null });
     expect(res.status).toBe(403);
     expect(sql(`select count(*) from public.call_sessions`)).toBe(before);
   });
 
   test("an invalid signature is rejected with 403", async () => {
-    const res = await post("start", call("CA-bad"), { signature: "AAAAAAAAAAAAAAAAAAAAAAAAAAA=" });
+    const res = await post("start", call(`${RUN}-bad`), { signature: "AAAAAAAAAAAAAAAAAAAAAAAAAAA=" });
     expect(res.status).toBe(403);
   });
 
   test("a modified signed request is rejected with 403", async () => {
     const url = `${BASE}${PATH}?step=start`;
-    const params = call("CA-tamper");
+    const params = call(`${RUN}-tamper`);
     const signature = await computeTwilioSignature(TOKEN, url, params);
     const res = await handleTwilioWebhook(
       new Request(url, {
@@ -105,7 +111,7 @@ describe("webhook security", () => {
 
 describe("tenant resolution", () => {
   test("an unknown destination number gets a generic message and no organization detail", async () => {
-    const res = await post("start", { CallSid: "CA-unknown", From: "+2348111222333", To: "+234999888777" });
+    const res = await post("start", { CallSid: `${RUN}-unknown`, From: QA_CALLER, To: QA_UNKNOWN_DESTINATION });
     const xml = await res.text();
     expect(res.status).toBe(200);
     expect(xml).toContain("not currently available");
@@ -115,7 +121,7 @@ describe("tenant resolution", () => {
 });
 
 describe("happy path: call to balance", () => {
-  const sid = "CA-happy-1";
+  const sid = `${RUN}-happy-1`;
 
   test("the call is answered with the access code prompt", async () => {
     const xml = await (await post("start", call(sid))).text();
@@ -167,7 +173,7 @@ describe("happy path: call to balance", () => {
 });
 
 describe("transfer", () => {
-  const sid = "CA-transfer-1";
+  const sid = `${RUN}-transfer-1`;
 
   test("authenticate", async () => {
     await post("start", call(sid));
@@ -247,7 +253,7 @@ describe("transfer", () => {
 
 describe("authentication failures", () => {
   test("a wrong access code is refused generically and never names the organization", async () => {
-    const sid = "CA-badcode";
+    const sid = `${RUN}-badcode`;
     await post("start", call(sid));
     const xml = await (await post("access_code", call(sid, { Digits: "00000000" }))).text();
     expect(xml).toContain("not accepted");
@@ -255,7 +261,7 @@ describe("authentication failures", () => {
   });
 
   test("repeated wrong PINs end the call", async () => {
-    const sid = "CA-badpin";
+    const sid = `${RUN}-badpin`;
     await post("start", call(sid));
     await post("access_code", call(sid, { Digits: ACCESS_CODE }));
     await post("account", call(sid, { Digits: ids["acct_a"]! }));
@@ -270,7 +276,7 @@ describe("authentication failures", () => {
   test("account lookup never leaves the dialled organization", async () => {
     // Account numbers are unique per organization, not globally: the same
     // number exists in another organization. The lookup must stay scoped.
-    const sid = "CA-crosstenant";
+    const sid = `${RUN}-crosstenant`;
     await post("start", call(sid));
     await post("access_code", call(sid, { Digits: ACCESS_CODE }));
     await post("account", call(sid, { Digits: ids["acct_b"]! }));
@@ -283,7 +289,7 @@ describe("authentication failures", () => {
   });
 
   test("an unauthenticated caller cannot reach the menu actions", async () => {
-    const sid = "CA-unauth";
+    const sid = `${RUN}-unauth`;
     await post("start", call(sid));
     const xml = await (await post("menu", call(sid, { Digits: "1" }))).text();
     // Still at the access-code step: no balance is ever spoken.

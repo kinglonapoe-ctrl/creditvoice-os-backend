@@ -17,8 +17,9 @@ process.env["TWILIO_WEBHOOK_BASE_URL"] = "https://voice.creditvoice.test";
 const TOKEN = process.env["TWILIO_AUTH_TOKEN"]!;
 const BASE = process.env["TWILIO_WEBHOOK_BASE_URL"]!;
 const PATH = "/api/public/voice/twilio";
-const DB = process.env["SUPABASE_DB_URL"];
-if (!DB) throw new Error("SUPABASE_DB_URL is required");
+const { requireIsolatedDatabase } = await import("./isolated-db-guard");
+// Fail closed: abort unless the target is a verified isolated database.
+const DB = requireIsolatedDatabase();
 
 const { hashSecret } = await import("../../src/lib/secure-hash.server");
 const { computeTwilioSignature } = await import("../../src/lib/voice/twilio-signature.server");
