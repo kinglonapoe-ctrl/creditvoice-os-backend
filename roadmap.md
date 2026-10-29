@@ -1,9 +1,10 @@
 # CreditVoice OS — roadmap
 
 ## Automated numbering test cleanup — Step 1 only
-- [ ] Fix shared QA teardown to remove only the temporary tenant's numbering settings.
-- [ ] Add a temporary-organization cleanup regression and run relevant suites safely.
-- [ ] Verify all existing operational data and the 15 orphan settings remain unchanged; report evidence.
+- [x] Fix both shared QA teardown helpers to remove only the selected temporary tenant's numbering settings; add EXIT traps to legacy concurrency scripts.
+- [x] Add settings-only cleanup regression; before-fix failure/after-fix success proven, requested SQL/concurrency suites run in isolation.
+- [x] Verify real operational data and all 15 orphan settings unchanged; evidence in ACCOUNT-NUMBERING-CLEANUP-REPORT.md.
+- Test-boundary deviation: an additional managed-environment IVR fixture run left 10 tenant-less audit events and one ended simulated unknown-destination call; disclosed in report, not cleaned up.
 - Existing orphan-row cleanup is excluded and not authorized by this step.
 
 ## First isolated test organization — blocked on operator decisions
