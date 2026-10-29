@@ -61,3 +61,10 @@
 - [x] Phone menu uses organization length; format checked before lookup
 - [x] Tests: numbering suite 27/27, unit 5/5, concurrency 2/2, existing suites unchanged
 - [ ] Signed-in check of the new form/settings screens as a real organization admin (not yet run)
+
+## E2E test isolation (see E2E-TEST-ISOLATION-REPORT.md)
+- [x] Fail-closed isolated-database guard on phone end-to-end and load suites
+- [x] Run-tagged QA call IDs, reserved synthetic numbers, run-scoped cleanup
+- [x] 930 original activity records re-verified against baseline
+- [ ] Run full end-to-end suite on a disposable isolated stack (blocked: none available here)
+- [ ] Handle the 12 incident records (awaiting approval; annotation recommended)
