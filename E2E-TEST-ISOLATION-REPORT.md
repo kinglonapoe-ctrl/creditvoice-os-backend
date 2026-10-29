@@ -87,3 +87,18 @@ fingerprints of every operational table, using the `to_jsonb` method above.
 - `supabase/tests/phase2b-e2e.test.ts` (guard, run-scoped IDs, synthetic numbers, cleanup)
 - `supabase/tests/phase2b-load.ts` (guard)
 - `E2E-TEST-ISOLATION-REPORT.md`, `roadmap.md`, `AGENTS.md`
+
+## E. Incident annotation — RECORDED (2026-10-29 17:30:12 UTC)
+
+Approved by operator Lon. One new append-only activity entry
+`6fc89cfd-3000-4550-b3e7-f58d92c1df41` (`QA_ARTIFACT_ANNOTATED`, entity type
+`incident_annotation`) lists all 12 records: audit IDs e232db78…, 5bef5896…,
+7a85fc81…, 17102229…, 1a5ef56e…, bfb03b7c…, 43944b20…, 4acef2d7…, 86625c43…,
+231ff8a4… (full IDs in the entry), call session
+`80bfc0f0-1cc9-409c-abaf-c314b1bba73b`, auth failure
+`0d565c97-7988-4cbf-ae93-f89d490444dc`. Actor: Lovable AI agent, service-level
+write (no signed-in user). Verified: activity rows 940 → 941; 930-row baseline
+still `d6a57853…`; content hashes of the 10 audit rows, the session and the auth
+failure identical before/after; tenants 3, accounts 5 (₦10,000), ledger 3,
+transactions 2, transfers 1, phone numbers 2, numbering settings 18, call
+sessions 43, auth failures 24 — unchanged.
