@@ -1,5 +1,11 @@
 # CreditVoice OS — roadmap
 
+## Automated numbering test cleanup — Step 1 only
+- [ ] Fix shared QA teardown to remove only the temporary tenant's numbering settings.
+- [ ] Add a temporary-organization cleanup regression and run relevant suites safely.
+- [ ] Verify all existing operational data and the 15 orphan settings remain unchanged; report evidence.
+- Existing orphan-row cleanup is excluded and not authorized by this step.
+
 ## First isolated test organization — blocked on operator decisions
 
 - [x] Verify operator-provided US number +13185451559 and assign through the supported administrator workflow to Test Cooperative only; provider ownership/voice POST confirmed, Pilot and ledger balances preserved (2026-10-28).
