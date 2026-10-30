@@ -43,7 +43,7 @@ const EMPTY = {
   country: "",
   address: "",
   business_type: "",
-  requested_currency: "NGN",
+  requested_currency: "USD",
   description: "",
 };
 
