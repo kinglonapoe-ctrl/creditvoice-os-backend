@@ -1,0 +1,26 @@
+// CreditVoice OS — Cloudflare Workers deployment (self-hosted option).
+// Build first with `bun run build`; the build writes the Worker to dist/server
+// and static files to dist/client. No secrets belong in this file — set them
+// with `wrangler secret put <NAME>` (see CLOUDFLARE-DEPLOYMENT-GUIDE.md).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "creditvoice-os",
+  "main": "dist/server/index.mjs",
+  "compatibility_date": "2025-09-01",
+  // Needed for node:crypto/Buffer parity used by Twilio HMAC and server libraries.
+  "compatibility_flags": ["nodejs_compat"],
+  "no_bundle": true,
+  "rules": [{ "type": "ESModule", "globs": ["**/*.mjs", "**/*.js"] }],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "dist/client"
+  },
+  "observability": { "enabled": true },
+  // Public, non-secret runtime values only.
+  "vars": {
+    "TELEPHONY_PROVIDER": "TWILIO"
+  }
+  // Secrets (never commit): SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
+  // SUPABASE_SERVICE_ROLE_KEY, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN,
+  // TWILIO_WEBHOOK_BASE_URL.
+}
