@@ -1,3 +1,4 @@
+import logoDark from "@/assets/logo_dark.png.asset.json";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -93,7 +94,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-sidebar px-4 py-12">
       <div className="w-full max-w-md">
         <Link to="/" className="mb-6 block text-center font-display text-xl font-semibold text-sidebar-foreground">
-          CreditVoice OS
+          <img src={logoDark.url} alt="CreditVoice OS" className="mx-auto h-14 w-auto" />
         </Link>
         <Card>
           <CardHeader>
