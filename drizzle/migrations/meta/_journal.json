@@ -50,6 +50,13 @@
       "when": 1793342332035,
       "tag": "0006_allow_unspecified_failure_event_currency",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793371843728,
+      "tag": "0007_public_active_currencies",
+      "breakpoints": true
     }
   ]
 }

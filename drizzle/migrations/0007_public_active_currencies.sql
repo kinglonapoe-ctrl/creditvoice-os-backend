@@ -1,0 +1,1 @@
+CREATE POLICY "active currencies public read" ON public.currencies FOR SELECT TO anon USING (is_active = true);
