@@ -1,3 +1,4 @@
+import logoH from "@/assets/logo_h.png.asset.json";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut, Menu, X } from "lucide-react";
@@ -42,7 +43,7 @@ export function AppShell({ workspace, subtitle, nav, children }: AppShellProps) 
       >
         <div className="flex items-center justify-between px-5 py-5">
           <div>
-            <p className="font-display text-base font-semibold tracking-tight">CreditVoice OS</p>
+            <img src={logoH.url} alt="CreditVoice" className="mb-1 h-8 w-auto rounded bg-card px-1" />
             <p className="text-xs text-sidebar-foreground/60">{workspace}</p>
           </div>
           <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="Close navigation">
@@ -82,7 +83,7 @@ export function AppShell({ workspace, subtitle, nav, children }: AppShellProps) 
           <button onClick={() => setOpen(true)} aria-label="Open navigation">
             <Menu className="h-5 w-5" />
           </button>
-          <span className="font-display text-sm font-semibold">CreditVoice OS</span>
+          <img src={logoH.url} alt="CreditVoice" className="h-7 w-auto" />
         </header>
         <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
       </div>

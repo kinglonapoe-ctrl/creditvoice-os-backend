@@ -1,3 +1,5 @@
+import logoH from "@/assets/logo_h.png.asset.json";
+import logoDark from "@/assets/logo_dark.png.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -66,7 +68,7 @@ function Landing() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="font-display text-lg font-semibold tracking-tight">CreditVoice OS</span>
+          <img src={logoH.url} alt="CreditVoice" className="h-9 w-auto" />
           <Button asChild variant="outline" size="sm">
             <Link to="/auth">Workspace sign in</Link>
           </Button>
@@ -175,8 +177,9 @@ function Landing() {
         </Card>
       </section>
 
-      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        CreditVoice OS — Phase 1 foundation. Telephony connection follows in a later phase.
+      <footer className="bg-primary py-10 text-center text-xs text-primary-foreground/70">
+        <img src={logoDark.url} alt="CreditVoice — Financial access by phone" className="mx-auto mb-4 h-14 w-auto" />
+        <p>© {new Date().getFullYear()} CreditVoice OS. Financial access by phone.</p>
       </footer>
     </div>
   );
