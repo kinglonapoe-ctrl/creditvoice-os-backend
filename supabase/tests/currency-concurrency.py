@@ -1,13 +1,16 @@
 """Real parallel sessions; exclusively a positively marked localhost test DB."""
 import os, subprocess, concurrent.futures, time, json
+from urllib.parse import urlparse, parse_qs
 DB=os.environ.get('CV_CURRENCY_TEST_DB_URL','')
-if not DB.startswith('postgresql://nobody@localhost:55437/'):
+target=urlparse(DB)
+if target.hostname!='localhost' or target.port!=55437 or target.username!='nobody' or parse_qs(target.query).get('host')!=['/tmp/cv-currency-test/socket']:
     raise SystemExit('Dedicated localhost currency test database required')
 def sql(q, ok=True):
     p=subprocess.run(['psql',DB,'-X','-At','-v','ON_ERROR_STOP=1','-c',q],capture_output=True,text=True)
     if ok and p.returncode: raise RuntimeError(p.stderr)
     return p
 assert sql("select current_setting('creditvoice.isolated_test',true)").stdout.strip()=='on'
+assert sql("select count(*) from public.tenants where id in ('7965a5cb-1144-4fc1-9150-db68e40dbe4c','3f3db4ed-37a1-4c10-befd-08e2b08f04c5','b2678d71-d392-4f29-b9e7-21365d307a12')").stdout.strip()=='0'
 ids=json.loads(sql('select cv_test.cv_test_setup()').stdout)
 ta=ids['ta']; ua=ids['ua']; a=ids['aa1']; ca=ids['ca']; super_id='00000000-0000-0000-0000-000000000111'
 sql(f"insert into auth.users(id,email) values('{super_id}','concurrency@example.invalid') on conflict do nothing; insert into public.user_roles(user_id,role) select '{super_id}','SUPER_ADMIN' where not exists(select 1 from public.user_roles where user_id='{super_id}');")
