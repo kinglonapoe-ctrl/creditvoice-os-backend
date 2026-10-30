@@ -1,5 +1,11 @@
 # CreditVoice OS — roadmap
 
+## Currency change safeguards
+- [x] Enforce Super Admin currency changes with atomic dependency checks, shared creation/posting locks and permanent audit.
+- [x] Run unauthorized/history/zero-account/concurrency/audit regressions only in a disposable database.
+- [x] Verify eligibility and preserve financial, phone, numbering and historical-audit fingerprints; later operator approval superseded the original no-currency-change restriction.
+- [x] Execute the newly approved NGN-to-USD change for Test Cooperative and its two eligible zero-history accounts only; audit verified, no activation or money movement.
+
 ## Automated numbering test cleanup — Step 1 only
 - [x] Fix both shared QA teardown helpers to remove only the selected temporary tenant's numbering settings; add EXIT traps to legacy concurrency scripts.
 - [x] Add settings-only cleanup regression; before-fix failure/after-fix success proven, requested SQL/concurrency suites run in isolation.

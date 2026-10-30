@@ -36,6 +36,20 @@
       "when": 1793256118707,
       "tag": "0004_qa_numbering_settings_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793342204430,
+      "tag": "0005_organization_currency_change_controls",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793342332035,
+      "tag": "0006_allow_unspecified_failure_event_currency",
+      "breakpoints": true
     }
   ]
 }
