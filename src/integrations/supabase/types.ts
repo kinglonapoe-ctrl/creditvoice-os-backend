@@ -1444,6 +1444,10 @@ export type Database = {
         Args: { _tenant_id: string }
         Returns: undefined
       }
+      change_organization_currency: {
+        Args: { _currency: string; _reason: string; _tenant_id: string }
+        Returns: Json
+      }
       claim_idempotency: {
         Args: { _key: string; _operation: string; _tenant_id: string }
         Returns: string
@@ -1687,6 +1691,7 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: never; Returns: boolean }
+      lock_tenant_currency: { Args: { _tenant_id: string }; Returns: undefined }
       post_credit: {
         Args: {
           _account_id: string
@@ -1724,6 +1729,10 @@ export type Database = {
           _tenant_id: string
         }
         Returns: undefined
+      }
+      tenant_has_currency_history: {
+        Args: { _tenant_id: string }
+        Returns: boolean
       }
     }
     Enums: {

@@ -36,6 +36,13 @@
       "when": 1793256118707,
       "tag": "0004_qa_numbering_settings_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793342204430,
+      "tag": "0005_organization_currency_change_controls",
+      "breakpoints": true
     }
   ]
 }
