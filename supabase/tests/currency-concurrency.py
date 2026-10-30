@@ -15,7 +15,6 @@ def admin(q, uid=super_id):
     return f"begin; set local role authenticated; select set_config('request.jwt.claims','{{\"sub\":\"{uid}\",\"role\":\"authenticated\"}}',true); {q}; commit;"
 with concurrent.futures.ThreadPoolExecutor() as pool:
     # Hold currency mutex until a second session is verifiably waiting on it.
-    holder=pool.submit(sql,admin(f"select public.lock_tenant_currency('{ta}')", super_id),False) if False else None
     first=subprocess.Popen(['psql',DB,'-X','-At','-v','ON_ERROR_STOP=1'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     first.stdin.write(f"begin; select public.lock_tenant_currency('{ta}'); select pg_sleep(1);\n"); first.stdin.flush()
     time.sleep(.15)
