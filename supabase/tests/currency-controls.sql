@@ -43,6 +43,34 @@ BEGIN
  INSERT INTO currency_results VALUES('rejection preserves tenant accounts and audit',(SELECT currency_code='NGN' FROM public.tenants WHERE id=ta) AND NOT EXISTS(SELECT 1 FROM public.customer_accounts WHERE tenant_id=ta AND currency_code<>'NGN') AND (SELECT count(*)=old_count FROM public.audit_logs));
 END $$;
 RESET ROLE;
+-- Privileged fixture corruption and audit-failure simulation are isolated and rolled back.
+DO $$
+DECLARE ids jsonb; u uuid; t uuid; a uuid; failed boolean; before_count bigint;
+BEGIN
+ SELECT i.ids,i.super_id INTO ids,u FROM currency_ids i;
+ t:=(ids->>'tb')::uuid; a:=(ids->>'ab1')::uuid;
+ PERFORM set_config('request.jwt.claims',jsonb_build_object('sub',u,'role','authenticated')::text,true);
+ PERFORM set_config('app.ledger_posting','on',true);
+ UPDATE public.customer_accounts SET currency_code='USD' WHERE id=a;
+ PERFORM set_config('app.ledger_posting','off',true);
+ BEGIN PERFORM public.change_organization_currency(t,'USD','mixed'); failed:=false; EXCEPTION WHEN OTHERS THEN failed:=sqlerrm LIKE '%consistent%'; END;
+ INSERT INTO currency_results VALUES('existing mixed-currency account rejected',failed AND (SELECT currency_code='NGN' FROM public.tenants WHERE id=t));
+ PERFORM set_config('app.ledger_posting','on',true);
+ UPDATE public.customer_accounts SET currency_code='NGN',credit_limit=1 WHERE id=a;
+ PERFORM set_config('app.ledger_posting','off',true);
+ BEGIN PERFORM public.change_organization_currency(t,'USD','limit'); failed:=false; EXCEPTION WHEN OTHERS THEN failed:=sqlerrm LIKE '%zero balances and credit limits%'; END;
+ INSERT INTO currency_results VALUES('nonzero credit limit rejected',failed);
+ UPDATE public.customer_accounts SET credit_limit=0 WHERE id=a;
+ SELECT count(*) INTO before_count FROM public.audit_logs;
+ EXECUTE 'CREATE FUNCTION pg_temp.fail_currency_audit() RETURNS trigger LANGUAGE plpgsql AS $f$ BEGIN IF new.event_type=''CURRENCY_CHANGED'' THEN RAISE EXCEPTION ''Simulated audit storage failure''; END IF; RETURN new; END $f$';
+ EXECUTE 'CREATE TRIGGER z_test_audit_failure BEFORE INSERT ON public.audit_logs FOR EACH ROW EXECUTE FUNCTION pg_temp.fail_currency_audit()';
+ BEGIN PERFORM public.change_organization_currency(t,'USD','audit failure'); failed:=false; EXCEPTION WHEN OTHERS THEN failed:=sqlerrm LIKE '%Simulated audit storage failure%'; END;
+ INSERT INTO currency_results VALUES('audit failure rolls back tenant and account changes',failed AND (SELECT currency_code='NGN' FROM public.tenants WHERE id=t) AND (SELECT currency_code='NGN' FROM public.customer_accounts WHERE id=a) AND (SELECT count(*)=before_count FROM public.audit_logs));
+ EXECUTE 'DROP TRIGGER z_test_audit_failure ON public.audit_logs';
+ INSERT INTO public.financial_failure_events(tenant_id,operation,reason_category,channel) VALUES(t,'isolated','isolated','TEST');
+ BEGIN PERFORM public.change_organization_currency(t,'USD','failed financial posting history'); failed:=false; EXCEPTION WHEN OTHERS THEN failed:=sqlerrm LIKE '%financial history%'; END;
+ INSERT INTO currency_results VALUES('financial failure history blocks changes',failed);
+END $$;
 TABLE currency_results;
 DO $$ BEGIN IF EXISTS(SELECT 1 FROM currency_results WHERE NOT passed) THEN RAISE EXCEPTION 'Currency regression failed'; END IF; END $$;
 ROLLBACK;
