@@ -57,6 +57,13 @@
       "when": 1793371843728,
       "tag": "0007_public_active_currencies",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793622003682,
+      "tag": "0008_tenant_contact_fields",
+      "breakpoints": true
     }
   ]
 }
