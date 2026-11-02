@@ -1154,6 +1154,8 @@ export type Database = {
           access_code_status: string
           address: string | null
           business_type: string | null
+          contact_email: string | null
+          contact_phone: string | null
           country: string
           created_at: string
           currency_approved: boolean
@@ -1170,6 +1172,8 @@ export type Database = {
           access_code_status?: string
           address?: string | null
           business_type?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           country: string
           created_at?: string
           currency_approved?: boolean
@@ -1186,6 +1190,8 @@ export type Database = {
           access_code_status?: string
           address?: string | null
           business_type?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           country?: string
           created_at?: string
           currency_approved?: boolean
