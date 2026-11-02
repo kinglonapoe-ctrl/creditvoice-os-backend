@@ -333,6 +333,50 @@ export const regenerateAccessCode = createServerFn({ method: "POST" })
     return { code };
   });
 
+/** Platform admin sets a specific organization access code (6–12 digits). Old code retired immediately; only the hash is stored. */
+export const setTenantAccessCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { tenantId: string; code: string; reason: string }) => {
+    if (!/^\d{6,12}$/.test(input.code ?? "")) throw new Error("The access code must be between 6 and 12 digits.");
+    if (!input.reason || input.reason.trim().length < 5) throw new Error("Give a reason (at least 5 characters).");
+    return { tenantId: input.tenantId, code: input.code, reason: input.reason.trim().slice(0, 500) };
+  })
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context as any);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { hashSecret } = await import("@/lib/secure-hash.server");
+
+    const { data: tenant } = await supabaseAdmin.from("tenants").select("id").eq("id", data.tenantId).maybeSingle();
+    if (!tenant) throw new Error("Organization not found.");
+
+    const codeHash = await hashSecret(data.code);
+    const now = new Date().toISOString();
+    const { error: retireError } = await supabaseAdmin
+      .from("tenant_access_codes")
+      .update({ is_active: false, retired_at: now })
+      .eq("tenant_id", data.tenantId)
+      .eq("is_active", true);
+    if (retireError) throw new Error("Could not retire the current access code.");
+    const { error: insertError } = await supabaseAdmin
+      .from("tenant_access_codes")
+      .insert({ tenant_id: data.tenantId, code_hash: codeHash });
+    if (insertError) throw new Error("Could not store the new access code.");
+    await supabaseAdmin
+      .from("tenants")
+      .update({ access_code_status: "ACTIVE", access_code_last_changed_at: now })
+      .eq("id", data.tenantId);
+    await writeAudit(supabaseAdmin, {
+      tenant_id: data.tenantId,
+      actor_id: context.userId,
+      actor_role: "SUPER_ADMIN",
+      event_type: "ACCESS_CODE_SET_BY_ADMIN",
+      entity_type: "tenant",
+      entity_id: data.tenantId,
+      metadata: { reason: data.reason },
+    });
+    return { ok: true };
+  });
+
 export const setTenantStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { tenantId: string; status: "CONFIGURATION" | "ACTIVE" | "SUSPENDED" | "CLOSED" }) => input)

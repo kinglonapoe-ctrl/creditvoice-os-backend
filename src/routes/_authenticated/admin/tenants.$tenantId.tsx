@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { formatDate } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { assignPhoneNumber, issueAccessCode, regenerateAccessCode, setTenantStatus } from "@/lib/platform.functions";
+import { assignPhoneNumber, issueAccessCode, regenerateAccessCode, setTenantAccessCode, setTenantStatus } from "@/lib/platform.functions";
 import { getTenant, listPhoneNumbers } from "@/lib/services/platform";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
@@ -90,6 +90,24 @@ function TenantSetup() {
       setRegenOpen(false);
       setRegenReason("");
       setIssuedCode(result.code);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editCode, setEditCode] = useState("");
+  const [editConfirm, setEditConfirm] = useState("");
+  const [editReason, setEditReason] = useState("");
+  const editValid = /^\d{6,12}$/.test(editCode) && editCode === editConfirm && editReason.trim().length >= 5;
+  const editMut = useMutation({
+    mutationFn: () => setTenantAccessCode({ data: { tenantId, code: editCode, reason: editReason } }),
+    onSuccess: () => {
+      refresh();
+      setEditOpen(false);
+      setEditCode("");
+      setEditConfirm("");
+      setEditReason("");
+      toast.success("Access code updated. The old code no longer works.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
