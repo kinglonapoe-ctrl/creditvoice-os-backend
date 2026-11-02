@@ -273,7 +273,9 @@ export async function handleVoiceTurn(input: VoiceTurnInput): Promise<string> {
       _metadata: { provider },
     }).catch(() => undefined);
     await setState(sessionId, "ACCESS_CODE");
-    return promptFor("ACCESS_CODE", input, config, PROMPTS.welcome);
+    // The organization's configured greeting replaces the generic one entirely.
+    const lead = config.welcome_message?.trim() ? undefined : PROMPTS.welcome;
+    return promptFor("ACCESS_CODE", input, config, lead);
   }
 
   // ---- load current position -----------------------------------------

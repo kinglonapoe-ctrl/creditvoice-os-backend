@@ -6,7 +6,7 @@
  */
 
 export const PROMPTS = {
-  welcome: "Welcome to CreditVoice.",
+  welcome: "Welcome.",
   accessCode: "Please enter your access code followed by the pound key.",
   accountNumber: "Please enter your account number followed by the pound key.",
   pin: "Please enter your PIN.",
