@@ -18,7 +18,9 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDate } from "@/lib/format";
-import { assignPhoneNumber, issueAccessCode, setTenantStatus } from "@/lib/platform.functions";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { assignPhoneNumber, issueAccessCode, regenerateAccessCode, setTenantStatus } from "@/lib/platform.functions";
 import { getTenant, listPhoneNumbers } from "@/lib/services/platform";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
@@ -74,6 +76,19 @@ function TenantSetup() {
     mutationFn: () => issueAccessCode({ data: { tenantId } }),
     onSuccess: (result) => {
       refresh();
+      setIssuedCode(result.code);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const [regenOpen, setRegenOpen] = useState(false);
+  const [regenReason, setRegenReason] = useState("");
+  const regenerate = useMutation({
+    mutationFn: () => regenerateAccessCode({ data: { tenantId, reason: regenReason } }),
+    onSuccess: (result) => {
+      refresh();
+      setRegenOpen(false);
+      setRegenReason("");
       setIssuedCode(result.code);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -211,9 +226,14 @@ function TenantSetup() {
             </p>
             <p className="text-muted-foreground">Last changed: {formatDate(t.access_code_last_changed_at)}</p>
             {t.access_code_status === "ACTIVE" ? (
-              <p className="text-xs text-muted-foreground">
-                The plaintext code cannot be retrieved. Only the organization administrator can change it.
-              </p>
+              <>
+                <p className="text-xs text-muted-foreground">
+                  The plaintext code cannot be retrieved. Regenerating replaces it immediately.
+                </p>
+                <Button size="sm" variant="outline" onClick={() => setRegenOpen(true)}>
+                  Regenerate code
+                </Button>
+              </>
             ) : (
               <Button size="sm" disabled={issue.isPending} onClick={() => issue.mutate()}>
                 Issue initial code
@@ -242,6 +262,31 @@ function TenantSetup() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={regenOpen} onOpenChange={(open) => !regenerate.isPending && setRegenOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Regenerate access code?</DialogTitle>
+            <DialogDescription>
+              The current code stops working immediately for every caller. The new code is shown once.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="regen-reason">Reason (recorded in the audit log)</Label>
+            <Input id="regen-reason" value={regenReason} onChange={(e) => setRegenReason(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRegenOpen(false)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              disabled={regenReason.trim().length < 5 || regenerate.isPending}
+              onClick={() => regenerate.mutate()}
+            >
+              Regenerate
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!issuedCode} onOpenChange={(open) => !open && setIssuedCode(null)}>
         <DialogContent>
