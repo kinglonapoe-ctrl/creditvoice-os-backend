@@ -23,6 +23,7 @@ import { getTenant, listPhoneNumbers } from "@/lib/services/platform";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { sendAdministratorSetup } from "@/lib/onboarding.functions";
+import { OrganizationProfileEditor } from "@/components/organization-profile-editor";
 
 export const Route = createFileRoute("/_authenticated/admin/tenants/$tenantId")({
   head: () => ({ meta: [
@@ -130,6 +131,8 @@ function TenantSetup() {
         <h2 className="font-display text-base font-semibold">Administrator access</h2>
         <Button variant="outline" disabled={setup.isPending} onClick={() => setup.mutate()}>Send administrator setup email</Button>
       </section>
+
+      <OrganizationProfileEditor tenant={t} />
 
       <Card className="mb-6">
         <CardHeader>
