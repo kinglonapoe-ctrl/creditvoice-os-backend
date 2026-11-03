@@ -77,6 +77,18 @@ export async function setNumberingSettings(input: {
   if (error) throw error;
 }
 
+/** Deletes an account only if it has no financial or call history (enforced in the database). */
+export async function deleteAccount(id: string, reason: string) {
+  const { error } = await supabase.rpc("delete_customer_account", { _account_id: id, _reason: reason });
+  if (error) throw error;
+}
+
+/** Deletes a customer and their unused accounts; refused if any history exists. */
+export async function deleteCustomer(id: string, reason: string) {
+  const { error } = await supabase.rpc("delete_customer", { _customer_id: id, _reason: reason });
+  if (error) throw error;
+}
+
 export async function updateAccount(id: string, patch: Record<string, any>) {
   const { error } = await supabase.from("customer_accounts").update(patch as never).eq("id", id);
   if (error) throw error;

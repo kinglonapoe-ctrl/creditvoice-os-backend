@@ -23,7 +23,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatMoney } from "@/lib/format";
 import { useIdentity } from "@/lib/identity";
 import { accountNumberMatches, LEGACY_RULES } from "@/lib/account-numbering";
-import { createAccount, getNumberingSettings, listAccounts, listCustomers, updateAccount } from "@/lib/services/organization";
+import { createAccount, deleteAccount, getNumberingSettings, listAccounts, listCustomers, updateAccount } from "@/lib/services/organization";
 import { getTenant } from "@/lib/services/platform";
 
 export const Route = createFileRoute("/_authenticated/org/accounts")({
@@ -59,6 +59,15 @@ function Accounts() {
         : rules.min_length === rules.max_length
           ? `Use exactly ${rules.min_length} digits.`
           : `Use ${rules.min_length} to ${rules.max_length} digits.`;
+
+  const remove = useMutation({
+    mutationFn: (v: { id: string; reason: string }) => deleteAccount(v.id, v.reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts", tenantId] });
+      toast.success("Account deleted.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const create = useMutation({
     mutationFn: () =>
@@ -199,6 +208,21 @@ function Accounts() {
                         Activate
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="ml-2 text-destructive"
+                      disabled={remove.isPending}
+                      onClick={() => {
+                        const reason = window.prompt(
+                          `Delete account ${a.account_number}? This cannot be undone.\nAccounts with any balance, transactions or calls cannot be deleted.\n\nReason:`,
+                        );
+                        if (reason && reason.trim().length >= 3) remove.mutate({ id: a.id, reason: reason.trim() });
+                        else if (reason !== null) toast.error("Please give a reason (at least 3 characters).");
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
