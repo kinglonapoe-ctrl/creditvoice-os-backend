@@ -1433,6 +1433,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_has_history: { Args: { _account_id: string }; Returns: boolean }
       account_number_matches_rules: {
         Args: { _number: string; _tenant_id: string }
         Returns: boolean
@@ -1678,6 +1679,14 @@ export type Database = {
         Returns: boolean
       }
       cv_voice_grant_valid: { Args: { _account_id: string }; Returns: boolean }
+      delete_customer: {
+        Args: { _customer_id: string; _reason: string }
+        Returns: undefined
+      }
+      delete_customer_account: {
+        Args: { _account_id: string; _reason: string }
+        Returns: undefined
+      }
       ensure_ledger_account: { Args: { _account_id: string }; Returns: string }
       execute_transfer: {
         Args: {

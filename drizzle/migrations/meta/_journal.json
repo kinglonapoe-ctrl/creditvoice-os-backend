@@ -64,6 +64,13 @@
       "when": 1793622003682,
       "tag": "0008_tenant_contact_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793704728641,
+      "tag": "0009_tenant_admin_delete_customers_accounts",
+      "breakpoints": true
     }
   ]
 }
