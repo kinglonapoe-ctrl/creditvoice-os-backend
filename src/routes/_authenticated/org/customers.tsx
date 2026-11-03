@@ -22,7 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatDay } from "@/lib/format";
 import { useIdentity } from "@/lib/identity";
 import { setCustomerPin } from "@/lib/organization.functions";
-import { createCustomer, listCustomers, updateCustomer } from "@/lib/services/organization";
+import { createCustomer, deleteCustomer, listCustomers, updateCustomer } from "@/lib/services/organization";
 
 export const Route = createFileRoute("/_authenticated/org/customers")({
   component: Customers,
@@ -81,6 +81,16 @@ function Customers() {
       setPinTarget(null);
       setPin("");
       toast.success("PIN set. It is stored as a hash and cannot be viewed again.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: (v: { id: string; reason: string }) => deleteCustomer(v.id, v.reason),
+    onSuccess: () => {
+      refresh();
+      queryClient.invalidateQueries({ queryKey: ["accounts", tenantId] });
+      toast.success("Customer deleted.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -179,6 +189,21 @@ function Customers() {
                     )}
                     <Button size="sm" variant="ghost" onClick={() => setPinTarget(c.id)}>
                       Set PIN
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive"
+                      disabled={remove.isPending}
+                      onClick={() => {
+                        const reason = window.prompt(
+                          `Delete ${c.full_name} and their unused accounts? This cannot be undone.\nCustomers with any transactions or calls cannot be deleted.\n\nReason:`,
+                        );
+                        if (reason && reason.trim().length >= 3) remove.mutate({ id: c.id, reason: reason.trim() });
+                        else if (reason !== null) toast.error("Please give a reason (at least 3 characters).");
+                      }}
+                    >
+                      Delete
                     </Button>
                   </TableCell>
                 </TableRow>
