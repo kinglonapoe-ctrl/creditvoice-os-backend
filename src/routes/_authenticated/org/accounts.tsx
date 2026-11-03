@@ -23,7 +23,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatMoney } from "@/lib/format";
 import { useIdentity } from "@/lib/identity";
 import { accountNumberMatches, LEGACY_RULES } from "@/lib/account-numbering";
-import { createAccount, deleteAccount, getNumberingSettings, listAccounts, listCustomers, updateAccount } from "@/lib/services/organization";
+import { closeAccount, createAccount, deleteAccount, getNumberingSettings, listAccounts, listCustomers, updateAccount } from "@/lib/services/organization";
 import { getTenant } from "@/lib/services/platform";
 
 export const Route = createFileRoute("/_authenticated/org/accounts")({
@@ -59,6 +59,15 @@ function Accounts() {
         : rules.min_length === rules.max_length
           ? `Use exactly ${rules.min_length} digits.`
           : `Use ${rules.min_length} to ${rules.max_length} digits.`;
+
+  const close = useMutation({
+    mutationFn: (v: { id: string; reason: string }) => closeAccount(v.id, v.reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts", tenantId] });
+      toast.success("Account closed.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const remove = useMutation({
     mutationFn: (v: { id: string; reason: string }) => deleteAccount(v.id, v.reason),
@@ -199,30 +208,51 @@ function Accounts() {
                   </TableCell>
                   <TableCell><StatusBadge status={a.status} /></TableCell>
                   <TableCell className="text-right">
-                    {a.status === "ACTIVE" ? (
-                      <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: a.id, status: "SUSPENDED" })}>
-                        Suspend
-                      </Button>
+                    {a.status === "CLOSED" ? (
+                      <span className="text-xs text-muted-foreground">Closed</span>
                     ) : (
-                      <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: a.id, status: "ACTIVE" })}>
-                        Activate
-                      </Button>
+                      <>
+                        {a.status === "ACTIVE" ? (
+                          <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: a.id, status: "SUSPENDED" })}>
+                            Suspend
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: a.id, status: "ACTIVE" })}>
+                            Activate
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="ml-2"
+                          disabled={close.isPending}
+                          onClick={() => {
+                            const reason = window.prompt(
+                              `Close account ${a.account_number}? It will no longer be usable by phone or for transfers, and it cannot be reopened. Its history is kept.\n\nReason:`,
+                            );
+                            if (reason && reason.trim().length >= 3) close.mutate({ id: a.id, reason: reason.trim() });
+                            else if (reason !== null) toast.error("Please give a reason (at least 3 characters).");
+                          }}
+                        >
+                          Close
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="ml-2 text-destructive"
+                          disabled={remove.isPending}
+                          onClick={() => {
+                            const reason = window.prompt(
+                              `Delete account ${a.account_number}? This cannot be undone.\nAccounts with any balance, transactions or calls cannot be deleted.\n\nReason:`,
+                            );
+                            if (reason && reason.trim().length >= 3) remove.mutate({ id: a.id, reason: reason.trim() });
+                            else if (reason !== null) toast.error("Please give a reason (at least 3 characters).");
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </>
                     )}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="ml-2 text-destructive"
-                      disabled={remove.isPending}
-                      onClick={() => {
-                        const reason = window.prompt(
-                          `Delete account ${a.account_number}? This cannot be undone.\nAccounts with any balance, transactions or calls cannot be deleted.\n\nReason:`,
-                        );
-                        if (reason && reason.trim().length >= 3) remove.mutate({ id: a.id, reason: reason.trim() });
-                        else if (reason !== null) toast.error("Please give a reason (at least 3 characters).");
-                      }}
-                    >
-                      Delete
-                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

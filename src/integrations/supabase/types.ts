@@ -1459,6 +1459,10 @@ export type Database = {
         Args: { _key: string; _operation: string; _tenant_id: string }
         Returns: string
       }
+      close_customer_account: {
+        Args: { _account_id: string; _reason: string }
+        Returns: undefined
+      }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]

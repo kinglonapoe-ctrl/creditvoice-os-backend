@@ -71,6 +71,13 @@
       "when": 1793704728641,
       "tag": "0009_tenant_admin_delete_customers_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793712088765,
+      "tag": "0010_tenant_admin_close_customer_account",
+      "breakpoints": true
     }
   ]
 }

@@ -77,6 +77,12 @@ export async function setNumberingSettings(input: {
   if (error) throw error;
 }
 
+/** Permanently closes an account (audited; history is kept; cannot be reopened). */
+export async function closeAccount(id: string, reason: string) {
+  const { error } = await supabase.rpc("close_customer_account", { _account_id: id, _reason: reason });
+  if (error) throw error;
+}
+
 /** Deletes an account only if it has no financial or call history (enforced in the database). */
 export async function deleteAccount(id: string, reason: string) {
   const { error } = await supabase.rpc("delete_customer_account", { _account_id: id, _reason: reason });
