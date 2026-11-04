@@ -12,12 +12,62 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useIdentity } from "@/lib/identity";
-import { IVR_VOICES } from "@/lib/voice/voices";
+import { IVR_VOICES, findVoice } from "@/lib/voice/voices";
+import { authenticatedGreetingScript } from "@/lib/voice/test-call-script";
+import { placeIvrTestCall } from "@/lib/ivr-test-call.functions";
 import { getIvrSettings, getTenantNumbers, saveIvrSettings } from "@/lib/services/organization";
 
 export const Route = createFileRoute("/_authenticated/org/ivr")({
   component: IvrSettings,
 });
+
+function TestCallCard({ voice }: { voice: string }) {
+  const [name, setName] = useState("William Smith");
+  const [phone, setPhone] = useState("");
+  const script = authenticatedGreetingScript(name);
+  const call = useMutation({
+    mutationFn: () => placeIvrTestCall({ data: { toPhone: phone, name } }),
+    onSuccess: () => toast.success("Calling you now. Answer to hear the greeting."),
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const listen = () => {
+    if (!("speechSynthesis" in window)) return toast.error("Your browser can't play speech.");
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(script);
+    u.lang = findVoice(voice)?.language ?? "en-US";
+    window.speechSynthesis.speak(u);
+  };
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="font-display text-base">Test greeting and menu</CardTitle>
+        <CardDescription>Hear what customers hear after entering a correct PIN. Uses your saved voice.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="test-name">Customer name</Label>
+            <Input id="test-name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="test-phone">Your phone</Label>
+            <Input id="test-phone" placeholder="+15551234567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </div>
+        </div>
+        <p className="rounded-md border border-border bg-muted p-3 text-sm">{script}</p>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={listen}>Listen in browser</Button>
+          <Button disabled={!phone || call.isPending} onClick={() => call.mutate()}>
+            {call.isPending ? "Calling…" : "Call my phone"}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Browser preview uses your computer's voice. The phone call uses the real IVR voice and only speaks the greeting; no account is accessed.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 const DEFAULTS = {
   welcome_message: "Welcome. Please enter your organization access code.",
@@ -148,6 +198,8 @@ function IvrSettings() {
             </Button>
           </CardContent>
         </Card>
+
+        <TestCallCard voice={form.voice} />
 
         <Card>
           <CardHeader>
