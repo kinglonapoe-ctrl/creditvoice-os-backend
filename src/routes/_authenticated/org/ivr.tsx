@@ -31,7 +31,10 @@ function TestCallCard({ voice }: { voice: string }) {
     onError: (e: Error) => toast.error(e.message),
   });
   const listen = () => {
-    if (!("speechSynthesis" in window)) return toast.error("Your browser can't play speech.");
+    if (!("speechSynthesis" in window)) {
+      toast.error("Your browser can't play speech.");
+      return;
+    }
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(script);
     u.lang = findVoice(voice)?.language ?? "en-US";
