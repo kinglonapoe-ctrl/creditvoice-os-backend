@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useIdentity } from "@/lib/identity";
+import { IVR_VOICES } from "@/lib/voice/voices";
 import { getIvrSettings, getTenantNumbers, saveIvrSettings } from "@/lib/services/organization";
 
 export const Route = createFileRoute("/_authenticated/org/ivr")({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/org/ivr")({
 const DEFAULTS = {
   welcome_message: "Welcome. Please enter your organization access code.",
   language: "en",
+  voice: "Polly.Joanna-Neural",
   max_pin_attempts: 3,
   session_timeout_seconds: 120,
   transfers_enabled: true,
@@ -41,6 +43,7 @@ function IvrSettings() {
       setForm({
         welcome_message: settings.data.welcome_message,
         language: settings.data.language,
+        voice: (settings.data as { voice?: string }).voice || "alice",
         max_pin_attempts: settings.data.max_pin_attempts,
         session_timeout_seconds: settings.data.session_timeout_seconds,
         transfers_enabled: settings.data.transfers_enabled,
@@ -79,6 +82,20 @@ function IvrSettings() {
                 value={form.welcome_message}
                 onChange={(e) => setForm({ ...form, welcome_message: e.target.value })}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ivr-voice">Voice</Label>
+              <select
+                id="ivr-voice"
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={form.voice}
+                onChange={(e) => setForm({ ...form, voice: e.target.value })}
+              >
+                {IVR_VOICES.map((v) => (
+                  <option key={v.value} value={v.value}>{v.label}</option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">The voice callers hear on your phone line.</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
