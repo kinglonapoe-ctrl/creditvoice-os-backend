@@ -74,3 +74,7 @@
 - [x] 930 original activity records re-verified against baseline
 - [ ] Run full end-to-end suite on a disposable isolated stack (blocked: none available here)
 - [ ] Handle the 12 incident records (awaiting approval; annotation recommended)
+
+## Admin tools (Nov 2026)
+- [ ] IVR test-call action: preview personalized greeting + spoken menu (browser + live call to admin phone).
+- [ ] Customer edit option (name, phone, email, reference).

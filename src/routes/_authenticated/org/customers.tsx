@@ -85,6 +85,24 @@ function Customers() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState(EMPTY);
+  const saveEdit = useMutation({
+    mutationFn: () =>
+      updateCustomer(editId!, {
+        full_name: editForm.full_name.trim(),
+        phone: editForm.phone.trim(),
+        email: editForm.email.trim() || null,
+        customer_reference: editForm.customer_reference.trim() || null,
+      }),
+    onSuccess: () => {
+      refresh();
+      setEditId(null);
+      toast.success("Customer details saved.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const remove = useMutation({
     mutationFn: (v: { id: string; reason: string }) => deleteCustomer(v.id, v.reason),
     onSuccess: () => {
@@ -153,6 +171,44 @@ function Customers() {
         }
       />
 
+      <Dialog open={!!editId} onOpenChange={(o) => !o && setEditId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit customer</DialogTitle>
+            <DialogDescription>Fix the name or contact details. The name is spoken in the phone greeting.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Full name</Label>
+              <Input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Phone</Label>
+              <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Customer reference</Label>
+              <Input
+                value={editForm.customer_reference}
+                onChange={(e) => setEditForm({ ...editForm, customer_reference: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              disabled={!editForm.full_name.trim() || !editForm.phone.trim() || saveEdit.isPending}
+              onClick={() => saveEdit.mutate()}
+            >
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -187,6 +243,21 @@ function Customers() {
                         Activate
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditForm({
+                          full_name: c.full_name ?? "",
+                          phone: c.phone ?? "",
+                          email: c.email ?? "",
+                          customer_reference: c.customer_reference ?? "",
+                        });
+                        setEditId(c.id);
+                      }}
+                    >
+                      Edit
+                    </Button>
                     <Button size="sm" variant="ghost" onClick={() => setPinTarget(c.id)}>
                       Set PIN
                     </Button>
