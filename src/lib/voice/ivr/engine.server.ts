@@ -19,7 +19,7 @@ import {
   verifyTenantAccessCode,
 } from "@/lib/voice/call-session.server";
 import { accountDigitLimit } from "@/lib/account-numbering";
-import { getCallAccountSummary, requireCallContext } from "@/lib/voice/actions.server";
+import { getCallAccountSummary, getCallCustomerName, requireCallContext } from "@/lib/voice/actions.server";
 import { voiceRpc } from "@/lib/voice/db.server";
 import { parseDtmfAmount } from "@/lib/voice/money";
 import { findVoice } from "@/lib/voice/voices";
@@ -371,7 +371,9 @@ async function runState(
         _entity_id: sessionId,
         _metadata: {},
       }).catch(() => undefined);
-      return renderMenu(sessionId, input, config, PROMPTS.authenticated);
+      const name = await getCallCustomerName(sessionId).catch(() => null);
+      const lead = name ? `Welcome, ${name}. ${PROMPTS.authenticated}` : PROMPTS.authenticated;
+      return renderMenu(sessionId, input, config, lead);
     }
 
     case "MENU":
