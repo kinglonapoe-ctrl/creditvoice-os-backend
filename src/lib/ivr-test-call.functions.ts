@@ -34,8 +34,8 @@ export const placeIvrTestCall = createServerFn({ method: "POST" })
     const from = numbers?.[0]?.phone_number as string | undefined;
     if (!from) throw new Error("Your organization has no phone number assigned yet.");
 
-    const sid = process.env.TWILIO_ACCOUNT_SID;
-    const token = process.env.TWILIO_AUTH_TOKEN;
+    const sid = process.env["TWILIO_ACCOUNT_SID"];
+    const token = process.env["TWILIO_AUTH_TOKEN"];
     if (!sid || !token) throw new Error("Phone service is not configured.");
 
     const s = (settings ?? {}) as { voice?: string; menu_message?: string };
