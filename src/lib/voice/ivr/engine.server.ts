@@ -22,6 +22,7 @@ import { accountDigitLimit } from "@/lib/account-numbering";
 import { getCallAccountSummary, requireCallContext } from "@/lib/voice/actions.server";
 import { voiceRpc } from "@/lib/voice/db.server";
 import { parseDtmfAmount } from "@/lib/voice/money";
+import { findVoice } from "@/lib/voice/voices";
 import { PROMPTS, voiceMessage, type VoiceErrorCode } from "./prompts";
 import { DEFAULT_VOICE_STYLE, TwiMLResponse, type VoiceStyle } from "@/lib/voice/twiml/builder";
 
@@ -101,7 +102,10 @@ async function sha256Hex(value: string): Promise<string> {
 }
 
 function styleOf(config: IvrConfig): VoiceStyle {
-  return { voice: config.voice || DEFAULT_VOICE_STYLE.voice, language: config.language || DEFAULT_VOICE_STYLE.language };
+  // Only allow-listed voices reach Twilio; the voice dictates its language.
+  const v = findVoice(config.voice);
+  if (!v) return DEFAULT_VOICE_STYLE;
+  return { voice: v.value, language: v.language };
 }
 
 function action(basePath: string, step: string): string {
