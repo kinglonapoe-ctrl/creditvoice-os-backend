@@ -33,6 +33,20 @@ export async function requireCallContext(
   return result.context;
 }
 
+/** Full name of the authenticated caller's own customer record, for the greeting. */
+export async function getCallCustomerName(sessionId: string): Promise<string | null> {
+  const ctx = await requireCallContext(sessionId, "CHECK_BALANCE");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("customers")
+    .select("full_name")
+    .eq("id", ctx.customerId)
+    .eq("tenant_id", ctx.tenantId)
+    .maybeSingle();
+  const name = data?.full_name?.replace(/[<>&]/g, " ").replace(/\s+/g, " ").trim();
+  return name ? name.slice(0, 80) : null;
+}
+
 /** Read-only account view for the authenticated caller's own account. */
 export async function getCallAccountSummary(sessionId: string) {
   const ctx = await requireCallContext(sessionId, "CHECK_BALANCE");
