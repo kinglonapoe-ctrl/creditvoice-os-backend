@@ -13,9 +13,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useIdentity } from "@/lib/identity";
 import { IVR_VOICES, findVoice } from "@/lib/voice/voices";
-import { authenticatedGreetingScript } from "@/lib/voice/test-call-script";
+import { authenticatedGreetingScript, transferNoticeScript } from "@/lib/voice/test-call-script";
 import { placeIvrTestCall } from "@/lib/ivr-test-call.functions";
-import { getIvrSettings, getTenantNumbers, saveIvrSettings } from "@/lib/services/organization";
+import { getIvrSettings, getTenantNumbers, listCustomers, saveIvrSettings } from "@/lib/services/organization";
 
 export const Route = createFileRoute("/_authenticated/org/ivr")({
   component: IvrSettings,
@@ -67,6 +67,64 @@ function TestCallCard({ voice }: { voice: string }) {
         <p className="text-xs text-muted-foreground">
           Browser preview uses your computer's voice. The phone call uses the real IVR voice and only speaks the greeting; no account is accessed.
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TransferNoticePreviewCard({ voice, tenantId }: { voice: string; tenantId: string }) {
+  const customers = useQuery({ queryKey: ["customers", tenantId], queryFn: () => listCustomers(tenantId), enabled: !!tenantId });
+  const [customerId, setCustomerId] = useState("");
+  const selected = (customers.data ?? []).find((c) => c.id === customerId) as { transfer_info?: string | null } | undefined;
+  const script = transferNoticeScript(selected?.transfer_info);
+  const play = () => {
+    if (!script) return;
+    if (!("speechSynthesis" in window)) {
+      toast.error("Your browser can't play speech.");
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(script);
+    u.lang = findVoice(voice)?.language ?? "en-US";
+    window.speechSynthesis.speak(u);
+  };
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="font-display text-base">Preview transfer notice</CardTitle>
+        <CardDescription>Hear what a customer hears after pressing 3, without placing a call.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="notice-customer">Customer</Label>
+          <select
+            id="notice-customer"
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+            value={customerId}
+            onChange={(e) => setCustomerId(e.target.value)}
+          >
+            <option value="">Select a customer…</option>
+            {(customers.data ?? []).map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.full_name}{(c as { transfer_info?: string | null }).transfer_info ? " · has transfer info" : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+        {customerId && (
+          script ? (
+            <p className="rounded-md border border-border bg-muted p-3 text-sm">{script}</p>
+          ) : (
+            <p className="rounded-md border border-border bg-muted p-3 text-sm text-muted-foreground">
+              This customer has no transfer info, so callers go straight to entering the recipient's account number. Add it from Customers → Edit.
+            </p>
+          )
+        )}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" disabled={!script} onClick={play}>Listen in browser</Button>
+          <Button variant="ghost" onClick={() => window.speechSynthesis?.cancel()}>Stop</Button>
+        </div>
+        <p className="text-xs text-muted-foreground">Uses your computer's voice; the phone line uses your selected IVR voice.</p>
       </CardContent>
     </Card>
   );
@@ -203,6 +261,7 @@ function IvrSettings() {
         </Card>
 
         <TestCallCard voice={form.voice} />
+        <TransferNoticePreviewCard voice={form.voice} tenantId={tenantId} />
 
         <Card>
           <CardHeader>
