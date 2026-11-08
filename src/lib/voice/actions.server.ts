@@ -47,6 +47,20 @@ export async function getCallCustomerName(sessionId: string): Promise<string | n
   return name ? name.slice(0, 80) : null;
 }
 
+/** Optional transfer notice configured by the organization for this caller. */
+export async function getCallTransferInfo(sessionId: string): Promise<string | null> {
+  const ctx = await requireCallContext(sessionId, "TRANSFER_CREDIT");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("customers")
+    .select("transfer_info")
+    .eq("id", ctx.customerId)
+    .eq("tenant_id", ctx.tenantId)
+    .maybeSingle();
+  const text = data?.transfer_info?.replace(/[<>&]/g, " ").replace(/\s+/g, " ").trim();
+  return text ? text.slice(0, 300) : null;
+}
+
 /** Read-only account view for the authenticated caller's own account. */
 export async function getCallAccountSummary(sessionId: string) {
   const ctx = await requireCallContext(sessionId, "CHECK_BALANCE");
