@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDay } from "@/lib/format";
 import { useIdentity } from "@/lib/identity";
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/org/customers")({
   component: Customers,
 });
 
-const EMPTY = { full_name: "", phone: "", email: "", customer_reference: "" };
+const EMPTY = { full_name: "", phone: "", email: "", customer_reference: "", transfer_info: "" };
 
 function Customers() {
   const { data: identity } = useIdentity();
@@ -94,6 +95,7 @@ function Customers() {
         phone: editForm.phone.trim(),
         email: editForm.email.trim() || null,
         customer_reference: editForm.customer_reference.trim() || null,
+        transfer_info: editForm.transfer_info.trim() || null,
       }),
     onSuccess: () => {
       refresh();
@@ -197,6 +199,19 @@ function Customers() {
                 onChange={(e) => setEditForm({ ...editForm, customer_reference: e.target.value })}
               />
             </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Transfer info (spoken before transfers)</Label>
+              <Textarea
+                maxLength={300}
+                rows={3}
+                placeholder="e.g. Transfers above 500 dollars need approval from the office."
+                value={editForm.transfer_info}
+                onChange={(e) => setEditForm({ ...editForm, transfer_info: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                {editForm.transfer_info.length}/300. Read to this customer when they press 3; they must press 1 to continue. Leave empty to skip.
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -226,7 +241,12 @@ function Customers() {
               {rows.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell>
-                    <div className="font-medium">{c.full_name}</div>
+                    <div className="font-medium">
+                      {c.full_name}
+                      {(c as { transfer_info?: string | null }).transfer_info ? (
+                        <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">Transfer info</span>
+                      ) : null}
+                    </div>
                     <div className="text-xs text-muted-foreground">{c.email ?? "—"}</div>
                   </TableCell>
                   <TableCell className="font-mono text-xs">{c.phone}</TableCell>
@@ -252,6 +272,7 @@ function Customers() {
                           phone: c.phone ?? "",
                           email: c.email ?? "",
                           customer_reference: c.customer_reference ?? "",
+                          transfer_info: (c as { transfer_info?: string | null }).transfer_info ?? "",
                         });
                         setEditId(c.id);
                       }}

@@ -19,7 +19,7 @@ import {
   verifyTenantAccessCode,
 } from "@/lib/voice/call-session.server";
 import { accountDigitLimit } from "@/lib/account-numbering";
-import { getCallAccountSummary, getCallCustomerName, requireCallContext } from "@/lib/voice/actions.server";
+import { getCallAccountSummary, getCallCustomerName, getCallTransferInfo, requireCallContext } from "@/lib/voice/actions.server";
 import { voiceRpc } from "@/lib/voice/db.server";
 import { parseDtmfAmount } from "@/lib/voice/money";
 import { findVoice } from "@/lib/voice/voices";
@@ -394,8 +394,7 @@ async function runState(
         return promptFor("TRANSFER_RECIPIENT", input, config);
       }
       if (digits === "2") return renderMenu(sessionId, input, config);
-      const notice = await getCallTransferInfo(sessionId).catch(() => null);
-      return retryOrEnd(snapshot, "TRANSFER_NOTICE", input, config, "INVALID_INPUT", notice ?? undefined);
+      return retryOrEnd(snapshot, "TRANSFER_NOTICE", input, config, "ACTION_NOT_AUTHORIZED");
     }
 
     case "TRANSFER_RECIPIENT": {
