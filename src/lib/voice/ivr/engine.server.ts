@@ -34,6 +34,7 @@ export type IvrState =
   | "ACCOUNT_NUMBER"
   | "PIN"
   | "MENU"
+  | "TRANSFER_NOTICE"
   | "TRANSFER_RECIPIENT"
   | "TRANSFER_AMOUNT"
   | "TRANSFER_CONFIRM"
@@ -166,6 +167,14 @@ function promptFor(state: IvrState, input: VoiceTurnInput, config: IvrConfig, le
       doc.gather({
         action: action(input.basePath, "menu"),
         prompt: config.menu_message?.trim() || PROMPTS.menu,
+        numDigits: 1,
+        timeoutSeconds: timeout,
+      });
+      break;
+    case "TRANSFER_NOTICE":
+      doc.gather({
+        action: action(input.basePath, "transfer_notice"),
+        prompt: PROMPTS.transferNoticeSuffix,
         numDigits: 1,
         timeoutSeconds: timeout,
       });
@@ -379,6 +388,16 @@ async function runState(
     case "MENU":
       return handleMenu(sessionId, snapshot, digits, input, config);
 
+    case "TRANSFER_NOTICE": {
+      if (digits === "1") {
+        await setState(sessionId, "TRANSFER_RECIPIENT");
+        return promptFor("TRANSFER_RECIPIENT", input, config);
+      }
+      if (digits === "2") return renderMenu(sessionId, input, config);
+      const notice = await getCallTransferInfo(sessionId).catch(() => null);
+      return retryOrEnd(snapshot, "TRANSFER_NOTICE", input, config, "INVALID_INPUT", notice ?? undefined);
+    }
+
     case "TRANSFER_RECIPIENT": {
       if (!digits) return retryOrEnd(snapshot, "TRANSFER_RECIPIENT", input, config, "RECIPIENT_UNAVAILABLE");
       await voiceRpc("cv_ivr_set_state", {
@@ -468,6 +487,11 @@ async function handleMenu(
         await requireCallContext(sessionId, "TRANSFER_CREDIT");
       } catch {
         return fail(sessionId, "ACTION_NOT_AUTHORIZED", config);
+      }
+      const notice = await getCallTransferInfo(sessionId).catch(() => null);
+      if (notice) {
+        await setState(sessionId, "TRANSFER_NOTICE");
+        return promptFor("TRANSFER_NOTICE", input, config, notice);
       }
       await setState(sessionId, "TRANSFER_RECIPIENT");
       return promptFor("TRANSFER_RECIPIENT", input, config);

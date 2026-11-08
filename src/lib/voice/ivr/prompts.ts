@@ -20,6 +20,7 @@ export const PROMPTS = {
     "Press 9 to end the call.",
   authenticated: "Authentication successful.",
   transferRecipient: "Please enter the recipient's account number followed by the pound key.",
+  transferNoticeSuffix: "Press 1 to proceed with the transfer, or press 2 to return to the main menu.",
   transferAmount: "Please enter the amount, then press the pound key.",
   transferConfirmSuffix: "Press 1 to confirm, or 2 to cancel.",
   transferCancelled: "That transfer was cancelled.",
