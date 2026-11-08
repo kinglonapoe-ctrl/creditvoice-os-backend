@@ -550,6 +550,7 @@ export type Database = {
           phone: string
           status: Database["public"]["Enums"]["customer_status"]
           tenant_id: string
+          transfer_info: string | null
           updated_at: string
           user_id: string | null
         }
@@ -562,6 +563,7 @@ export type Database = {
           phone: string
           status?: Database["public"]["Enums"]["customer_status"]
           tenant_id: string
+          transfer_info?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -574,6 +576,7 @@ export type Database = {
           phone?: string
           status?: Database["public"]["Enums"]["customer_status"]
           tenant_id?: string
+          transfer_info?: string | null
           updated_at?: string
           user_id?: string | null
         }

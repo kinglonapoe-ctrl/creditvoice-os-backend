@@ -78,6 +78,13 @@
       "when": 1793712088765,
       "tag": "0010_tenant_admin_close_customer_account",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794112740083,
+      "tag": "0011_customer_transfer_info",
+      "breakpoints": true
     }
   ]
 }
