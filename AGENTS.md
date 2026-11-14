@@ -18,3 +18,5 @@
 - Platform roles are never self-claimed; elevated role assignments require trusted Super Admin authorization, and email-derived privileges require verified mailbox ownership.
 - Organization call history reads a paginated, explicit-column call-session query scoped to the signed-in tenant under existing RLS; never fetch event payloads or credentials for this view, because caller visibility must not expose authentication inputs.
 - Customer welcome messages use existing customer update RLS/auditing; resolve the message from the authenticated session's tenant and customer only, and share greeting selection with previews so authentication confirmation and menus remain intact.
+- Public content uses a shared public layout and separate leaf routes; the application page preserves the existing submission service to avoid changing onboarding controls.
+- The public voice simulator uses only fictional in-memory state and shared browser-safe prompt helpers, with no account services, telephony requests or persistence, to prevent demonstration flows from touching real accounts.
