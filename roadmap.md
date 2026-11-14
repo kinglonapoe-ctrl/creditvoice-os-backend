@@ -1,5 +1,10 @@
 # CreditVoice OS — roadmap
 
+## Organization caller visibility
+- [x] Add organization Call History with customer/account identification, masked caller, authentication outcome, timestamps and pagination using existing tenant-scoped reads.
+- [x] Verify real authenticated scoped reads (26 and 11 calls, no overlap), customer/account joins, Super Admin exclusion and three focused regression tests; preview build passes.
+- [ ] Verify the page as an organization administrator — available session belongs to Super Admin; requires an authorized organization-admin session.
+
 ## Currency change safeguards
 - [x] Enforce Super Admin currency changes with atomic dependency checks, shared creation/posting locks and permanent audit.
 - [x] Run unauthorized/history/zero-account/concurrency/audit regressions only in a disposable database.

@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminVoiceOperationsRouteImport } from './routes/_authenticated/admin/voice-operations'
 import { Route as AuthenticatedOrgIndexRouteImport } from './routes/_authenticated/org/index'
 import { Route as AuthenticatedOrgAccountsRouteImport } from './routes/_authenticated/org/accounts'
+import { Route as AuthenticatedOrgCallsRouteImport } from './routes/_authenticated/org/calls'
 import { Route as AuthenticatedOrgCreditRouteImport } from './routes/_authenticated/org/credit'
 import { Route as AuthenticatedOrgCustomerCareRouteImport } from './routes/_authenticated/org/customer-care'
 import { Route as AuthenticatedOrgCustomersRouteImport } from './routes/_authenticated/org/customers'
@@ -153,6 +154,11 @@ const AuthenticatedOrgAccountsRoute =
     path: '/accounts',
     getParentRoute: () => AuthenticatedOrgRouteRoute,
   } as any)
+const AuthenticatedOrgCallsRoute = AuthenticatedOrgCallsRouteImport.update({
+  id: '/calls',
+  path: '/calls',
+  getParentRoute: () => AuthenticatedOrgRouteRoute,
+} as any)
 const AuthenticatedOrgCreditRoute = AuthenticatedOrgCreditRouteImport.update({
   id: '/credit',
   path: '/credit',
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/voice-operations': typeof AuthenticatedAdminVoiceOperationsRoute
   '/org/accounts': typeof AuthenticatedOrgAccountsRoute
+  '/org/calls': typeof AuthenticatedOrgCallsRoute
   '/org/credit': typeof AuthenticatedOrgCreditRoute
   '/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
   '/org/customers': typeof AuthenticatedOrgCustomersRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/voice-operations': typeof AuthenticatedAdminVoiceOperationsRoute
   '/org/accounts': typeof AuthenticatedOrgAccountsRoute
+  '/org/calls': typeof AuthenticatedOrgCallsRoute
   '/org/credit': typeof AuthenticatedOrgCreditRoute
   '/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
   '/org/customers': typeof AuthenticatedOrgCustomersRoute
@@ -320,6 +328,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/voice-operations': typeof AuthenticatedAdminVoiceOperationsRoute
   '/_authenticated/org/accounts': typeof AuthenticatedOrgAccountsRoute
+  '/_authenticated/org/calls': typeof AuthenticatedOrgCallsRoute
   '/_authenticated/org/credit': typeof AuthenticatedOrgCreditRoute
   '/_authenticated/org/customer-care': typeof AuthenticatedOrgCustomerCareRoute
   '/_authenticated/org/customers': typeof AuthenticatedOrgCustomersRoute
@@ -357,6 +366,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/voice-operations'
     | '/org/accounts'
+    | '/org/calls'
     | '/org/credit'
     | '/org/customer-care'
     | '/org/customers'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/voice-operations'
     | '/org/accounts'
+    | '/org/calls'
     | '/org/credit'
     | '/org/customer-care'
     | '/org/customers'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/voice-operations'
     | '/_authenticated/org/accounts'
+    | '/_authenticated/org/calls'
     | '/_authenticated/org/credit'
     | '/_authenticated/org/customer-care'
     | '/_authenticated/org/customers'
@@ -596,6 +608,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrgAccountsRouteImport
       parentRoute: typeof AuthenticatedOrgRouteRoute
     }
+    '/_authenticated/org/calls': {
+      id: '/_authenticated/org/calls'
+      path: '/calls'
+      fullPath: '/org/calls'
+      preLoaderRoute: typeof AuthenticatedOrgCallsRouteImport
+      parentRoute: typeof AuthenticatedOrgRouteRoute
+    }
     '/_authenticated/org/credit': {
       id: '/_authenticated/org/credit'
       path: '/credit'
@@ -739,6 +758,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedOrgRouteRouteChildren {
   AuthenticatedOrgAccountsRoute: typeof AuthenticatedOrgAccountsRoute
+  AuthenticatedOrgCallsRoute: typeof AuthenticatedOrgCallsRoute
   AuthenticatedOrgCreditRoute: typeof AuthenticatedOrgCreditRoute
   AuthenticatedOrgCustomerCareRoute: typeof AuthenticatedOrgCustomerCareRoute
   AuthenticatedOrgCustomersRoute: typeof AuthenticatedOrgCustomersRoute
@@ -753,6 +773,7 @@ interface AuthenticatedOrgRouteRouteChildren {
 
 const AuthenticatedOrgRouteRouteChildren: AuthenticatedOrgRouteRouteChildren = {
   AuthenticatedOrgAccountsRoute: AuthenticatedOrgAccountsRoute,
+  AuthenticatedOrgCallsRoute: AuthenticatedOrgCallsRoute,
   AuthenticatedOrgCreditRoute: AuthenticatedOrgCreditRoute,
   AuthenticatedOrgCustomerCareRoute: AuthenticatedOrgCustomerCareRoute,
   AuthenticatedOrgCustomersRoute: AuthenticatedOrgCustomersRoute,
