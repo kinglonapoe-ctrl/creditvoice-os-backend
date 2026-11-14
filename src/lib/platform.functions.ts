@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { verifiedAdministratorMatches } from "@/lib/onboarding/policy";
 
 /** Ensures the caller is a platform (super) administrator. */
 async function assertSuperAdmin(context: { supabase: any; userId: string }) {
@@ -27,30 +28,6 @@ async function writeAudit(
 ) {
   await admin.from("audit_logs").insert({ metadata: {}, ...entry });
 }
-
-/**
- * Bootstrap: the very first signed-in user may claim platform ownership.
- * Once a platform administrator exists this becomes a no-op.
- */
-export const claimPlatformOwnership = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "SUPER_ADMIN");
-    if ((count ?? 0) > 0) return { claimed: false as const };
-    await supabaseAdmin.from("user_roles").insert({ user_id: context.userId, role: "SUPER_ADMIN" });
-    await writeAudit(supabaseAdmin, {
-      actor_id: context.userId,
-      actor_role: "SUPER_ADMIN",
-      event_type: "PLATFORM_OWNER_CLAIMED",
-      entity_type: "user",
-      entity_id: context.userId,
-    });
-    return { claimed: true as const };
-  });
 
 export const reviewApplication = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -115,6 +92,33 @@ export const approveApplication = createServerFn({ method: "POST" })
     if (error || !app) throw new Error("Application not found.");
     if (app.status === "APPROVED") throw new Error("This application was already approved.");
 
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("id, email")
+      .eq("email", String(app.admin_email).trim().toLowerCase())
+      .maybeSingle();
+    if (profileError || !profile) {
+      throw new Error("The proposed administrator must create an account and verify this email before approval.");
+    }
+    const { data: authResult, error: authError } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+    const adminUser = authResult?.user;
+    if (
+      authError ||
+      !adminUser ||
+      !verifiedAdministratorMatches(adminUser.email, adminUser.email_confirmed_at, app.admin_email)
+    ) {
+      throw new Error("The proposed administrator must create an account and verify this email before approval.");
+    }
+    const { data: existingRoles, error: rolesError } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", adminUser.id)
+      .limit(1);
+    if (rolesError) throw new Error("Could not verify administrator eligibility.");
+    if (existingRoles?.length) {
+      throw new Error("The proposed administrator account is already assigned a platform or organization role.");
+    }
+
     const { data: tenant, error: tenantError } = await supabaseAdmin
       .from("tenants")
       .insert({
@@ -132,33 +136,16 @@ export const approveApplication = createServerFn({ method: "POST" })
       .single();
     if (tenantError || !tenant) throw new Error(tenantError?.message ?? "Could not create organization.");
 
-    const tempPassword = crypto.randomUUID().replace(/-/g, "").slice(0, 16) + "aA1!";
-    let adminUserId: string | null = null;
-    const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email: app.admin_email,
-      password: tempPassword,
-      email_confirm: true,
-      user_metadata: { full_name: app.admin_full_name },
+    await supabaseAdmin.from("profiles").upsert({
+      id: adminUser.id,
+      full_name: app.admin_full_name,
+      email: adminUser.email ?? null,
+      phone: app.admin_phone,
     });
-    if (created?.user) {
-      adminUserId = created.user.id;
-    } else if (createError) {
-      const { data: list } = await supabaseAdmin.auth.admin.listUsers();
-      adminUserId = list?.users.find((u: any) => u.email === app.admin_email)?.id ?? null;
-      if (!adminUserId) throw new Error(createError.message);
-    }
-
-    if (adminUserId) {
-      await supabaseAdmin.from("profiles").upsert({
-        id: adminUserId,
-        full_name: app.admin_full_name,
-        email: app.admin_email,
-        phone: app.admin_phone,
-      });
-      await supabaseAdmin
-        .from("user_roles")
-        .insert({ user_id: adminUserId, role: "TENANT_ADMIN", tenant_id: tenant.id });
-    }
+    const { error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: adminUser.id, role: "TENANT_ADMIN", tenant_id: tenant.id });
+    if (roleError) throw new Error("Could not assign the verified organization administrator.");
 
     await supabaseAdmin.from("customer_care_settings").insert({ tenant_id: tenant.id });
     await supabaseAdmin.from("ivr_settings").insert({ tenant_id: tenant.id });
@@ -194,7 +181,7 @@ export const approveApplication = createServerFn({ method: "POST" })
 
     return {
       tenantId: tenant.id as string,
-      adminEmail: app.admin_email as string,
+      adminEmail: adminUser.email as string,
       // Passwords are never returned. The administrator uses an expiring email setup link.
       temporaryPassword: null,
     };
