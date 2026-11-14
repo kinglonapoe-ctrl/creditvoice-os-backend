@@ -12,6 +12,7 @@ const NAV: NavItem[] = [
   { label: "Transfers", to: "/org/transfers" },
   { label: "Transactions", to: "/org/transactions" },
   { label: "Reports", to: "/org/reports" },
+  { label: "Call History", to: "/org/calls" },
   { label: "Customer Care", to: "/org/customer-care" },
   { label: "IVR Settings", to: "/org/ivr" },
   { label: "Security", to: "/org/security" },
