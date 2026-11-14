@@ -1,0 +1,3 @@
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS welcome_message text;
+ALTER TABLE public.customers ADD CONSTRAINT customers_welcome_message_len CHECK (welcome_message IS NULL OR char_length(welcome_message) <= 300);
+COMMENT ON COLUMN public.customers.welcome_message IS 'Optional customer-specific welcome spoken only after successful phone authentication, before authentication confirmation and the configured menu. Existing customer update RLS and audit trigger apply.';

@@ -553,6 +553,7 @@ export type Database = {
           transfer_info: string | null
           updated_at: string
           user_id: string | null
+          welcome_message: string | null
         }
         Insert: {
           created_at?: string
@@ -566,6 +567,7 @@ export type Database = {
           transfer_info?: string | null
           updated_at?: string
           user_id?: string | null
+          welcome_message?: string | null
         }
         Update: {
           created_at?: string
@@ -579,6 +581,7 @@ export type Database = {
           transfer_info?: string | null
           updated_at?: string
           user_id?: string | null
+          welcome_message?: string | null
         }
         Relationships: [
           {

@@ -1,5 +1,9 @@
 # CreditVoice OS — roadmap
 
+## Customer welcome personalization
+- [ ] Add an optional per-customer welcome message in Customers → Edit and use it only after successful phone authentication, preserving the authentication confirmation and menu.
+- [ ] Verify message selection and tenant/customer scoping with safe tests; verify signed-in editing when an authorized organization-admin session is available.
+
 ## Organization caller visibility
 - [x] Add organization Call History with customer/account identification, masked caller, authentication outcome, timestamps and pagination using existing tenant-scoped reads.
 - [x] Verify real authenticated scoped reads (26 and 11 calls, no overlap), customer/account joins, Super Admin exclusion and three focused regression tests; preview build passes.
