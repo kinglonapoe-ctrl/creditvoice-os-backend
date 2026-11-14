@@ -8,6 +8,7 @@ const NAV: NavItem[] = [
   { label: "Dashboard", to: "/admin" },
   { label: "Tenant Applications", to: "/admin/applications" },
   { label: "Tenants", to: "/admin/tenants" },
+  { label: "Users", to: "/admin/users" },
   { label: "Currencies", to: "/admin/currencies" },
   { label: "Phone Numbers", to: "/admin/phone-numbers" },
   { label: "Telephony Providers", to: "/admin/telephony" },

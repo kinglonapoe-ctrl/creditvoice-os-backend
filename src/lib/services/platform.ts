@@ -110,3 +110,21 @@ export async function listCareSettings() {
   if (error) throw error;
   return data ?? [];
 }
+
+export async function listPlatformUsers() {
+  const [profiles, roles, tenants] = await Promise.all([
+    supabase.from("profiles").select("id, email, full_name, phone, created_at").order("created_at", { ascending: false }),
+    supabase.from("user_roles").select("user_id, role, tenant_id"),
+    supabase.from("tenants").select("id, name"),
+  ]);
+  if (profiles.error) throw profiles.error;
+  if (roles.error) throw roles.error;
+  const tenantName = new Map((tenants.data ?? []).map((t) => [t.id, t.name]));
+  return (profiles.data ?? []).map((p) => {
+    const r = (roles.data ?? []).filter((x) => x.user_id === p.id);
+    return {
+      ...p,
+      roles: r.map((x) => ({ role: x.role as string, tenant: x.tenant_id ? tenantName.get(x.tenant_id) ?? null : null })),
+    };
+  });
+}
