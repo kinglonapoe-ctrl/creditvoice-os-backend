@@ -68,8 +68,15 @@ export async function handleTwilioWebhook(request: Request): Promise<Response> {
 
   // ---- 2. request shape ------------------------------------------------
   const callSid = params["CallSid"] ?? "";
-  const to = params["To"] ?? params["Called"] ?? "";
-  const from = params["From"] ?? params["Caller"] ?? "";
+  // SIP-forwarded calls arrive as "sip:+1555...@host"; keep only the number part.
+  const sipUser = (v: string) => {
+    const m = /^sips?:([^@;]+)@/i.exec(v.trim());
+    if (!m) return v;
+    const u = decodeURIComponent(m[1]);
+    return /^\+?\d{6,15}$/.test(u) ? (u.startsWith("+") ? u : `+${u}`) : v;
+  };
+  const to = sipUser(params["To"] ?? params["Called"] ?? "");
+  const from = sipUser(params["From"] ?? params["Caller"] ?? "");
   if (!callSid || !to) return new Response("Bad Request", { status: 400 });
 
   const step = new URL(request.url).searchParams.get("step") ?? "start";
