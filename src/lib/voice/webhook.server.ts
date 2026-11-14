@@ -72,7 +72,7 @@ export async function handleTwilioWebhook(request: Request): Promise<Response> {
   const sipUser = (v: string) => {
     const m = /^sips?:([^@;]+)@/i.exec(v.trim());
     if (!m) return v;
-    const u = decodeURIComponent(m[1]);
+    const u = decodeURIComponent(m[1] ?? "");
     return /^\+?\d{6,15}$/.test(u) ? (u.startsWith("+") ? u : `+${u}`) : v;
   };
   const to = sipUser(params["To"] ?? params["Called"] ?? "");
