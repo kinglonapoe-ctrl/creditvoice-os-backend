@@ -1,9 +1,16 @@
 import { PROMPTS } from "@/lib/voice/ivr/prompts";
 
-/** Exactly what a caller hears right after a correct PIN (mirrors the IVR engine). */
-export function authenticatedGreetingScript(name: string | null | undefined, menuMessage?: string | null): string {
+/** Greeting selected only after the call's authenticated customer has been resolved. */
+export function authenticatedGreetingLead(name: string | null | undefined, welcomeMessage?: string | null): string {
   const clean = (name ?? "").replace(/[<>&]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
-  const lead = clean ? `Welcome, ${clean}. ${PROMPTS.authenticated}` : PROMPTS.authenticated;
+  const welcome = (welcomeMessage ?? "").replace(/[<>&]/g, " ").replace(/\s+/g, " ").trim().slice(0, 300);
+  const greeting = welcome || (clean ? `Welcome, ${clean}.` : "");
+  return greeting ? `${greeting} ${PROMPTS.authenticated}` : PROMPTS.authenticated;
+}
+
+/** Exactly what a caller hears right after a correct PIN (mirrors the IVR engine). */
+export function authenticatedGreetingScript(name: string | null | undefined, menuMessage?: string | null, welcomeMessage?: string | null): string {
+  const lead = authenticatedGreetingLead(name, welcomeMessage);
   return `${lead} ${menuMessage?.trim() || PROMPTS.menu}`;
 }
 
