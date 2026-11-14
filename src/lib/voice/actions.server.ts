@@ -8,6 +8,7 @@
  */
 import { authorizeAction, endCallSession, getAuthenticatedSession } from "./call-session.server";
 import type { AuthenticatedCallContext, CallAction } from "./types";
+import { authenticatedGreetingLead } from "./test-call-script";
 
 export const PERMITTED_CALL_ACTIONS: CallAction[] = [
   "CHECK_BALANCE",
@@ -33,18 +34,18 @@ export async function requireCallContext(
   return result.context;
 }
 
-/** Full name of the authenticated caller's own customer record, for the greeting. */
-export async function getCallCustomerName(sessionId: string): Promise<string | null> {
+/** Welcome from the authenticated caller's own customer record, never caller-supplied identity. */
+export async function getCallCustomerGreeting(sessionId: string): Promise<string> {
   const ctx = await requireCallContext(sessionId, "CHECK_BALANCE");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from("customers")
-    .select("full_name")
+    .select("full_name, welcome_message")
     .eq("id", ctx.customerId)
     .eq("tenant_id", ctx.tenantId)
     .maybeSingle();
-  const name = data?.full_name?.replace(/[<>&]/g, " ").replace(/\s+/g, " ").trim();
-  return name ? name.slice(0, 80) : null;
+  if (error) throw new CallActionDenied("CUSTOMER_NOT_AVAILABLE");
+  return authenticatedGreetingLead(data?.full_name, data?.welcome_message);
 }
 
 /** Optional transfer notice configured by the organization for this caller. */

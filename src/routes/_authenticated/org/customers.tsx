@@ -26,10 +26,18 @@ import { setCustomerPin } from "@/lib/organization.functions";
 import { createCustomer, deleteCustomer, listCustomers, updateCustomer } from "@/lib/services/organization";
 
 export const Route = createFileRoute("/_authenticated/org/customers")({
+  head: () => ({ meta: [
+    { title: "Customers | CreditVoice OS" },
+    { name: "description", content: "Manage your organization's customers, contact details and personalized phone messages." },
+    { property: "og:title", content: "Customers | CreditVoice OS" },
+    { property: "og:description", content: "Manage your organization's customer records and personalized phone messages." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Customers,
 });
 
-const EMPTY = { full_name: "", phone: "", email: "", customer_reference: "", transfer_info: "" };
+const EMPTY = { full_name: "", phone: "", email: "", customer_reference: "", transfer_info: "", welcome_message: "" };
 
 function Customers() {
   const { data: identity } = useIdentity();
@@ -77,7 +85,10 @@ function Customers() {
   });
 
   const savePin = useMutation({
-    mutationFn: () => setCustomerPin({ data: { customerId: pinTarget!, pin } }),
+    mutationFn: () => {
+      if (!pinTarget) throw new Error("Select a customer.");
+      return setCustomerPin({ data: { customerId: pinTarget, pin } });
+    },
     onSuccess: () => {
       setPinTarget(null);
       setPin("");
@@ -89,14 +100,17 @@ function Customers() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState(EMPTY);
   const saveEdit = useMutation({
-    mutationFn: () =>
-      updateCustomer(editId!, {
+    mutationFn: () => {
+      if (!editId) throw new Error("Select a customer.");
+      return updateCustomer(editId, {
         full_name: editForm.full_name.trim(),
         phone: editForm.phone.trim(),
         email: editForm.email.trim() || null,
         customer_reference: editForm.customer_reference.trim() || null,
         transfer_info: editForm.transfer_info.trim() || null,
-      }),
+        welcome_message: editForm.welcome_message.trim() || null,
+      });
+    },
     onSuccess: () => {
       refresh();
       setEditId(null);
@@ -174,7 +188,7 @@ function Customers() {
       />
 
       <Dialog open={!!editId} onOpenChange={(o) => !o && setEditId(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit customer</DialogTitle>
             <DialogDescription>Fix the name or contact details. The name is spoken in the phone greeting.</DialogDescription>
@@ -198,6 +212,18 @@ function Customers() {
                 value={editForm.customer_reference}
                 onChange={(e) => setEditForm({ ...editForm, customer_reference: e.target.value })}
               />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="customer-welcome">Personal welcome message</Label>
+              <Textarea
+                id="customer-welcome"
+                maxLength={300}
+                rows={3}
+                placeholder="Welcome, William. Thank you for being a valued member."
+                value={editForm.welcome_message}
+                onChange={(e) => setEditForm({ ...editForm, welcome_message: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">{editForm.welcome_message.length}/300</p>
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>Transfer info (spoken before transfers)</Label>
@@ -273,6 +299,7 @@ function Customers() {
                           email: c.email ?? "",
                           customer_reference: c.customer_reference ?? "",
                           transfer_info: (c as { transfer_info?: string | null }).transfer_info ?? "",
+                          welcome_message: c.welcome_message ?? "",
                         });
                         setEditId(c.id);
                       }}
