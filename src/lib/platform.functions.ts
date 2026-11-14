@@ -29,27 +29,14 @@ async function writeAudit(
 }
 
 /**
- * Bootstrap: the very first signed-in user may claim platform ownership.
- * Once a platform administrator exists this becomes a no-op.
+ * Legacy bootstrap endpoint retained for existing sign-in clients.
+ * Platform ownership is provisioned only by a trusted operator, never self-claimed.
  */
 export const claimPlatformOwnership = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "SUPER_ADMIN");
-    if ((count ?? 0) > 0) return { claimed: false as const };
-    await supabaseAdmin.from("user_roles").insert({ user_id: context.userId, role: "SUPER_ADMIN" });
-    await writeAudit(supabaseAdmin, {
-      actor_id: context.userId,
-      actor_role: "SUPER_ADMIN",
-      event_type: "PLATFORM_OWNER_CLAIMED",
-      entity_type: "user",
-      entity_id: context.userId,
-    });
-    return { claimed: true as const };
+    await assertSuperAdmin(context as any);
+    return { claimed: false as const };
   });
 
 export const reviewApplication = createServerFn({ method: "POST" })
