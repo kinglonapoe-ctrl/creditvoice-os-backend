@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { loadIdentity, homePathForRole } from "@/lib/identity";
-import { claimPlatformOwnership } from "@/lib/platform.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { requestAdministratorRecovery } from "@/lib/onboarding.functions";
 
@@ -52,11 +51,6 @@ function AuthPage() {
   }, [navigate]);
 
   async function routeAfterAuth() {
-    try {
-      await claimPlatformOwnership();
-    } catch {
-      /* ownership already claimed — ignore */
-    }
     const identity = await loadIdentity();
     navigate({ to: homePathForRole(identity?.role ?? null), replace: true });
   }

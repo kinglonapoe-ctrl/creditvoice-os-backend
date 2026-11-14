@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { canVerify, eligibleAdministrator, validPassword, REQUESTS_PER_HOUR, ATTEMPTS_PER_HOUR } from '../../src/lib/onboarding/policy';
+import { canVerify, eligibleAdministrator, verifiedAdministratorMatches, validPassword, REQUESTS_PER_HOUR, ATTEMPTS_PER_HOUR } from '../../src/lib/onboarding/policy';
 describe('administrator onboarding security',()=>{
  test('expired link cannot verify',()=>expect(canVerify('PENDING','2026-10-16T00:00:00Z',0,Date.parse('2026-10-17T00:00:00Z'))).toBe(false));
  test('verified link cannot be reused',()=>expect(canVerify('VERIFIED','2026-10-18T00:00:00Z',0,Date.parse('2026-10-17T00:00:00Z'))).toBe(false));
@@ -9,6 +9,9 @@ describe('administrator onboarding security',()=>{
  test('platform role rejected',()=>expect(eligibleAdministrator([{role:'SUPER_ADMIN',tenant_id:null}])).toBe(false));
  test('mixed roles rejected',()=>expect(eligibleAdministrator([{role:'TENANT_ADMIN',tenant_id:'a'},{role:'SUPER_ADMIN',tenant_id:null}],'a')).toBe(false));
  test('single matching tenant admin allowed',()=>expect(eligibleAdministrator([{role:'TENANT_ADMIN',tenant_id:'a'}],'a')).toBe(true));
+ test('verified matching mailbox is eligible for administrator provisioning',()=>expect(verifiedAdministratorMatches('Admin@Example.com','2026-11-14T08:00:00Z','admin@example.com')).toBe(true));
+ test('unconfirmed mailbox cannot receive administrator privileges',()=>expect(verifiedAdministratorMatches('admin@example.com',null,'admin@example.com')).toBe(false));
+ test('a different confirmed mailbox cannot receive the proposed administrator role',()=>expect(verifiedAdministratorMatches('other@example.com','2026-11-14T08:00:00Z','admin@example.com')).toBe(false));
  test('weak password rejected',()=>expect(validPassword('short')).toBe(false));
  test('strong password accepted',()=>expect(validPassword('ExampleOnly12345')).toBe(true));
  test('email budget is three per hour',()=>expect(REQUESTS_PER_HOUR).toBe(3));
