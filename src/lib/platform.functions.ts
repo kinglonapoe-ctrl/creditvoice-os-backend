@@ -139,7 +139,7 @@ export const approveApplication = createServerFn({ method: "POST" })
     await supabaseAdmin.from("profiles").upsert({
       id: adminUser.id,
       full_name: app.admin_full_name,
-      email: adminUser.email,
+      email: adminUser.email ?? null,
       phone: app.admin_phone,
     });
     const { error: roleError } = await supabaseAdmin
