@@ -10,6 +10,13 @@ export async function listCustomers(tenantId: string) {
   return data ?? [];
 }
 
+function friendlyCustomerError(error: { code?: string; message: string }): Error {
+  if (error.code === "23505" && error.message.includes("customer_reference")) {
+    return new Error("That customer reference is already used by another customer in your organization. Choose a different reference or leave it blank.");
+  }
+  return new Error(error.message);
+}
+
 export async function createCustomer(input: {
   tenant_id: string;
   full_name: string;
@@ -17,14 +24,15 @@ export async function createCustomer(input: {
   email?: string | null;
   customer_reference?: string | null;
 }) {
-  const { data, error } = await supabase.from("customers").insert(input).select().single();
-  if (error) throw error;
+  const row = { ...input, customer_reference: input.customer_reference?.trim() || null };
+  const { data, error } = await supabase.from("customers").insert(row).select().single();
+  if (error) throw friendlyCustomerError(error);
   return data;
 }
 
 export async function updateCustomer(id: string, patch: Record<string, any>) {
   const { error } = await supabase.from("customers").update(patch as never).eq("id", id);
-  if (error) throw error;
+  if (error) throw friendlyCustomerError(error);
 }
 
 export async function listAccounts(tenantId: string) {
