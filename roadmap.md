@@ -1,9 +1,10 @@
 # CreditVoice OS — roadmap
 
 ## Public website
-- [ ] Build institutional homepage, How It Works, Security, and dedicated application page with shared public navigation.
-- [ ] Add a browser-only voice simulator using fictional accounts and no real calls or financial writes.
-- [ ] Verify simulator paths, public navigation, USD currency default, and desktop/mobile layout.
+- [x] Build institutional homepage, How It Works, Security, and dedicated application page with shared public navigation.
+- [x] Add a browser-only voice simulator using fictional accounts and no real calls or financial writes.
+- [x] Verify wrong PIN, transfer acknowledgment/cancellation/confirmation, navigation, USD default and nine currencies, and desktop/mobile layout; eight focused tests pass with no browser errors.
+- Application submission intentionally not exercised against the live backend; no new real application or outbound call was created. Audible playback requires checking on a device with sound.
 
 ## Customer welcome personalization
 - [x] Add an optional per-customer welcome message in Customers → Edit and use it only after successful phone authentication, preserving the authentication confirmation and menu.

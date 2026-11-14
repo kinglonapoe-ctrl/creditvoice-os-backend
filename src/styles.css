@@ -201,6 +201,15 @@ body {
 .public-hero-shade { background: var(--public-shade); }
 .demo-phone { width: 100%; max-width: 360px; border-radius: 8px; box-shadow: var(--public-phone-shadow); }
 .demo-screen { min-height: 190px; border-radius: 4px; }
+@media (min-width: 768px) and (max-height: 700px) {
+  .public-hero { min-height: 0; }
+  .public-hero .public-container { padding-block: 24px; }
+  .public-hero h1 { font-size: 44px; margin-top: 12px; }
+  .public-hero h1 + p { font-size: 24px; margin-top: 12px; }
+  .public-hero h1 + p + p { margin-top: 12px; }
+  .public-hero .mt-8 { margin-top: 20px; }
+  .public-hero .mt-10 { margin-top: 20px; }
+}
 @media (max-width: 767px) {
   .public-container { padding-inline: 20px; }
   .public-heading { font-size: 28px; }
