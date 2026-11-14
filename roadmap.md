@@ -2,7 +2,8 @@
 
 ## Organization caller visibility
 - [x] Add organization Call History with customer/account identification, masked caller, authentication outcome, timestamps and pagination using existing tenant-scoped reads.
-- [ ] Verify scoped reads and the signed-in organization-admin page without modifying call or financial records.
+- [x] Verify real authenticated scoped reads (26 and 11 calls, no overlap), customer/account joins, Super Admin exclusion and three focused regression tests; preview build passes.
+- [ ] Verify the page as an organization administrator — available session belongs to Super Admin; requires an authorized organization-admin session.
 
 ## Currency change safeguards
 - [x] Enforce Super Admin currency changes with atomic dependency checks, shared creation/posting locks and permanent audit.
