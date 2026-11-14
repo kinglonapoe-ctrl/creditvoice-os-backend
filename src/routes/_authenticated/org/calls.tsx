@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/org/calls")({
     { name: "twitter:card", content: "summary" },
   ] }),
   component: OrganizationCalls,
-  errorComponent: ({ error, reset }) => <><PageHeader title="Call history" /><p className="mb-4 text-destructive">Could not load call history: {error.message}</p><Button onClick={reset}>Try again</Button></>,
+  errorComponent: ({ error, reset }) => <><PageHeader title="Call history" /><p className="mb-4 text-destructive">Could not load call history: {error instanceof Error ? error.message : "Please try again."}</p><Button onClick={reset}>Try again</Button></>,
 });
 
 function OrganizationCalls() {
