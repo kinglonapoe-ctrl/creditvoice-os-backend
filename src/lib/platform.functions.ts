@@ -29,17 +29,6 @@ async function writeAudit(
   await admin.from("audit_logs").insert({ metadata: {}, ...entry });
 }
 
-/**
- * Legacy bootstrap endpoint retained for existing sign-in clients.
- * Platform ownership is provisioned only by a trusted operator, never self-claimed.
- */
-export const claimPlatformOwnership = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertSuperAdmin(context as any);
-    return { claimed: false as const };
-  });
-
 export const reviewApplication = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { applicationId: string; notes?: string }) => input)
